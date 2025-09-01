@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.3.1](https://github.com/skymakerolof/dxf/compare/v5.3.0...v5.3.1) (2025-09-01)
+
+
+### Bug Fixes
+
+* properly flip LWPolyline when extrusionZ < 0 in toSVG ([#148](https://github.com/skymakerolof/dxf/issues/148)) ([5be9279](https://github.com/skymakerolof/dxf/commit/5be927947d1bdce828e31b75c45835fb94180903))
+
 ## [5.3.0](https://github.com/skymakerolof/dxf/compare/v5.2.0...v5.3.0) (2025-09-01)
 
 
