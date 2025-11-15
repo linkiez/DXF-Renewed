@@ -15,5 +15,5 @@ export interface InsertEntity extends PositionalEntity {
   rowSpacing?: number
   extrusionX?: number
   extrusionY?: number
-  extrusionZ?: number
+  // extrusionZ inherited from BaseEntity via PositionalEntity
 }
