@@ -117,30 +117,13 @@ const circle = (entity: CircleEntity): BoundsAndElement => {
  * Create a a <path d="A..." /> or <ellipse /> element for the ARC or ELLIPSE
  * DXF entity (<ellipse /> if start and end point are the same).
  */
-const ellipseOrArc = (
-  cx: number,
-  cy: number,
-  majorX: number,
-  majorY: number,
-  axisRatio: number,
-  startAngle: number,
-  endAngle: number,
-  flipX?: boolean,
-): BoundsAndElement => {
+const ellipseOrArc = (params: EllipticArcParams): BoundsAndElement => {
+  const { cx, cy, majorX, majorY, axisRatio, startAngle, endAngle } = params
   const rx = Math.hypot(majorX, majorY)
   const ry = axisRatio * rx
   const rotationAngle = -Math.atan2(-majorY, majorX)
 
-  const bbox = bboxEllipseOrArc({
-    cx,
-    cy,
-    majorX,
-    majorY,
-    axisRatio,
-    startAngle,
-    endAngle,
-    flipX,
-  })
+  const bbox = bboxEllipseOrArc(params)
 
   if (
     Math.abs(startAngle - endAngle) < 1e-9 ||
@@ -240,8 +223,7 @@ const bboxEllipseOrArc = (params: EllipticArcParams): Box2 => {
   }
 
   // Also to consider are the starting and ending points:
-  angles.push(startAngle)
-  angles.push(endAngle)
+  angles.push(startAngle, endAngle)
 
   // Compute points lying on the unit circle at these angles
   const pts = angles.map((a) => ({
@@ -275,15 +257,15 @@ const bboxEllipseOrArc = (params: EllipticArcParams): Box2 => {
  * a rotation angle
  */
 const ellipse = (entity: EllipseEntity): BoundsAndElement => {
-  const { bbox: bbox0, element: element0 } = ellipseOrArc(
-    entity.x,
-    entity.y,
-    entity.majorX,
-    entity.majorY,
-    entity.axisRatio,
-    entity.startAngle,
-    entity.endAngle,
-  )
+  const { bbox: bbox0, element: element0 } = ellipseOrArc({
+    cx: entity.x,
+    cy: entity.y,
+    majorX: entity.majorX,
+    majorY: entity.majorY,
+    axisRatio: entity.axisRatio,
+    startAngle: entity.startAngle,
+    endAngle: entity.endAngle,
+  })
   const { bbox, element } = addFlipXIfApplicable(entity, {
     bbox: bbox0,
     element: element0,
@@ -295,16 +277,16 @@ const ellipse = (entity: EllipseEntity): BoundsAndElement => {
  * An ARC is an ellipse with equal radii
  */
 const arc = (entity: ArcEntity): BoundsAndElement => {
-  const { bbox: bbox0, element: element0 } = ellipseOrArc(
-    entity.x,
-    entity.y,
-    entity.r,
-    0,
-    1,
-    entity.startAngle,
-    entity.endAngle,
-    entity.extrusionZ === -1,
-  )
+  const { bbox: bbox0, element: element0 } = ellipseOrArc({
+    cx: entity.x,
+    cy: entity.y,
+    majorX: entity.r,
+    majorY: 0,
+    axisRatio: 1,
+    startAngle: entity.startAngle,
+    endAngle: entity.endAngle,
+    flipX: entity.extrusionZ === -1,
+  })
   const { bbox, element } = addFlipXIfApplicable(entity, {
     bbox: bbox0,
     element: element0,

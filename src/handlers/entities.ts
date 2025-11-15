@@ -49,27 +49,27 @@ const handlers: Record<string, any> = [
   return acc
 }, {} as Record<string, any>)
 
-export default (tuples: DXFTuple[]): any[] => {
+export default function parseEntities(tuples: DXFTuple[]): any[] {
   const entities = []
   const entityGroups = []
   let currentEntityTuples
 
   // First group them together for easy processing
-  tuples.forEach((tuple) => {
+  for (const tuple of tuples) {
     const type = tuple[0]
     if (type === 0) {
       currentEntityTuples = []
       entityGroups.push(currentEntityTuples)
     }
     currentEntityTuples.push(tuple)
-  })
+  }
 
   let currentPolyline
-  entityGroups.forEach((tuples) => {
+  for (const tuples of entityGroups) {
     const entityType = tuples[0][1]
     const contentTuples = tuples.slice(1)
 
-    if (handlers[entityType] !== undefined) {
+    if (entityType in handlers) {
       const e = handlers[entityType].process(contentTuples)
       // "POLYLINE" cannot be parsed in isolation, it is followed by
       // N "VERTEX" entities and ended with a "SEQEND" entity.
@@ -93,7 +93,7 @@ export default (tuples: DXFTuple[]): any[] => {
     } else {
       logger.warn('unsupported type in ENTITIES section:', entityType)
     }
-  })
+  }
 
   return entities
 }

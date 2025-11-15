@@ -49,25 +49,25 @@ export default function transformBoundingBoxAndElement(
       { x: bbox.max.x, y: bbox.max.y },
       { x: bbox.min.x, y: bbox.max.y },
     ]
-    matrices.forEach(([a, b, c, d, e, f]) => {
+    for (const [a, b, c, d, e, f] of matrices) {
       bboxPoints = bboxPoints.map((point) => ({
         x: point.x * a + point.y * c + e,
         y: point.x * b + point.y * d + f,
       }))
-    })
+    }
     transformedBBox = bboxPoints.reduce((acc, point) => {
       return acc.expandByPoint(point)
     }, new Box2())
   }
 
   matrices.reverse()
-  matrices.forEach(([a, b, c, d, e, f]) => {
+  for (const [a, b, c, d, e, f] of matrices) {
     transformedElement += `<g transform="matrix(${a} ${b} ${c} ${d} ${e} ${f})">`
-  })
+  }
   transformedElement += element
-  matrices.forEach(() => {
+  for (const _ of matrices) {
     transformedElement += '</g>'
-  })
+  }
 
   return { bbox: transformedBBox, element: transformedElement }
 }

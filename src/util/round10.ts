@@ -6,14 +6,14 @@
 
 export default function round10(value: number, exp?: number): number {
   // If the exp is undefined or zero...
-  if (typeof exp === 'undefined' || +exp === 0) {
+  if (exp === undefined || +exp === 0) {
     return Math.round(value)
   }
   const numValue = +value
   const numExp = +exp
   // If the value is not a number or the exp is not an integer...
-  if (isNaN(numValue) || !(typeof numExp === 'number' && numExp % 1 === 0)) {
-    return NaN
+  if (Number.isNaN(numValue) || !(typeof numExp === 'number' && numExp % 1 === 0)) {
+    return Number.NaN
   }
   // Shift
   let valueStr = numValue.toString().split('e')

@@ -132,7 +132,7 @@ export const assign = (
   type: number,
   value: string | number
 ): MTextEntity => {
-  if (simpleCodes[type] !== undefined) {
+  if (type in simpleCodes) {
     entity[simpleCodes[type]] = value
   } else if (type === 1 || type === 3) {
     entity.string += value as string

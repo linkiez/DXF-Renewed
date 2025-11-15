@@ -66,6 +66,10 @@ export const assign = (entity: any, type: number, value: string | number): void 
       }
       break
     case 7:
+    case 41:
+    case 50:
+    case 71:
+    case 72:
       switch (entity.subclassMarker) {
         case 'AcDbAttributeDefinition':
         case 'AcDbAttribute':
@@ -164,17 +168,6 @@ export const assign = (entity: any, type: number, value: string | number): void 
           break
       }
       break
-    case 41:
-      switch (entity.subclassMarker) {
-        case 'AcDbAttributeDefinition':
-        case 'AcDbAttribute':
-          assignTEXT(entity.text, type, value)
-          break
-        case 'AcDbMText':
-          assignMTEXT(entity.mtext, type, value)
-          break
-      }
-      break
     case 42:
     case 43:
     case 44:
@@ -188,19 +181,6 @@ export const assign = (entity: any, type: number, value: string | number): void 
     case 49:
       assignMTEXT(entity.mtext, type, value)
       break
-    case 50:
-      switch (entity.subclassMarker) {
-        case 'AcDbAttributeDefinition':
-        case 'AcDbAttribute':
-          assignTEXT(entity.text, type, value)
-          break
-        case 'AcDbMText':
-          {
-            assignMTEXT(entity.mtext, type, value)
-          }
-          break
-      }
-      break
     case 51:
       assignTEXT(entity.text, type, value)
       break
@@ -208,33 +188,17 @@ export const assign = (entity: any, type: number, value: string | number): void 
       assignMTEXT(entity.mtext, type, value)
       break
     case 70:
-      {
-        switch (entity.subclassMarker) {
-          case 'AcDbAttributeDefinition':
-          case 'AcDbAttribute':
-            entity.attributeFlags = value
-            break
-          case 'AcDbXrecord':
-            {
-              if (typeof entity.mTextFlag === 'undefined')
-                entity.mTextFlag = value
-              else if (typeof entity.isReallyLocked === 'undefined')
-                entity.isReallyLocked = value
-              else entity.secondaryAttdefCount = value
-            }
-            break
-        }
-      }
-      break
-    case 71:
-    case 72:
       switch (entity.subclassMarker) {
         case 'AcDbAttributeDefinition':
         case 'AcDbAttribute':
-          assignTEXT(entity.text, type, value)
+          entity.attributeFlags = value
           break
-        case 'AcDbMText':
-          assignMTEXT(entity.mtext, type, value)
+        case 'AcDbXrecord':
+          if (entity.mTextFlag === undefined)
+            entity.mTextFlag = value
+          else if (entity.isReallyLocked === undefined)
+            entity.isReallyLocked = value
+          else entity.secondaryAttdefCount = value
           break
       }
       break
@@ -275,16 +239,14 @@ export const assign = (entity: any, type: number, value: string | number): void 
       }
       break
     case 280:
-      {
-        switch (entity.subclassMarker) {
-          case 'AcDbAttributeDefinition':
-          case 'AcDbAttribute':
-            entity.lock = value
-            break
-          case 'AcDbXrecord':
-            entity.clone = true
-            break
-        }
+      switch (entity.subclassMarker) {
+        case 'AcDbAttributeDefinition':
+        case 'AcDbAttribute':
+          entity.lock = value
+          break
+        case 'AcDbXrecord':
+          entity.clone = true
+          break
       }
       break
     case 340:

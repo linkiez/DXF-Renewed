@@ -1,20 +1,13 @@
-import type { DXFTuple } from '../../types/dxf'
+import type { DXFTuple, PartialPoint3D } from '../../types'
 
 import common from './common'
 
 export const TYPE = 'LINE'
 
-
-interface Point {
-  x?: number
-  y?: number
-  z?: number
-}
-
 interface LineEntity {
   type: typeof TYPE
-  start: Point
-  end: Point
+  start: PartialPoint3D
+  end: PartialPoint3D
   thickness?: number
   [key: string]: unknown
 }

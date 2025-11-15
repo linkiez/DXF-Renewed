@@ -1,14 +1,13 @@
-import type { DXFTuple } from '../types/dxf'
+import type { DXFTuple, LayoutInternal, ParsedObjects } from '../types'
 
-
-export default (tuples: DXFTuple[]): any => {
-  let state
-  const objects = {
+export default function parseObjects(tuples: DXFTuple[]): ParsedObjects {
+  let state: 'IDLE' | 'layout' | 'AcDbLayout' | undefined
+  const objects: ParsedObjects = {
     layouts: [],
   }
-  let layout = {}
+  let layout: LayoutInternal | undefined
 
-  tuples.forEach((tuple, i) => {
+  for (const tuple of tuples) {
     const type = tuple[0]
     const value = tuple[1]
     if (type === 0) {
@@ -23,209 +22,131 @@ export default (tuples: DXFTuple[]): any => {
       // wait until AcDbLayout shows up
       switch (type) {
         case 100:
-          {
-            if (value === 'AcDbLayout') state = 'AcDbLayout'
-          }
+          if (value === 'AcDbLayout') state = 'AcDbLayout'
           break
       }
     }
-    if (state === 'AcDbLayout' && type !== 0) {
+    if (state === 'AcDbLayout' && type !== 0 && layout) {
       // save layout attributes
       switch (type) {
         case 1:
-          {
-            layout.name = value
-          }
+          layout.name = value
           break
         case 5:
-          {
-            layout.handle = value
-          }
+          layout.handle = value
           break
         case 10:
-          {
-            layout.minLimitX = parseFloat(value)
-          }
+          layout.minLimitX = Number.parseFloat(String(value))
           break
         case 20:
-          {
-            layout.minLimitY = parseFloat(value)
-          }
+          layout.minLimitY = Number.parseFloat(String(value))
           break
         case 11:
-          {
-            layout.maxLimitX = parseFloat(value)
-          }
+          layout.maxLimitX = Number.parseFloat(String(value))
           break
         case 21:
-          {
-            layout.maxLimitY = parseFloat(value)
-          }
+          layout.maxLimitY = Number.parseFloat(String(value))
           break
         case 12:
-          {
-            layout.x = parseFloat(value)
-          }
+          layout.x = Number.parseFloat(String(value))
           break
         case 22:
-          {
-            layout.y = parseFloat(value)
-          }
+          layout.y = Number.parseFloat(String(value))
           break
         case 32:
-          {
-            layout.z = parseFloat(value)
-          }
+          layout.z = Number.parseFloat(String(value))
           break
         case 14:
-          {
-            layout.minX = parseFloat(value)
-          }
+          layout.minX = Number.parseFloat(String(value))
           break
         case 24:
-          {
-            layout.minY = parseFloat(value)
-          }
+          layout.minY = Number.parseFloat(String(value))
           break
         case 34:
-          {
-            layout.minZ = parseFloat(value)
-          }
+          layout.minZ = Number.parseFloat(String(value))
           break
         case 15:
-          {
-            layout.maxX = parseFloat(value)
-          }
+          layout.maxX = Number.parseFloat(String(value))
           break
         case 25:
-          {
-            layout.maxY = parseFloat(value)
-          }
+          layout.maxY = Number.parseFloat(String(value))
           break
         case 35:
-          {
-            layout.maxZ = parseFloat(value)
-          }
+          layout.maxZ = Number.parseFloat(String(value))
           break
         case 70:
-          {
-            layout.flag = value === 1 ? 'PSLTSCALE' : 'LIMCHECK'
-          }
+          layout.flag = value === 1 ? 'PSLTSCALE' : 'LIMCHECK'
           break
         case 71:
-          {
-            layout.tabOrder = value
-          }
+          layout.tabOrder = value
           break
         case 146:
-          {
-            layout.elevation = parseFloat(value)
-          }
+          layout.elevation = Number.parseFloat(String(value))
           break
         case 13:
-          {
-            layout.ucsX = parseFloat(value)
-          }
+          layout.ucsX = Number.parseFloat(String(value))
           break
         case 23:
-          {
-            layout.ucsY = parseFloat(value)
-          }
+          layout.ucsY = Number.parseFloat(String(value))
           break
         case 33:
-          {
-            layout.ucsZ = parseFloat(value)
-          }
+          layout.ucsZ = Number.parseFloat(String(value))
           break
         case 16:
-          {
-            layout.ucsXaxisX = parseFloat(value)
-          }
+          layout.ucsXaxisX = Number.parseFloat(String(value))
           break
         case 26:
-          {
-            layout.ucsXaxisY = parseFloat(value)
-          }
+          layout.ucsXaxisY = Number.parseFloat(String(value))
           break
         case 36:
-          {
-            layout.ucsXaxisZ = parseFloat(value)
-          }
+          layout.ucsXaxisZ = Number.parseFloat(String(value))
           break
         case 17:
-          {
-            layout.ucsYaxisX = parseFloat(value)
-          }
+          layout.ucsYaxisX = Number.parseFloat(String(value))
           break
         case 27:
-          {
-            layout.ucsYaxisY = parseFloat(value)
-          }
+          layout.ucsYaxisY = Number.parseFloat(String(value))
           break
         case 37:
-          {
-            layout.ucsYaxisZ = parseFloat(value)
-          }
+          layout.ucsYaxisZ = Number.parseFloat(String(value))
           break
         case 76:
-          {
-            switch (value) {
-              case 0:
-                {
-                  layout.ucsType = 'NOT ORTHOGRAPHIC'
-                }
-                break
-              case 1:
-                {
-                  layout.ucsType = 'TOP'
-                }
-                break
-              case 2:
-                {
-                  layout.ucsType = 'BOTTOM'
-                }
-                break
-              case 3:
-                {
-                  layout.ucsType = 'FRONT'
-                }
-                break
-              case 4:
-                {
-                  layout.ucsType = 'BACK'
-                }
-                break
-              case 5:
-                {
-                  layout.ucsType = 'LEFT'
-                }
-                break
-              case 6:
-                {
-                  layout.ucsType = 'RIGHT'
-                }
-                break
-            }
+          switch (value) {
+            case 0:
+              layout.ucsType = 'NOT ORTHOGRAPHIC'
+              break
+            case 1:
+              layout.ucsType = 'TOP'
+              break
+            case 2:
+              layout.ucsType = 'BOTTOM'
+              break
+            case 3:
+              layout.ucsType = 'FRONT'
+              break
+            case 4:
+              layout.ucsType = 'BACK'
+              break
+            case 5:
+              layout.ucsType = 'LEFT'
+              break
+            case 6:
+              layout.ucsType = 'RIGHT'
+              break
           }
           break
         case 330:
-          {
-            layout.tableRecord = value
-          }
+          layout.tableRecord = value
           break
         case 331:
-          {
-            layout.lastActiveViewport = value
-          }
+          layout.lastActiveViewport = value
           break
         case 333:
-          {
-            layout.shadePlot = value
-          }
+          layout.shadePlot = value
           break
       }
     }
-  })
+  }
 
   return objects
 }

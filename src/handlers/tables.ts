@@ -1,11 +1,10 @@
-import type { DXFTuple } from '../types/dxf'
+import type { DXFTuple, LTypeElement, LTypeInternal, LayerInternal, StyleInternal, VPortInternal } from '../types'
 
 import logger from '../util/logger'
 
-
-const ltypeHandler = (tuples: DXFTuple[]): any => {
-  let element = null
-  let offset = null
+const ltypeHandler = (tuples: DXFTuple[]): LTypeInternal => {
+  let element: LTypeElement | undefined
+  let offset: { x: string | number; y: string | number } | undefined
   return tuples.reduce(
     (layer, tuple) => {
       const type = tuple[0]
@@ -30,56 +29,71 @@ const ltypeHandler = (tuples: DXFTuple[]): any => {
           layer.alignment = value
           break
         case 73:
-          layer.elementCount = parseInt(value)
+          layer.elementCount = Number.parseInt(String(value))
           break
         case 40:
           layer.patternLength = value
           break
         case 49:
-          {
-            element = Object.create({ scales: [], offset: [] })
-            element.length = value
-            layer.pattern.push(element)
-          }
+          element = { length: value }
+          layer.pattern.push(element)
           break
         case 74:
           // Complex linetype element type (one per element). Default is 0 (no embedded shape/text) (bit-coded values)
           //  1 = If set, code 50 specifies an absolute rotation; if not set, code 50 specifies a relative rotation
           //  2 = Embedded element is a text string
           //  4 = Embedded element is a shape
-          element.shape = value
+          if (element) {
+            element.shape = value
+          }
           break
         case 75:
-          element.shapeNumber = value
+          if (element) {
+            element.shapeNumber = value
+          }
           break
         case 340:
-          element.styleHandle = value
+          if (element) {
+            element.styleHandle = value
+          }
           break
         case 46:
-          element.scales.push(value)
+          if (element) {
+            element.scales ??= []
+            element.scales.push(value)
+          }
           break
         case 50:
-          element.rotation = value
+          if (element) {
+            element.rotation = value
+          }
           break
         case 44:
-          offset = Object.create({ x: value, y: 0 })
-          element.offset.push(offset)
+          offset = { x: value, y: 0 }
+          if (element) {
+            element.offset ??= []
+            element.offset.push(offset)
+          }
           break
         case 45:
-          offset.y = value
+          if (offset) {
+            offset.y = value
+          }
           break
         case 9:
-          element.text = value
+          if (element) {
+            element.text = value
+          }
           break
         default:
       }
       return layer
     },
-    { type: 'LTYPE', pattern: [] },
+    { type: 'LTYPE', pattern: [] } as LTypeInternal,
   )
 }
 
-const layerHandler = (tuples) => {
+const layerHandler = (tuples: DXFTuple[]): LayerInternal => {
   return tuples.reduce(
     (layer, tuple) => {
       const type = tuple[0]
@@ -99,7 +113,7 @@ const layerHandler = (tuples) => {
           layer.flags = value
           break
         case 290:
-          layer.plot = parseInt(value) !== 0
+          layer.plot = Number.parseInt(String(value)) !== 0
           break
         case 370:
           layer.lineWeightEnum = value
@@ -108,11 +122,11 @@ const layerHandler = (tuples) => {
       }
       return layer
     },
-    { type: 'LAYER' },
+    { type: 'LAYER' } as LayerInternal,
   )
 }
 
-const styleHandler = (tuples) => {
+const styleHandler = (tuples: DXFTuple[]): StyleInternal => {
   return tuples.reduce(
     (style, tuple) => {
       const type = tuple[0]
@@ -149,11 +163,11 @@ const styleHandler = (tuples) => {
       }
       return style
     },
-    { type: 'STYLE' },
+    { type: 'STYLE' } as StyleInternal,
   )
 }
 
-const vPortHandler = (tuples) => {
+const vPortHandler = (tuples: DXFTuple[]): VPortInternal => {
   return tuples.reduce(
     (vport, tuple) => {
       const type = tuple[0]
@@ -169,91 +183,91 @@ const vPortHandler = (tuples) => {
           vport.flags = value
           break
         case 10:
-          vport.lowerLeft.x = parseFloat(value)
+          vport.lowerLeft.x = Number.parseFloat(String(value))
           break
         case 20:
-          vport.lowerLeft.y = parseFloat(value)
+          vport.lowerLeft.y = Number.parseFloat(String(value))
           break
         case 11:
-          vport.upperRight.x = parseFloat(value)
+          vport.upperRight.x = Number.parseFloat(String(value))
           break
         case 21:
-          vport.upperRight.y = parseFloat(value)
+          vport.upperRight.y = Number.parseFloat(String(value))
           break
         case 12:
-          vport.center.x = parseFloat(value)
+          vport.center.x = Number.parseFloat(String(value))
           break
         case 22:
-          vport.center.y = parseFloat(value)
+          vport.center.y = Number.parseFloat(String(value))
           break
         case 14:
-          vport.snapSpacing.x = parseFloat(value)
+          vport.snapSpacing.x = Number.parseFloat(String(value))
           break
         case 24:
-          vport.snapSpacing.y = parseFloat(value)
+          vport.snapSpacing.y = Number.parseFloat(String(value))
           break
         case 15:
-          vport.gridSpacing.x = parseFloat(value)
+          vport.gridSpacing.x = Number.parseFloat(String(value))
           break
         case 25:
-          vport.gridSpacing.y = parseFloat(value)
+          vport.gridSpacing.y = Number.parseFloat(String(value))
           break
         case 16:
-          vport.direction.x = parseFloat(value)
+          vport.direction.x = Number.parseFloat(String(value))
           break
         case 26:
-          vport.direction.y = parseFloat(value)
+          vport.direction.y = Number.parseFloat(String(value))
           break
         case 36:
-          vport.direction.z = parseFloat(value)
+          vport.direction.z = Number.parseFloat(String(value))
           break
         case 17:
-          vport.target.x = parseFloat(value)
+          vport.target.x = Number.parseFloat(String(value))
           break
         case 27:
-          vport.target.y = parseFloat(value)
+          vport.target.y = Number.parseFloat(String(value))
           break
         case 37:
-          vport.target.z = parseFloat(value)
+          vport.target.z = Number.parseFloat(String(value))
           break
         case 45:
-          vport.height = parseFloat(value)
+          vport.height = Number.parseFloat(String(value))
           break
         case 50:
-          vport.snapAngle = parseFloat(value)
+          vport.snapAngle = Number.parseFloat(String(value))
           break
         case 51:
-          vport.angle = parseFloat(value)
+          vport.angle = Number.parseFloat(String(value))
           break
         case 110:
-          vport.x = parseFloat(value)
+          vport.x = Number.parseFloat(String(value))
           break
         case 120:
-          vport.y = parseFloat(value)
+          vport.y = Number.parseFloat(String(value))
           break
         case 130:
-          vport.z = parseFloat(value)
+          vport.z = Number.parseFloat(String(value))
           break
         case 111:
-          vport.xAxisX = parseFloat(value)
+          vport.xAxisX = Number.parseFloat(String(value))
           break
         case 121:
-          vport.xAxisY = parseFloat(value)
+          vport.xAxisY = Number.parseFloat(String(value))
           break
         case 131:
-          vport.xAxisZ = parseFloat(value)
+          vport.xAxisZ = Number.parseFloat(String(value))
           break
         case 112:
-          vport.xAxisX = parseFloat(value)
+          vport.xAxisX = Number.parseFloat(String(value))
           break
         case 122:
-          vport.xAxisY = parseFloat(value)
+          vport.xAxisY = Number.parseFloat(String(value))
           break
         case 132:
-          vport.xAxisZ = parseFloat(value)
+          vport.xAxisZ = Number.parseFloat(String(value))
           break
         case 146:
-          vport.elevation = parseFloat(value)
+          vport.elevation = Number.parseFloat(String(value))
           break
         default:
       }
@@ -269,67 +283,72 @@ const vPortHandler = (tuples) => {
       gridSpacing: {},
       direction: {},
       target: {},
-    },
+    } as VPortInternal,
   )
 }
 
-const tableHandler = (tuples, tableType, handler) => {
-  const tableRowsTuples = []
+const tableHandler = (
+  tuples: DXFTuple[],
+  tableType: string,
+  handler: (tuples: DXFTuple[]) => LTypeInternal | LayerInternal | StyleInternal | VPortInternal,
+): Record<string, any> => {
+  const tableRowsTuples: DXFTuple[][] = []
 
-  let tableRowTuples
-  tuples.forEach((tuple) => {
+  let tableRowTuples: DXFTuple[] | undefined
+  for (const tuple of tuples) {
     const type = tuple[0]
     const value = tuple[1]
     if ((type === 0 || type === 2) && value === tableType) {
       tableRowTuples = []
       tableRowsTuples.push(tableRowTuples)
-    } else {
+    } else if (tableRowTuples) {
       tableRowTuples.push(tuple)
     }
-  })
+  }
 
   return tableRowsTuples.reduce((acc, rowTuples) => {
     const tableRow = handler(rowTuples)
     if (tableRow.name) {
-      acc[tableRow.name] = tableRow
+      acc[String(tableRow.name)] = tableRow
     } else {
       logger.warn('table row without name:', tableRow)
     }
     return acc
-  }, {})
+  }, {} as Record<string, any>)
 }
 
-export default (tuples) => {
-  const tableGroups = []
-  let tableTuples
-  tuples.forEach((tuple) => {
-    // const type = tuple[0];
+export default function parseTables(tuples: DXFTuple[]) {
+  const tableGroups: DXFTuple[][] = []
+  let tableTuples: DXFTuple[] | undefined
+  for (const tuple of tuples) {
     const value = tuple[1]
     if (value === 'TABLE') {
       tableTuples = []
       tableGroups.push(tableTuples)
     } else if (value === 'ENDTAB') {
-      tableGroups.push(tableTuples)
-    } else {
+      if (tableTuples) {
+        tableGroups.push(tableTuples)
+      }
+    } else if (tableTuples) {
       tableTuples.push(tuple)
     }
-  })
+  }
 
-  let stylesTuples = []
-  let layersTuples = []
-  let vPortTuples = []
-  let ltypeTuples = []
-  tableGroups.forEach((group) => {
-    if (group[0][1] === 'STYLE') {
+  let stylesTuples: DXFTuple[] = []
+  let layersTuples: DXFTuple[] = []
+  let vPortTuples: DXFTuple[] = []
+  let ltypeTuples: DXFTuple[] = []
+  for (const group of tableGroups) {
+    if (group[0]?.[1] === 'STYLE') {
       stylesTuples = group
-    } else if (group[0][1] === 'LTYPE') {
+    } else if (group[0]?.[1] === 'LTYPE') {
       ltypeTuples = group
-    } else if (group[0][1] === 'LAYER') {
+    } else if (group[0]?.[1] === 'LAYER') {
       layersTuples = group
-    } else if (group[0][1] === 'VPORT') {
+    } else if (group[0]?.[1] === 'VPORT') {
       vPortTuples = group
     }
-  })
+  }
 
   return {
     layers: tableHandler(layersTuples, 'LAYER', layerHandler),

@@ -99,8 +99,8 @@ export default function denormalise(parseResult: ParsedDXF): Entity[] {
                 case 'POLYLINE': {
                   const poly = be2 as PolylineEntity
                   for (const v of poly.vertices) {
-                    v.x -= block.x
-                    v.y -= block.y
+                    if (v.x !== undefined) v.x -= block.x
+                    if (v.y !== undefined) v.y -= block.y
                   }
                   break
                 }

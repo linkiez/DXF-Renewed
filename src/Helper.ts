@@ -8,14 +8,14 @@ import logger from './util/logger'
 import type { Entity, LayerGroups, ParsedDXF } from './types'
 
 export default class Helper {
-  private _contents: string
+  private readonly _contents: string
   private _parsed: ParsedDXF | null
   private _denormalised: Entity[] | null
   private _groups: LayerGroups | null
 
   constructor(contents: string) {
-    if (!(typeof contents === 'string')) {
-      throw Error('Helper constructor expects a DXF string')
+    if (typeof contents !== 'string') {
+      throw new TypeError('Helper constructor expects a DXF string')
     }
     this._contents = contents
     this._parsed = null

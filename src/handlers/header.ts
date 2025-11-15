@@ -1,11 +1,10 @@
-import type { DXFTuple } from '../types/dxf'
+import type { DXFTuple, ParsedHeader } from '../types'
 
+export default function parseHeader(tuples: DXFTuple[]): ParsedHeader {
+  let state: 'measurement' | 'insUnits' | 'extMin' | 'extMax' | 'dimArrowSize' | undefined
+  const header: ParsedHeader = {}
 
-export default (tuples: DXFTuple[]): any => {
-  let state
-  const header = {}
-
-  tuples.forEach((tuple) => {
+  for (const tuple of tuples) {
     const type = tuple[0]
     const value = tuple[1]
 
@@ -34,44 +33,41 @@ export default (tuples: DXFTuple[]): any => {
         switch (state) {
           case 'extMin':
           case 'extMax': {
-            switch (type) {
-              case 10:
-                header[state].x = value
-                break
-              case 20:
-                header[state].y = value
-                break
-              case 30:
-                header[state].z = value
-                state = undefined
-                break
+            const target = header[state]
+            if (target) {
+              switch (type) {
+                case 10:
+                  target.x = value as number
+                  break
+                case 20:
+                  target.y = value as number
+                  break
+                case 30:
+                  target.z = value as number
+                  state = undefined
+                  break
+              }
             }
             break
           }
           case 'measurement':
           case 'insUnits': {
-            switch (type) {
-              case 70: {
-                header[state] = value
-                state = undefined
-                break
-              }
+            if (type === 70) {
+              header[state] = value
+              state = undefined
             }
             break
           }
           case 'dimArrowSize': {
-            switch (type) {
-              case 40: {
-                header[state] = value
-                state = undefined
-                break
-              }
+            if (type === 40) {
+              header[state] = value
+              state = undefined
             }
             break
           }
         }
     }
-  })
+  }
 
   return header
 }

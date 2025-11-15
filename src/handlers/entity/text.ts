@@ -73,7 +73,7 @@ export const assign = (
   type: number,
   value: string | number
 ): void => {
-  if (simpleCodes[type] !== undefined) {
+  if (type in simpleCodes) {
     entity[simpleCodes[type]] = value
   } else {
     Object.assign(entity, common(type, value))

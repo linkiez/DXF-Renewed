@@ -1,11 +1,10 @@
-import type { DXFTuple } from '../../types/dxf'
+import type { DXFTuple, Ole2FrameEntity } from '../../types'
 
 import common from './common'
 
-
 export const TYPE = 'OLE2FRAME'
 
-export const process = (tuples: DXFTuple[]): any => {
+export const process = (tuples: DXFTuple[]): Ole2FrameEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]
@@ -58,7 +57,7 @@ export const process = (tuples: DXFTuple[]): any => {
     {
       type: TYPE,
       data: '',
-    },
+    } as Ole2FrameEntity,
   )
 }
 

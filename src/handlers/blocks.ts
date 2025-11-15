@@ -1,15 +1,14 @@
-import type { DXFTuple } from '../types/dxf'
+import type { BlockInternal, DXFTuple } from '../types'
 
 import entitiesHandler from './entities'
 
+export default function parseBlocks(tuples: DXFTuple[]): any[] {
+  let state: 'block' | 'entities' | undefined
+  const blocks: BlockInternal[] = []
+  let block: BlockInternal | undefined
+  let entitiesTuples: DXFTuple[] | undefined = []
 
-export default (tuples: DXFTuple[]): any[] => {
-  let state
-  const blocks = []
-  let block
-  let entitiesTuples = []
-
-  tuples.forEach((tuple) => {
+  for (const tuple of tuples) {
     const type = tuple[0]
     const value = tuple[1]
 
@@ -19,14 +18,16 @@ export default (tuples: DXFTuple[]): any[] => {
       entitiesTuples = []
       blocks.push(block)
     } else if (value === 'ENDBLK') {
-      if (state === 'entities') {
-        block.entities = entitiesHandler(entitiesTuples)
-      } else {
-        block.entities = []
+      if (block) {
+        if (state === 'entities' && entitiesTuples) {
+          block.entities = entitiesHandler(entitiesTuples)
+        } else {
+          block.entities = []
+        }
       }
       entitiesTuples = undefined
       state = undefined
-    } else if (state === 'block' && type !== 0) {
+    } else if (state === 'block' && type !== 0 && block) {
       switch (type) {
         case 1:
           block.xref = value
@@ -44,9 +45,7 @@ export default (tuples: DXFTuple[]): any[] => {
           block.z = value
           break
         case 67:
-          {
-            if (value !== 0) block.paperSpace = value
-          }
+          if (value !== 0) block.paperSpace = value
           break
         case 410:
           block.layout = value
@@ -56,11 +55,11 @@ export default (tuples: DXFTuple[]): any[] => {
       }
     } else if (state === 'block' && type === 0) {
       state = 'entities'
-      entitiesTuples.push(tuple)
+      if (entitiesTuples) entitiesTuples.push(tuple)
     } else if (state === 'entities') {
-      entitiesTuples.push(tuple)
+      if (entitiesTuples) entitiesTuples.push(tuple)
     }
-  })
+  }
 
   return blocks
 }

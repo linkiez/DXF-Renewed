@@ -33,15 +33,14 @@ export default function bSpline(
   }
 
   let actualKnots = knots
-  if (!actualKnots) {
+  if (actualKnots === null || actualKnots === undefined) {
     // build knot vector of length [n + degree + 1]
     actualKnots = []
     for (let i = 0; i < n + degree + 1; i++) {
       actualKnots[i] = i
     }
-  } else {
-    if (actualKnots.length !== n + degree + 1)
-      throw new Error('bad knot vector length')
+  } else if (actualKnots.length !== n + degree + 1) {
+    throw new Error('bad knot vector length')
   }
 
   const domain = [degree, actualKnots.length - 1 - degree]
@@ -58,7 +57,7 @@ export default function bSpline(
   tMapped = Math.min(tMapped, high)
 
   // find s (the spline segment) for the [t] value provided
-  let s = domain[0]
+  let s
   for (s = domain[0]; s < domain[1]; s++) {
     if (tMapped >= actualKnots[s] && tMapped <= actualKnots[s + 1]) {
       break
