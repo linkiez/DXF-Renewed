@@ -8,3 +8,12 @@ examples/example.es6.svg
 *~
 #*
 .idea
+
+# Yarn 4
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

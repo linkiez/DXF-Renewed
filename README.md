@@ -113,9 +113,26 @@ node examples/example.es5.js
 Browser. Compile to a browser bundle and open the example webpage:
 
 ```bash
-npm run compile
+yarn compile
 open examples/dxf.html
 ```
+
+## Package Manager
+
+This project uses **Yarn 4** (Berry) as the package manager. Make sure you have Yarn installed:
+
+```bash
+# Install via npm
+npm install -g yarn
+
+# Or via corepack (recommended)
+corepack enable
+```
+
+All npm commands in the documentation can be replaced with yarn equivalents:
+- `npm install` → `yarn install` or just `yarn`
+- `npm test` → `yarn test`
+- `npm run compile` → `yarn compile`
 
 ## SVG
 
@@ -140,7 +157,10 @@ const polylines = helper.toPolylines()
 There is a command-line utility (courtesy of [@Joge97](https://github.com/Joge97)) for converting DXF files to SVG:
 
 ```bash
+yarn global add dxf
+# or
 npm i -g dxf
+
 dxf-to-svg --help
 ```
 
@@ -162,13 +182,13 @@ Options:
 Running the unit tests:
 
 ```bash
-npm test
+yarn test
 ```
 
 Running the functional tests in a browser:
 
 ```bash
-npm run test:functional
+yarn test:functional
 ```
 
 Please open `toSVG.html` when the file listing loads in the browser (or open `http://localhost:8030/toSVG.html#/`).
@@ -202,13 +222,14 @@ The project uses **esbuild** for compilation, which is significantly faster than
 - Build time: ~18-22ms (vs 447ms with Babel)
 - 96% performance improvement
 - Full TypeScript support with type checking via `tsc`
+- **Yarn 4** (Berry) as package manager
 
 Build commands:
 
 ```bash
-npm run compile        # Compile TypeScript to JavaScript
-npm run type-check     # Run TypeScript type checking
-npm test              # Run all tests
+yarn compile        # Compile TypeScript to JavaScript
+yarn type-check     # Run TypeScript type checking
+yarn test           # Run all tests
 ```
 
 ## Credits
