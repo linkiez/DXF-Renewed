@@ -7,12 +7,7 @@ import colors from './util/colors'
 import logger from './util/logger'
 
 import type { Entity, ParsedDXF } from './types'
-import type { Polyline } from './types/polylines'
-
-interface PolylineResult {
-  bbox: Box2
-  polylines: Polyline[]
-}
+import type { Polyline, PolylineResult } from './types/polylines'
 
 export default function toPolylines(parsed: ParsedDXF): PolylineResult {
   const entities = denormalise(parsed)

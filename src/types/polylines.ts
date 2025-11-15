@@ -1,5 +1,6 @@
 // Polyline conversion types
 
+import type { Box2 } from 'vecks'
 import type { ColorRGB, PointTuple } from './common'
 
 /** Polyline with color information */
@@ -11,6 +12,7 @@ export interface Polyline {
 
 /** Result of toPolylines conversion */
 export interface PolylineResult {
+  bbox: Box2
   polylines: Polyline[]
 }
 

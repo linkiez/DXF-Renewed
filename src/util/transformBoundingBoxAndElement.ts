@@ -1,10 +1,5 @@
 import { Box2 } from 'vecks'
-import type { Transform } from '../types/common'
-
-interface TransformResult {
-  bbox: Box2
-  element: string
-}
+import type { Transform, TransformResult } from '../types'
 
 /**
  * Transform the bounding box and the SVG element by the given

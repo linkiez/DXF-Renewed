@@ -1,5 +1,6 @@
 // Utility-specific types
 
+import type { Box2 } from 'vecks'
 import type { Point2D } from './common'
 
 /** Point for utility functions - extends Point2D with optional z */
@@ -22,10 +23,5 @@ export interface BezierResult {
 /** Transform result with bounding box */
 export interface TransformResult {
   element: string
-  bbox: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
+  bbox: Box2
 }

@@ -2,73 +2,41 @@ import bSpline from './util/bSpline'
 import createArcForLWPolyine from './util/createArcForLWPolyline'
 import logger from './util/logger'
 
-import type { ControlPoint, EntityToPolylineOptions, HandlerVertex } from './types'
+import type {
+  ArcEntity,
+  CircleEntity,
+  ControlPoint,
+  EllipseEntity,
+  EntityToPolylineOptions,
+  HandlerVertex,
+  LineEntity,
+  SplineEntity,
+} from './types'
 import type { PointTuple } from './types/common'
 
 // Re-export types for backward compatibility
-export type { ControlPoint, EntityToPolylineOptions }
+export type { ControlPoint } from './types'
+export type { EntityToPolylineOptions } from './types'
 
 type Point = PointTuple
 
-interface Vertex extends HandlerVertex {
+// Local vertex type with required coordinates for runtime processing
+interface LocalVertex extends HandlerVertex {
   faces?: number[]
 }
 
-interface PolylineEntity {
+// Local polyline type that uses our vertex with required coordinates
+interface LocalPolylineEntity {
   type: string
-  vertices: Vertex[]
+  vertices: LocalVertex[]
   closed?: boolean
   polyfaceMesh?: boolean
   polygonMesh?: boolean
 }
 
-interface LineEntity {
-  type: 'LINE'
-  start: { x: number; y: number }
-  end: { x: number; y: number }
-}
-
-interface CircleEntity {
-  type: 'CIRCLE'
-  x: number
-  y: number
-  r: number
-  extrusionZ?: number
-}
-
-interface EllipseEntity {
-  type: 'ELLIPSE'
-  x: number
-  y: number
-  majorX: number
-  majorY: number
-  axisRatio: number
-  startAngle: number
-  endAngle: number
-  extrusionZ?: number
-}
-
-interface ArcEntity {
-  type: 'ARC'
-  x: number
-  y: number
-  r: number
-  startAngle: number
-  endAngle: number
-  extrusionZ?: number
-}
-
-interface SplineEntity {
-  type: 'SPLINE'
-  controlPoints: ControlPoint[]
-  degree: number
-  knots: number[]
-  weights?: number[]
-}
-
 type Entity =
   | LineEntity
-  | (PolylineEntity & { type: 'LWPOLYLINE' | 'POLYLINE' })
+  | (LocalPolylineEntity & { type: 'LWPOLYLINE' | 'POLYLINE' })
   | CircleEntity
   | EllipseEntity
   | ArcEntity
@@ -184,7 +152,7 @@ export const interpolateBSpline = (
   return polyline
 }
 
-export const polyfaceOutline = (entity: PolylineEntity): Point[][] => {
+export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => {
   const vertices: Array<{ x: number; y: number }> = []
   const faces: Array<{ indices: number[]; hiddens: boolean[] }> = []
 

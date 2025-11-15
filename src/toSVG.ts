@@ -191,7 +191,7 @@ const ellipseOrArc = (
 /**
  * Compute the bounding box of an elliptical arc, given the DXF entity parameters
  */
-interface EllipseParams {
+interface EllipticArcParams {
   cx: number
   cy: number
   majorX: number
@@ -202,7 +202,7 @@ interface EllipseParams {
   flipX?: boolean
 }
 
-const bboxEllipseOrArc = (params: EllipseParams): Box2 => {
+const bboxEllipseOrArc = (params: EllipticArcParams): Box2 => {
   const { cx, cy, majorX, majorY, axisRatio } = params
   let { startAngle, endAngle } = params
 
