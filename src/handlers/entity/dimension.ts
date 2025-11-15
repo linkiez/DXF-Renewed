@@ -44,8 +44,14 @@ export const process = (tuples: DXFTuple[]): DimensionEntity => {
       const type = tuple[0]
       const value = tuple[1]
       switch (type) {
+        case 1:
+          entity.text = value as string
+          break
         case 2:
           entity.block = value as string
+          break
+        case 3:
+          entity.styleName = value as string
           break
         case 10:
           entity.start.x = value as number

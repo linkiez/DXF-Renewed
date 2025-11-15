@@ -16,7 +16,8 @@ export interface DimensionEntity extends BaseEntity {
   textRotation?: number
   attachementPoint: number
   dimensionType: number
-  ordinateType?: boolean
-  uniqueBlockReference?: boolean
-  userDefinedLocation?: boolean
+  extrudeDirection?: Point3D
+  text?: string
+  styleName?: string
+  [key: string]: unknown
 }

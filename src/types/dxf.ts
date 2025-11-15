@@ -10,9 +10,23 @@ export interface LayerTable {
   [key: string]: unknown
 }
 
+export interface DimStyleTable {
+  name: string
+  dimAsz?: number
+  dimTxt?: number
+  dimScale?: number
+  dimGap?: number
+  dimExo?: number
+  dimExe?: number
+  [key: string]: unknown
+}
+
 export interface Tables {
   layers: {
     [name: string]: LayerTable
+  }
+  dimStyles?: {
+    [name: string]: DimStyleTable
   }
   [key: string]: any
 }

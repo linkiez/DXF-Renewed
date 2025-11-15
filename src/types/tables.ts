@@ -262,6 +262,150 @@ export interface LayoutInternal {
 }
 
 /**
+ * Dimension Style (DIMSTYLE) table entry
+ * Internal representation during DXF parsing
+ */
+export interface DimStyleInternal {
+  type: string
+  /** Dimension style name */
+  name?: string | number
+  /** Standard flags (bit-coded) */
+  flags?: string | number
+  /** DIMPOST - General dimensioning suffix */
+  dimPost?: string | number
+  /** DIMAPOST - Alternate dimensioning suffix */
+  dimAPost?: string | number
+  /** DIMSCALE - Overall dimensioning scale factor */
+  dimScale?: number
+  /** DIMASZ - Dimensioning arrow size */
+  dimAsz?: number
+  /** DIMEXO - Extension line offset */
+  dimExo?: number
+  /** DIMDLI - Dimension line increment */
+  dimDli?: number
+  /** DIMEXE - Extension line extension */
+  dimExe?: number
+  /** DIMRND - Rounding value for dimension distances */
+  dimRnd?: number
+  /** DIMDLE - Dimension line extension */
+  dimDle?: number
+  /** DIMTP - Plus tolerance */
+  dimTp?: number
+  /** DIMTM - Minus tolerance */
+  dimTm?: number
+  /** DIMTXT - Dimensioning text height */
+  dimTxt?: number
+  /** DIMCEN - Size of center mark/lines */
+  dimCen?: number
+  /** DIMTSZ - Dimensioning tick size */
+  dimTsz?: number
+  /** DIMALTF - Alternate unit scale factor */
+  dimAltf?: number
+  /** DIMLFAC - Linear measurements scale factor */
+  dimLfac?: number
+  /** DIMTVP - Text vertical position */
+  dimTvp?: number
+  /** DIMTFAC - Dimension tolerance display scale factor */
+  dimTfac?: number
+  /** DIMGAP - Dimension line gap */
+  dimGap?: number
+  /** DIMALTRND - Determines rounding of alternate units */
+  dimAltRnd?: number
+  /** DIMTOL - Dimension tolerances generated if nonzero */
+  dimTol?: number
+  /** DIMLIM - Dimension limits generated if nonzero */
+  dimLim?: number
+  /** DIMTIH - Text inside horizontal if nonzero */
+  dimTih?: number
+  /** DIMTOH - Text outside horizontal if nonzero */
+  dimToh?: number
+  /** DIMSE1 - First extension line suppressed if nonzero */
+  dimSe1?: number
+  /** DIMSE2 - Second extension line suppressed if nonzero */
+  dimSe2?: number
+  /** DIMTAD - Text above dimension line if nonzero */
+  dimTad?: number
+  /** DIMZIN - Controls suppression of zeros for primary unit values */
+  dimZin?: number
+  /** DIMAZIN - Controls suppression of zeros for angular dimensions */
+  dimAzin?: number
+  /** DIMALT - Alternate unit dimensioning performed if nonzero */
+  dimAlt?: number
+  /** DIMALTD - Alternate unit decimal places */
+  dimAltd?: number
+  /** DIMTOFL - Force text inside extensions if nonzero */
+  dimTofl?: number
+  /** DIMSAH - Use separate arrow blocks if nonzero */
+  dimSah?: number
+  /** DIMTIX - Force text inside extensions if nonzero */
+  dimTix?: number
+  /** DIMSOXD - Suppress outside-extensions dimension lines if nonzero */
+  dimSoxd?: number
+  /** DIMCLRD - Dimension line color */
+  dimClrd?: number
+  /** DIMCLRE - Dimension extension line color */
+  dimClre?: number
+  /** DIMCLRT - Dimension text color */
+  dimClrt?: number
+  /** DIMADEC - Number of precision places for angular dimensions */
+  dimAdec?: number
+  /** DIMUNIT - Units format (obsolete, now use DIMLUNIT AND DIMFRAC) */
+  dimUnit?: number
+  /** DIMDEC - Number of decimal places for tolerance values */
+  dimDec?: number
+  /** DIMTDEC - Number of decimal places for tolerance values */
+  dimTdec?: number
+  /** DIMALTU - Units format for alternate units */
+  dimAltu?: number
+  /** DIMALTTD - Number of decimal places for alternate tolerance values */
+  dimAlttd?: number
+  /** DIMAUNIT - Angle format for angular dimensions */
+  dimAunit?: number
+  /** DIMFRAC - Fraction format */
+  dimFrac?: number
+  /** DIMLUNIT - Linear unit format */
+  dimLunit?: number
+  /** DIMDSEP - Decimal separator character */
+  dimDsep?: number
+  /** DIMTMOVE - Dimension text movement rules */
+  dimTmove?: number
+  /** DIMJUST - Horizontal dimension text position */
+  dimJust?: number
+  /** DIMSD1 - Suppression of first extension line */
+  dimSd1?: number
+  /** DIMSD2 - Suppression of second extension line */
+  dimSd2?: number
+  /** DIMTOLJ - Vertical justification for tolerance values */
+  dimTolj?: number
+  /** DIMTZIN - Controls suppression of zeros for tolerance values */
+  dimTzin?: number
+  /** DIMALTZ - Controls suppression of zeros for alternate unit values */
+  dimAltz?: number
+  /** DIMALTTZ - Controls suppression of zeros for alternate tolerance values */
+  dimAlttz?: number
+  /** DIMFIT - Fit options (obsolete, now use DIMATFIT and DIMTMOVE) */
+  dimFit?: number
+  /** DIMUPT - Cursor functionality for user-positioned text */
+  dimUpt?: number
+  /** DIMATFIT - Controls dimension text and arrow placement */
+  dimAtfit?: number
+  /** DIMTXSTY - Dimension text style (handle reference) */
+  dimTxsty?: string | number
+  /** DIMLDRBLK - Leader arrow block (handle reference) */
+  dimLdrblk?: string | number
+  /** DIMBLK - Arrow block (handle reference) */
+  dimBlk?: string | number
+  /** DIMBLK1 - First arrow block (handle reference) */
+  dimBlk1?: string | number
+  /** DIMBLK2 - Second arrow block (handle reference) */
+  dimBlk2?: string | number
+  /** DIMLWD - Dimension line lineweight */
+  dimLwd?: number
+  /** DIMLWE - Extension line lineweight */
+  dimLwe?: number
+}
+
+/**
  * DXF Objects section result
  */
 export interface ParsedObjects {

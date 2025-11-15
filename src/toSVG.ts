@@ -1,6 +1,7 @@
 import { Box2 } from 'vecks'
 
 import denormalise from './denormalise'
+import dimensionToSVG from './dimensionToSVG'
 import entityToPolyline from './entityToPolyline'
 import getRGBForEntity from './getRGBForEntity'
 import logger from './util/logger'
@@ -350,6 +351,7 @@ const mtext = (entity: MTextEntity): BoundsAndElement => {
 
 /**
  * Create dimension lines based on dimension type
+ * @deprecated Use dimensionToSVG module instead
  */
 const createDimensionPaths = (entity: DimensionEntity, bbox: Box2): string[] => {
   const paths = []
@@ -407,8 +409,9 @@ const createDimensionPaths = (entity: DimensionEntity, bbox: Box2): string[] => 
 
 /**
  * Create dimension visualization (lines and text)
+ * @deprecated Use dimensionToSVG module instead
  */
-const dimension = (entity: DimensionEntity): BoundsAndElement => {
+const dimensionLegacy = (entity: DimensionEntity): BoundsAndElement => {
   const bbox = new Box2()
 
   // Add text at midpoint
@@ -421,6 +424,21 @@ const dimension = (entity: DimensionEntity): BoundsAndElement => {
   const paths = createDimensionPaths(entity, bbox)
   const element = `<g>${paths.join('')}</g>`
   return transformBoundingBoxAndElement(bbox, element, entity.transforms ?? [])
+}
+
+/**
+ * Create dimension visualization with DIMSTYLE support
+ */
+const dimension = (
+  entity: DimensionEntity,
+  dimStyle?: any,
+): BoundsAndElement => {
+  const result = dimensionToSVG(entity, dimStyle)
+  return transformBoundingBoxAndElement(
+    result.bbox,
+    result.element,
+    entity.transforms ?? [],
+  )
 }
 
 export const piecewiseToPaths = (
@@ -465,7 +483,10 @@ const bezier = (entity: SplineEntity): BoundsAndElement => {
  * Switch the appropriate function on entity type. CIRCLE, ARC and ELLIPSE
  * produce native SVG elements, the rest produce interpolated polylines.
  */
-const entityToBoundsAndElement = (entity: Entity): BoundsAndElement | null => {
+const entityToBoundsAndElement = (
+  entity: Entity,
+  dimStyles?: { [name: string]: any },
+): BoundsAndElement | null => {
   switch (entity.type) {
     case 'CIRCLE':
       return circle(entity as CircleEntity)
@@ -477,8 +498,16 @@ const entityToBoundsAndElement = (entity: Entity): BoundsAndElement | null => {
       return text(entity as TextEntity)
     case 'MTEXT':
       return mtext(entity as MTextEntity)
-    case 'DIMENSION':
-      return dimension(entity as DimensionEntity)
+    case 'DIMENSION': {
+      const dimEntity = entity as DimensionEntity
+      const styleName = typeof dimEntity.styleName === 'string'
+        ? dimEntity.styleName
+        : undefined
+      const dimStyle = styleName && dimStyles
+        ? dimStyles[styleName]
+        : undefined
+      return dimension(dimEntity, dimStyle)
+    }
     case 'SPLINE': {
       const splineEntity = entity as SplineEntity
       const hasWeights = splineEntity.weights?.some((w: number) => w !== 1)
@@ -509,13 +538,14 @@ const entityToBoundsAndElement = (entity: Entity): BoundsAndElement | null => {
 
 export default function toSVG(parsed: ParsedDXF): string {
   const entities = denormalise(parsed)
+  const dimStyles = parsed.tables.dimStyles
   const { bbox, elements } = entities.reduce(
     (
       acc: { bbox: Box2; elements: string[] },
       entity: Entity,
     ): { bbox: Box2; elements: string[] } => {
       const rgb = getRGBForEntity(parsed.tables.layers, entity)
-      const boundsAndElement = entityToBoundsAndElement(entity)
+      const boundsAndElement = entityToBoundsAndElement(entity, dimStyles)
       // Ignore entities that don't produce SVG elements or have unsupported types
       if (boundsAndElement) {
         const { bbox, element } = boundsAndElement
