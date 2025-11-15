@@ -1,9 +1,9 @@
 // Utility-specific types
 
-/** Point for utility functions */
-export interface UtilPoint {
-  x: number
-  y: number
+import type { Point2D } from './common'
+
+/** Point for utility functions - extends Point2D with optional z */
+export interface UtilPoint extends Point2D {
   z?: number
 }
 

@@ -1,5 +1,5 @@
+import type { BezierResult, UtilPoint } from '../types/util-types'
 import insertKnot from './insertKnot'
-import type { UtilPoint, BezierResult } from '../types/util-types'
 
 /**
  * For a pinned spline, the knots have to be repeated k times

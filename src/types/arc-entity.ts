@@ -1,12 +1,9 @@
 // ARC entity type
 
-import type { BaseEntity } from './base-entity'
+import type { PositionalEntity } from './base-entity'
 
-export interface ArcEntity extends BaseEntity {
+export interface ArcEntity extends PositionalEntity {
   type: 'ARC'
-  x: number
-  y: number
-  z?: number
   r: number
   startAngle: number
   endAngle: number

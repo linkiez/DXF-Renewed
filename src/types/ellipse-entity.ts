@@ -1,12 +1,9 @@
 // ELLIPSE entity type
 
-import type { BaseEntity } from './base-entity'
+import type { PositionalEntity } from './base-entity'
 
-export interface EllipseEntity extends BaseEntity {
+export interface EllipseEntity extends PositionalEntity {
   type: 'ELLIPSE'
-  x: number
-  y: number
-  z?: number
   majorX: number
   majorY: number
   majorZ?: number

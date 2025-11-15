@@ -37,9 +37,9 @@ export * from './options'
 export * from './helper'
 
 // Conversion types
+export * from './layer-groups'
 export * from './polylines'
 export * from './svg'
-export * from './layer-groups'
 
 // Utility types
 export * from './util-types'

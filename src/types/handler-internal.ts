@@ -1,5 +1,7 @@
 // Handler-internal types (não exportados na API pública)
 
+import type { Point2D } from './common'
+
 /** Common properties extracted from DXF tuples */
 export interface CommonEntityProperties {
   handle?: string
@@ -28,26 +30,20 @@ export interface BitCombinationsResult {
   [key: string]: number | undefined
 }
 
-/** Polyline vertex with bulge */
-export interface PolylineVertex {
-  x: number
-  y: number
+/** Polyline vertex with bulge - extends Point2D */
+export interface PolylineVertex extends Point2D {
   z?: number
   bulge?: number
 }
 
-/** Control point for splines */
-export interface ControlPoint {
-  x: number
-  y: number
+/** Control point for splines - extends Point2D */
+export interface ControlPoint extends Point2D {
   z?: number
   weight?: number
 }
 
 /** Vertex for polylines - internal handler use */
-export interface HandlerVertex {
-  x: number
-  y: number
+export interface HandlerVertex extends Point2D {
   z?: number
   bulge?: number
   startWidth?: number

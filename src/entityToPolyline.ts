@@ -2,11 +2,11 @@ import bSpline from './util/bSpline'
 import createArcForLWPolyine from './util/createArcForLWPolyline'
 import logger from './util/logger'
 
+import type { ControlPoint, EntityToPolylineOptions, HandlerVertex } from './types'
 import type { PointTuple } from './types/common'
-import type { EntityToPolylineOptions, ControlPoint, HandlerVertex } from './types'
 
 // Re-export types for backward compatibility
-export type { EntityToPolylineOptions, ControlPoint }
+export type { ControlPoint, EntityToPolylineOptions }
 
 type Point = PointTuple
 

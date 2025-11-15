@@ -32,14 +32,5 @@ export interface Transform {
   extrusionZ?: number
 }
 
-export interface ZeroTransform {
-  x: number
-  y: number
-  scaleX: number
-  scaleY: number
-  scaleZ: number
-  rotation: number
-  extrusionX: number
-  extrusionY: number
-  extrusionZ: number
-}
+/** Transform with all properties required */
+export interface ZeroTransform extends Required<Transform> {}

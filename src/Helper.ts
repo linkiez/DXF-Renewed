@@ -5,7 +5,7 @@ import toPolylines from './toPolylines'
 import toSVG from './toSVG'
 import logger from './util/logger'
 
-import type { Entity, ParsedDXF, LayerGroups } from './types'
+import type { Entity, LayerGroups, ParsedDXF } from './types'
 
 export default class Helper {
   private _contents: string

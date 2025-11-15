@@ -1,13 +1,10 @@
 // INSERT entity type (block references)
 
-import type { BaseEntity } from './base-entity'
+import type { PositionalEntity } from './base-entity'
 
-export interface InsertEntity extends BaseEntity {
+export interface InsertEntity extends PositionalEntity {
   type: 'INSERT'
   block: string
-  x: number
-  y: number
-  z?: number
   scaleX?: number
   scaleY?: number
   scaleZ?: number

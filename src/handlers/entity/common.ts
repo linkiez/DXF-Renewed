@@ -1,4 +1,3 @@
-import type { DXFTuple } from '../../types/dxf'
 import type { CommonEntityProperties } from '../../types/handler-internal'
 
 export default function parseCommonEntityProperties(

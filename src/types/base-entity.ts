@@ -16,3 +16,10 @@ export interface BaseEntity {
   extrusionZ?: number
   transforms?: Transform[]
 }
+
+/** Base for entities with positional coordinates (x, y, z) */
+export interface PositionalEntity extends BaseEntity {
+  x: number
+  y: number
+  z?: number
+}

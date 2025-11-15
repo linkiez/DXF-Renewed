@@ -1,10 +1,7 @@
 // POINT entity type
 
-import type { BaseEntity } from './base-entity'
+import type { PositionalEntity } from './base-entity'
 
-export interface PointEntity extends BaseEntity {
+export interface PointEntity extends PositionalEntity {
   type: 'POINT'
-  x: number
-  y: number
-  z?: number
 }

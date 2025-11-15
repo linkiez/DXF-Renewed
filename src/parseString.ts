@@ -5,7 +5,7 @@ import objectsHandler from './handlers/objects'
 import tablesHandler from './handlers/tables'
 import logger from './util/logger'
 
-import type { ParsedDXF, DXFTuple } from './types'
+import type { DXFTuple, ParsedDXF } from './types'
 
 type Tuple = DXFTuple
 

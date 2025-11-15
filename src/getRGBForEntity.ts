@@ -1,7 +1,7 @@
 import colors from './util/colors'
 import logger from './util/logger'
 
-import type { Entity, ColorRGB, LayerTable } from './types'
+import type { ColorRGB, Entity, LayerTable } from './types'
 
 export default function getRGBForEntity(
   layers: { [layerName: string]: LayerTable },

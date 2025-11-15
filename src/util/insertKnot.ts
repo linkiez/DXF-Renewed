@@ -1,4 +1,4 @@
-import type { UtilPoint, InsertKnotResult } from '../types/util-types'
+import type { InsertKnotResult, UtilPoint } from '../types/util-types'
 
 /**
  * Knot insertion is known as "Boehm's algorithm"

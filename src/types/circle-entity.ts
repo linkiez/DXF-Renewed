@@ -1,11 +1,8 @@
 // CIRCLE entity type
 
-import type { BaseEntity } from './base-entity'
+import type { PositionalEntity } from './base-entity'
 
-export interface CircleEntity extends BaseEntity {
+export interface CircleEntity extends PositionalEntity {
   type: 'CIRCLE'
-  x: number
-  y: number
-  z?: number
   r: number
 }
