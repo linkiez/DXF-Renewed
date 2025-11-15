@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DXF Text and Dimension Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        display: flex;
+        gap: 20px;
+      }
+      .controls {
+        flex: 0 0 300px;
+      }
+      .viewer {
+        flex: 1;
+        border: 1px solid #ccc;
+        min-height: 600px;
+        background: #f5f5f5;
+      }
+      button {
+        margin: 5px 0;
+        padding: 10px;
+        width: 100%;
+        cursor: pointer;
+      }
+      #svg {
+        width: 100%;
+        height: 100%;
+      }
+      .info {
+        margin-top: 10px;
+        padding: 10px;
+        background: #e8e8e8;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>DXF Text, MTEXT and Dimension Viewer</h1>
+    <div class="container">
+      <div class="controls">
+        <h3>Controls</h3>
+        <input type="file" id="file" accept=".dxf" />
+        <div class="info">
+          <div>Number of entities: <span id="numberOfEntities">-</span></div>
+          <div>TEXT entities: <span id="textCount">-</span></div>
+          <div>MTEXT entities: <span id="mtextCount">-</span></div>
+          <div>DIMENSION entities: <span id="dimensionCount">-</span></div>
+        </div>
+        <h4>Test Files</h4>
+        <button onclick="loadTestFile('texts.dxf')">Load texts.dxf</button>
+        <button onclick="loadTestFile('dimensions.dxf')">Load dimensions.dxf</button>
+        <button onclick="loadTestFile('dimension-vertical.dxf')">Load dimension-vertical.dxf</button>
+        <button onclick="loadTestFile('entities.dxf')">Load entities.dxf (all)</button>
+      </div>
+      <div class="viewer" id="svg"></div>
+    </div>
+    <script>
+      var numberOfEntities = document.getElementById('numberOfEntities')
+      var textCount = document.getElementById('textCount')
+      var mtextCount = document.getElementById('mtextCount')
+      var dimensionCount = document.getElementById('dimensionCount')
+      var svgContainer = document.getElementById('svg')
+      var fileInput = document.getElementById('file')
+
+      function countEntitiesByType(entities) {
+        const counts = {
+          TEXT: 0,
+          MTEXT: 0,
+          DIMENSION: 0
+        }
+        entities.forEach(entity => {
+          if (counts.hasOwnProperty(entity.type)) {
+            counts[entity.type]++
+          }
+        })
+        return counts
+      }
+
+      function renderDXF(dxfContents) {
+        window.requirejs(['../dist/dxf'], function (dxf) {
+          dxf.config.verbose = true
+          try {
+            numberOfEntities.innerHTML = 'processing...'
+            const helper = new dxf.Helper(dxfContents)
+            numberOfEntities.innerHTML = helper.denormalised.length
+
+            const counts = countEntitiesByType(helper.denormalised)
+            textCount.innerHTML = counts.TEXT
+            mtextCount.innerHTML = counts.MTEXT
+            dimensionCount.innerHTML = counts.DIMENSION
+
+            const svg = helper.toSVG()
+            svgContainer.innerHTML = svg
+          } catch (error) {
+            console.error('Error rendering DXF:', error)
+            svgContainer.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>'
+          }
+        })
+      }
+
+      fileInput.addEventListener('change', function (event) {
+        var file = event.target.files[0]
+        var reader = new FileReader()
+        numberOfEntities.innerHTML = 'reading...'
+        reader.onload = function (e) {
+          if (e.target.readyState === 2) {
+            renderDXF(e.target.result)
+          }
+        }
+        reader.readAsBinaryString(file)
+      })
+
+      window.loadTestFile = function(filename) {
+        numberOfEntities.innerHTML = 'loading...'
+        fetch('../test/resources/' + filename)
+          .then(response => response.text())
+          .then(dxfContents => {
+            renderDXF(dxfContents)
+          })
+          .catch(error => {
+            console.error('Error loading file:', error)
+            svgContainer.innerHTML = '<p style="color: red;">Error loading file: ' + error.message + '</p>'
+          })
+      }
+    </script>
+  </body>
+</html>
