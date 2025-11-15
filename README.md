@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/bjnortier/dxf.svg?branch=master)](https://travis-ci.org/bjnortier/dxf)
 
-# dxf
+# DXF-Renewed
 
 DXF parser for node/browser.
 
 Written in **TypeScript** with full type definitions included. Uses modern ES2015+ features and is built with esbuild for optimal performance.
+
+> **Note:** This is a renewed and modernized fork of the original [dxf](https://github.com/skymakerolof/dxf) library, with complete TypeScript migration, enhanced performance, and additional features.
 
 ## Version History
 
@@ -209,7 +211,13 @@ npm run type-check     # Run TypeScript type checking
 npm test              # Run all tests
 ```
 
+## Credits
+
+This project is a modernized fork of the original [dxf library by skymakerolof](https://github.com/skymakerolof/dxf), which itself was based on the work by bjnortier and many contributors. DXF-Renewed aims to maintain and improve upon this excellent foundation with modern TypeScript, enhanced performance, and new features.
+
 ## Contributors
+
+### Original dxf Library Contributors
 
 - Liam Mitchell <https://github.com/LiamKarlMitchell>
 - Artur Zochniak <https://github.com/arjamizo>
@@ -223,6 +231,10 @@ npm test              # Run all tests
 - Jakob Pallhuber <https://github.com/Joge97>
 - Eric Mansfield <https://github.com/ericman314>
 - Kristofer <https://github.com/kriffe>
+
+### DXF-Renewed Maintainers
+
+- Linkiez <https://github.com/linkiez>
 
 ## License
 
