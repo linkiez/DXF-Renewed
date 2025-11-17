@@ -3,6 +3,8 @@
 
 # DXF-Renewed
 
+> **⚠️ WARNING: This repository is currently under development and has not been fully tested in production. Use at your own risk.**
+
 DXF parser for node/browser.
 
 Written in **TypeScript** with full type definitions included. Uses modern ES2015+ features and is built with esbuild for optimal performance.
