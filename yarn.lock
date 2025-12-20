@@ -1137,6 +1137,63 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@linkiez/dxf-renew@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@linkiez/dxf-renew@workspace:."
+  dependencies:
+    "@babel/core": "npm:^7.28.5"
+    "@babel/eslint-parser": "npm:^7.25.1"
+    "@babel/preset-react": "npm:^7.28.5"
+    "@commitlint/cli": "npm:^20.1.0"
+    "@commitlint/config-conventional": "npm:^20.0.0"
+    "@semantic-release/changelog": "npm:^6.0.3"
+    "@semantic-release/git": "npm:^10.0.1"
+    "@semantic-release/github": "npm:^12.0.2"
+    "@types/babel__core": "npm:^7"
+    "@types/lodash": "npm:^4.17.20"
+    "@types/node": "npm:^24.10.1"
+    "@typescript-eslint/eslint-plugin": "npm:^8.46.4"
+    "@typescript-eslint/parser": "npm:^8.46.4"
+    browserify: "npm:^16.5.2"
+    commander: "npm:^2.20.3"
+    commitizen: "npm:^4.3.1"
+    cz-conventional-changelog: "npm:^3.3.0"
+    esbuild: "npm:^0.27.0"
+    eslint: "npm:^8.57.0"
+    eslint-config-prettier: "npm:^8.10.0"
+    eslint-config-standard: "npm:^17.1.0"
+    eslint-config-standard-react: "npm:^13.0.0"
+    eslint-plugin-import: "npm:^2.29.1"
+    eslint-plugin-n: "npm:^16.6.2"
+    eslint-plugin-promise: "npm:^6.6.0"
+    eslint-plugin-react: "npm:^7.35.0"
+    eslint-plugin-react-hooks: "npm:^4.6.2"
+    expect: "npm:^29.7.0"
+    husky: "npm:^9.1.7"
+    lodash: "npm:^4.17.21"
+    mocha: "npm:^10.7.3"
+    prettier: "npm:^3.3.3"
+    prop-types: "npm:^15.8.1"
+    raw-loader: "npm:^4.0.2"
+    react: "npm:^16.14.0"
+    react-dom: "npm:^16.14.0"
+    react-router-dom: "npm:^5.3.4"
+    rimraf: "npm:^6.0.1"
+    semantic-release: "npm:^25.0.2"
+    standard-version: "npm:^9.5.0"
+    ts-node: "npm:^10.9.2"
+    tsx: "npm:^4.20.6"
+    typescript: "npm:^5.9.3"
+    vecks: "npm:^3.9.2"
+    webpack: "npm:^5.94.0"
+    webpack-cli: "npm:^5.1.4"
+    webpack-dev-server: "npm:^4.15.2"
+    xml2js: "npm:^0.6.2"
+  bin:
+    dxf-to-svg: lib/cli.js
+  languageName: unknown
+  linkType: soft
+
 "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1":
   version: 5.1.1-v1
   resolution: "@nicolo-ribaudo/eslint-scope-5-internals@npm:5.1.1-v1"
@@ -4915,63 +4972,6 @@ __metadata:
   checksum: 10c0/0765a4cc6fe6d9615d43cc6dbccff6f8412811d89a6f6aa44828ca9422a0a469625ce023bf81cee68f52930dbedf9c5716056ff264ac886612702d134b5e39b4
   languageName: node
   linkType: hard
-
-"dxf@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "dxf@workspace:."
-  dependencies:
-    "@babel/core": "npm:^7.28.5"
-    "@babel/eslint-parser": "npm:^7.25.1"
-    "@babel/preset-react": "npm:^7.28.5"
-    "@commitlint/cli": "npm:^20.1.0"
-    "@commitlint/config-conventional": "npm:^20.0.0"
-    "@semantic-release/changelog": "npm:^6.0.3"
-    "@semantic-release/git": "npm:^10.0.1"
-    "@semantic-release/github": "npm:^12.0.2"
-    "@types/babel__core": "npm:^7"
-    "@types/lodash": "npm:^4.17.20"
-    "@types/node": "npm:^24.10.1"
-    "@typescript-eslint/eslint-plugin": "npm:^8.46.4"
-    "@typescript-eslint/parser": "npm:^8.46.4"
-    browserify: "npm:^16.5.2"
-    commander: "npm:^2.20.3"
-    commitizen: "npm:^4.3.1"
-    cz-conventional-changelog: "npm:^3.3.0"
-    esbuild: "npm:^0.27.0"
-    eslint: "npm:^8.57.0"
-    eslint-config-prettier: "npm:^8.10.0"
-    eslint-config-standard: "npm:^17.1.0"
-    eslint-config-standard-react: "npm:^13.0.0"
-    eslint-plugin-import: "npm:^2.29.1"
-    eslint-plugin-n: "npm:^16.6.2"
-    eslint-plugin-promise: "npm:^6.6.0"
-    eslint-plugin-react: "npm:^7.35.0"
-    eslint-plugin-react-hooks: "npm:^4.6.2"
-    expect: "npm:^29.7.0"
-    husky: "npm:^9.1.7"
-    lodash: "npm:^4.17.21"
-    mocha: "npm:^10.7.3"
-    prettier: "npm:^3.3.3"
-    prop-types: "npm:^15.8.1"
-    raw-loader: "npm:^4.0.2"
-    react: "npm:^16.14.0"
-    react-dom: "npm:^16.14.0"
-    react-router-dom: "npm:^5.3.4"
-    rimraf: "npm:^6.0.1"
-    semantic-release: "npm:^25.0.2"
-    standard-version: "npm:^9.5.0"
-    ts-node: "npm:^10.9.2"
-    tsx: "npm:^4.20.6"
-    typescript: "npm:^5.9.3"
-    vecks: "npm:^3.9.2"
-    webpack: "npm:^5.94.0"
-    webpack-cli: "npm:^5.1.4"
-    webpack-dev-server: "npm:^4.15.2"
-    xml2js: "npm:^0.6.2"
-  bin:
-    dxf-to-svg: lib/cli.js
-  languageName: unknown
-  linkType: soft
 
 "eastasianwidth@npm:^0.2.0":
   version: 0.2.0
