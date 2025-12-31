@@ -1,6 +1,6 @@
 import type { DXFTuple } from '../types/dxf'
 import type { Entity } from '../types/entity'
-import type { PolylineEntity } from '../types/polyline-entity'
+import type { PolylineEntity, Vertex } from '../types/polyline-entity'
 
 import logger from '../util/logger'
 import arc from './entity/arc'
@@ -61,8 +61,102 @@ const handlers: Record<string, EntityHandler> = [
  * @param tuples - Array of DXF tuples representing entities
  * @returns Array of parsed entities
  */
+class EntityGroupProcessor {
+  private readonly entities: Entity[] = []
+  private currentPolyline: PolylineEntity | undefined
+
+  getEntities(): Entity[] {
+    return this.entities
+  }
+
+  finalize(): void {
+    this.flushOpenPolyline('DXF ended with an open POLYLINE (missing SEQEND); flushing open polyline')
+  }
+
+  processGroup(tuples: DXFTuple[]): void {
+    const entityType = tuples[0][1]
+    const contentTuples = tuples.slice(1)
+
+    switch (entityType) {
+      case 'SEQEND':
+        this.endSequence()
+        return
+      case 'POLYLINE':
+        this.startPolyline(contentTuples)
+        return
+      case 'VERTEX':
+        this.addVertex(contentTuples)
+        return
+      default:
+        this.addEntity(entityType, contentTuples)
+        return
+    }
+  }
+
+  private parseEntity(entityType: string, contentTuples: DXFTuple[]): Entity | undefined {
+    const handler = handlers[entityType]
+    if (!handler) {
+      logger.warn('unsupported type in ENTITIES section:', entityType)
+      return undefined
+    }
+    return handler.process(contentTuples)
+  }
+
+  private flushOpenPolyline(reason: string): void {
+    if (!this.currentPolyline) return
+    logger.warn(reason)
+    this.currentPolyline = undefined
+  }
+
+  private endSequence(): void {
+    // SEQEND may also terminate other sequences (e.g. INSERT attributes).
+    // Only treat it as significant when we're inside a POLYLINE sequence.
+    this.currentPolyline = undefined
+  }
+
+  private startPolyline(contentTuples: DXFTuple[]): void {
+    this.flushOpenPolyline(
+      'POLYLINE started while previous POLYLINE is still open; flushing previous polyline',
+    )
+
+    const e = this.parseEntity('POLYLINE', contentTuples)
+    if (!e) return
+
+    this.currentPolyline = e as PolylineEntity
+    this.entities.push(e)
+  }
+
+  private addVertex(contentTuples: DXFTuple[]): void {
+    const e = this.parseEntity('VERTEX', contentTuples)
+    if (!e) return
+
+    if (!this.currentPolyline) {
+      logger.error('ignoring invalid VERTEX entity')
+      return
+    }
+
+    this.currentPolyline.vertices.push(e as Vertex)
+  }
+
+  private addEntity(entityType: string, contentTuples: DXFTuple[]): void {
+    this.flushOpenPolyline('POLYLINE sequence ended without SEQEND; flushing open polyline')
+
+    const e = this.parseEntity(entityType, contentTuples)
+    if (!e) return
+    this.entities.push(e)
+  }
+}
+
+function processEntityGroups(entityGroups: DXFTuple[][]): Entity[] {
+  const processor = new EntityGroupProcessor()
+  for (const tuples of entityGroups) {
+    processor.processGroup(tuples)
+  }
+  processor.finalize()
+  return processor.getEntities()
+}
+
 export default function parseEntities(tuples: DXFTuple[]): Entity[] {
-  const entities: Entity[] = []
   const entityGroups: DXFTuple[][] = []
   let currentEntityTuples: DXFTuple[] = []
 
@@ -76,36 +170,5 @@ export default function parseEntities(tuples: DXFTuple[]): Entity[] {
     currentEntityTuples.push(tuple)
   }
 
-  let currentPolyline: PolylineEntity | undefined
-  for (const tuples of entityGroups) {
-    const entityType = tuples[0][1]
-    const contentTuples = tuples.slice(1)
-
-    if (entityType in handlers) {
-      const e = handlers[entityType].process(contentTuples)
-      // "POLYLINE" cannot be parsed in isolation, it is followed by
-      // N "VERTEX" entities and ended with a "SEQEND" entity.
-      // Essentially we convert POLYLINE to LWPOLYLINE - the extra
-      // vertex flags are not supported
-      if (entityType === 'POLYLINE') {
-        currentPolyline = e as PolylineEntity
-        entities.push(e)
-      } else if (entityType === 'VERTEX') {
-        if (currentPolyline) {
-          currentPolyline.vertices.push(e as any)
-        } else {
-          logger.error('ignoring invalid VERTEX entity')
-        }
-      } else if (entityType === 'SEQEND') {
-        currentPolyline = undefined
-      } else {
-        // All other entities
-        entities.push(e)
-      }
-    } else {
-      logger.warn('unsupported type in ENTITIES section:', entityType)
-    }
-  }
-
-  return entities
+  return processEntityGroups(entityGroups)
 }
