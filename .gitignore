@@ -9,6 +9,9 @@ examples/example.es6.svg
 #*
 .idea
 
+# Local Python tooling (ezdxf)
+.venv-ezdxf/
+
 # Yarn 4
 .yarn/*
 !.yarn/patches
