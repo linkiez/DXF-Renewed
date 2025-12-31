@@ -36,18 +36,20 @@ Antes de reportar um bug, verifique se já existe uma issue aberta sobre o probl
 ### Pull Requests
 
 1. Fork o repositório
-2. Crie uma branch a partir de `develop`:
+2. Crie uma branch a partir de `main`:
+
    ```bash
-   git checkout develop
+   git checkout main
    git checkout -b feature/sua-feature
    ```
+
 3. Faça suas mudanças seguindo o [Padrão de Commits](#padrão-de-commits)
 4. Execute os testes: `yarn test`
 5. Execute o linter: `yarn lint`
 6. Execute a build: `yarn build`
 7. Commit suas mudanças (o commitlint validará automaticamente)
 8. Push para sua branch
-9. Abra um Pull Request para `develop`
+9. Abra um Pull Request para `main`
 
 ## Padrão de Commits
 
@@ -55,7 +57,7 @@ Este projeto utiliza [Conventional Commits](https://www.conventionalcommits.org/
 
 ### Formato
 
-```
+```text
 <type>(<scope>): <subject>
 
 [optional body]
@@ -81,7 +83,7 @@ Este projeto utiliza [Conventional Commits](https://www.conventionalcommits.org/
 
 To indicate a breaking change (generates MAJOR release):
 
-```
+```text
 feat: allow provided config object to extend other configs
 
 BREAKING CHANGE: `extends` key in config file is now used
@@ -90,7 +92,7 @@ to extend other config files
 
 Or use `!` after the type:
 
-```
+```text
 feat!: remove support for Node 6
 ```
 
@@ -139,7 +141,7 @@ This will open an interactive prompt to create the commit in the correct format.
 O projeto usa [semantic-release](https://semantic-release.gitbook.io/) para releases automáticos:
 
 1. Faça commits seguindo o padrão Conventional Commits
-2. Faça merge do PR para `main`, `develop` ou `beta`
+2. Faça merge do PR para `main`
 3. O GitHub Actions automaticamente:
    * Analisa os commits desde o último release
    * Determina o novo número de versão (MAJOR.MINOR.PATCH)
@@ -151,8 +153,6 @@ O projeto usa [semantic-release](https://semantic-release.gitbook.io/) para rele
 ### Branches
 
 * **main**: Releases estáveis de produção
-* **develop**: Pre-releases (versões beta)
-* **beta**: Pre-releases específicas para testes
 
 ### Versionamento
 
@@ -220,7 +220,7 @@ yarn semantic-release   # Executar semantic-release
 
 ### Estrutura do Projeto
 
-```
+```text
 dxf/
 ├── src/                # Código-fonte TypeScript
 │   ├── handlers/       # Parsers de entidades e tabelas
@@ -238,15 +238,17 @@ dxf/
 ### Workflow de Desenvolvimento
 
 1. **Crie uma issue** descrevendo o que você vai fazer
-2. **Crie uma branch** a partir de `develop`:
+2. **Crie uma branch** a partir de `main`:
+
    ```bash
-   git checkout develop
-   git pull origin develop
+   git checkout main
+   git pull origin main
    git checkout -b feat/minha-feature
    ```
+
 3. **Faça suas mudanças** com commits seguindo o padrão
 4. **Execute os testes** localmente
-5. **Push e crie um PR** para `develop`
+5. **Push e crie um PR** para `main`
 6. **Aguarde a revisão** e responda aos comentários
 7. **Após merge**, o release será feito automaticamente
 

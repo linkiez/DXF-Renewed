@@ -287,8 +287,7 @@ This project uses [semantic-release](https://semantic-release.gitbook.io/) for a
 **Releases are automatically created** when commits following [Conventional Commits](https://www.conventionalcommits.org/en/) are pushed to:
 
 - `main` - Stable production releases (`1.0.0`, `1.1.0`, `2.0.0`)
-- `develop` - Pre-releases for testing (`1.1.0-dev.1`, `1.1.0-dev.2`)
-- `beta` - Beta pre-releases (`1.1.0-beta.1`, `1.1.0-beta.2`)
+
 
 ### Commit Format
 
@@ -312,7 +311,7 @@ To contribute:
 1. Fork the repository
 2. Make commits using `yarn commit` (interactive) or following Conventional Commits
 3. Push to your fork
-4. Open a Pull Request to `develop`
+4. Open a Pull Request to `main`
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
