@@ -22,7 +22,7 @@ This document codifies the current implementation patterns used in DXF-Renewed, 
 Best practices:
 
 - Prefer `import type { ... }` for type-only imports.
-- Avoid `any` in new code. If runtime constraints require it, keep it local and document why.
+- Avoid `any` or `unknown` in new code. If runtime constraints require it, keep it local and document why.
 - Keep names and comments in **English (en_US)**.
 
 ## Project Architecture (High-Level)
