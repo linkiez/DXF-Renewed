@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DXF-Renewed Browser Test Harness</title>
+  </head>
+  <body>
+    <div id="render-output"></div>
+    <script src="/dist/dxf.js"></script>
+    <script>
+      async function fetchText(url) {
+        const res = await fetch(url)
+        if (!res.ok) {
+          throw new Error(`Failed to fetch ${url}: ${res.status}`)
+        }
+        return await res.text()
+      }
+
+      // Exposed for Playwright tests.
+      globalThis.renderFixtureToSVG = async function renderFixtureToSVG(fixtureName) {
+        if (!globalThis.dxf) {
+          throw new Error('DXF bundle not loaded: globalThis.dxf is undefined')
+        }
+        const dxfText = await fetchText(`/fixtures/${fixtureName}`)
+        const parsed = globalThis.dxf.parseString(dxfText)
+        return globalThis.dxf.toSVG(parsed)
+      }
+
+      globalThis.renderSVGToDom = function renderSVGToDom(svgString) {
+        const container = document.getElementById('render-output')
+        if (!container) {
+          throw new Error('Missing #render-output container')
+        }
+        container.innerHTML = svgString
+      }
+    </script>
+  </body>
+</html>

@@ -20,3 +20,14 @@ examples/example.es6.svg
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+# Playwright (generated artifacts)
+test-results/
+playwright-report/
+blob-report/
+
+# Rendered screenshots (generated artifacts)
+test/rendered/*.png
+
+# Editor settings
+.vscode/
