@@ -80,16 +80,16 @@ class EntityGroupProcessor {
     switch (entityType) {
       case 'SEQEND':
         this.endSequence()
-        return
+        break
       case 'POLYLINE':
         this.startPolyline(contentTuples)
-        return
+        break
       case 'VERTEX':
         this.addVertex(contentTuples)
-        return
+        break
       default:
         this.addEntity(entityType, contentTuples)
-        return
+        break
     }
   }
 

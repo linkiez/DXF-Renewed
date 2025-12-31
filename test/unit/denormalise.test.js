@@ -4,6 +4,7 @@ import expectModule from 'expect'
 const expect = expectModule.expect || expectModule.default
 
 import { parseString, denormalise } from '../../src'
+import applyTransforms from '../../src/applyTransforms'
 
 describe('Denormalise', () => {
   it('top-level entities', () => {
@@ -112,5 +113,52 @@ describe('Denormalise', () => {
       scaleZ: 0,
       rotation: 120,
     })
+  })
+
+  it('applies block basepoint adjustment to TEXT/MTEXT/DIMENSION', () => {
+    const contents = fs.readFileSync(
+      getResourcePath(import.meta.url, 'block-basepoint-text-mtext-dimension.dxf'),
+      'utf-8',
+    )
+    const parsed = parseString(contents)
+    const entities = denormalise(parsed)
+
+    const texts = entities.filter((e) => e.type === 'TEXT')
+    const mtexts = entities.filter((e) => e.type === 'MTEXT')
+    const dimensions = entities.filter((e) => e.type === 'DIMENSION')
+
+    expect(texts.length).toEqual(1)
+    expect(mtexts.length).toEqual(1)
+    expect(dimensions.length).toEqual(1)
+
+    const text = texts[0]
+    const textPos = applyTransforms([[text.x, text.y]], text.transforms)[0]
+    const textAlignPos = applyTransforms([[text.x2, text.y2]], text.transforms)[0]
+    expect(textPos).toEqual([101, 202])
+    expect(textAlignPos).toEqual([102, 203])
+
+    const mtext = mtexts[0]
+    const mtextPos = applyTransforms([[mtext.x, mtext.y]], mtext.transforms)[0]
+    expect(mtextPos).toEqual([102, 203])
+
+    const dim = dimensions[0]
+    const dimStart = applyTransforms([[dim.start.x, dim.start.y]], dim.transforms)[0]
+    const dimText = applyTransforms(
+      [[dim.textMidpoint.x, dim.textMidpoint.y]],
+      dim.transforms,
+    )[0]
+    const dimMeasureStart = applyTransforms(
+      [[dim.measureStart.x, dim.measureStart.y]],
+      dim.transforms,
+    )[0]
+    const dimMeasureEnd = applyTransforms(
+      [[dim.measureEnd.x, dim.measureEnd.y]],
+      dim.transforms,
+    )[0]
+
+    expect(dimStart).toEqual([103, 204])
+    expect(dimText).toEqual([104, 205])
+    expect(dimMeasureStart).toEqual([103, 204])
+    expect(dimMeasureEnd).toEqual([107, 204])
   })
 })
