@@ -34,6 +34,7 @@
     "test": "npm run test:unit",
     "test:functional": "cd test/functional && webpack-dev-server",
     "test:unit": "mocha --require tsx --recursive test/unit/** --extensions .ts,.js",
+    "test:integration:node": "mocha --require tsx --recursive test/integration/** --extensions .ts,.js",
     "test:unit:watch": "npm run test:unit -- --watch",
     "prepare": "husky",
     "semantic-release": "semantic-release",
