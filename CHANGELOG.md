@@ -1,5 +1,41 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+## 7.0.0 (2025-12-31)
+
+* fix: consolidar tipos ParsedDXF e corrigir incompatibilidades ([804c485](https://github.com/linkiez/DXF-Renewed/commit/804c485))
+* fix: tipar handlers e entidades no parseEntities ([a364044](https://github.com/linkiez/DXF-Renewed/commit/a364044))
+* fix(ci): enable corepack for yarn 4 support in github actions ([59048b9](https://github.com/linkiez/DXF-Renewed/commit/59048b9))
+* fix(ci): remove yarn cache from setup-node to enable corepack first ([ba3186c](https://github.com/linkiez/DXF-Renewed/commit/ba3186c))
+* fix(ci): skip eslint temporarily - babel parser incompatible with ts+esm ([37276c4](https://github.com/linkiez/DXF-Renewed/commit/37276c4))
+* fix(ci): use node 22.x for semantic-release v25 compatibility ([c20e69b](https://github.com/linkiez/DXF-Renewed/commit/c20e69b))
+* fix(release): simplify to use only main branch for releases ([705b77d](https://github.com/linkiez/DXF-Renewed/commit/705b77d))
+* fix(release): use https repository URL ([77e9a17](https://github.com/linkiez/DXF-Renewed/commit/77e9a17))
+* chore: sync package and release configuration ([e391038](https://github.com/linkiez/DXF-Renewed/commit/e391038))
+* chore: update yarn.lock ([6a7fb91](https://github.com/linkiez/DXF-Renewed/commit/6a7fb91))
+* docs: add warning about development status to README ([def8658](https://github.com/linkiez/DXF-Renewed/commit/def8658))
+* feat: adicionar tipos para entidades hatch, viewport e ole2frame ([e1c7b8f](https://github.com/linkiez/DXF-Renewed/commit/e1c7b8f))
+* feat: implement DIMENSION rendering with DIMSTYLE support (Phases 1 and 2) ([37b7e62](https://github.com/linkiez/DXF-Renewed/commit/37b7e62))
+* feat: implement Phase 3 - advanced DIMENSION rendering with arrows and extension lines ([02ff584](https://github.com/linkiez/DXF-Renewed/commit/02ff584))
+* feat: implement semantic-release and translate project to en_US ([e5b880d](https://github.com/linkiez/DXF-Renewed/commit/e5b880d))
+* feat(lint): add typescript eslint support and fix lint errors ([df13e74](https://github.com/linkiez/DXF-Renewed/commit/df13e74))
+* refactor: consolidar ColorRGB type em types/common ([4a0bd43](https://github.com/linkiez/DXF-Renewed/commit/4a0bd43))
+* refactor: consolidar types e interfaces em src/types/ ([604aa5c](https://github.com/linkiez/DXF-Renewed/commit/604aa5c))
+* refactor: eliminar interfaces duplicadas de arquivos principais ([3429635](https://github.com/linkiez/DXF-Renewed/commit/3429635))
+* refactor: remover extrusionZ duplicado de InsertEntity ([3a1fcfd](https://github.com/linkiez/DXF-Renewed/commit/3a1fcfd))
+* refactor: simplificar types com extends pattern ([ea08247](https://github.com/linkiez/DXF-Renewed/commit/ea08247))
+
+
+### BREAKING CHANGE
+
+* All commits must now follow Conventional Commits format in English
+
+# Changelog
+
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ### [5.3.1](https://github.com/skymakerolof/dxf/compare/v5.3.0...v5.3.1) (2025-09-01)
