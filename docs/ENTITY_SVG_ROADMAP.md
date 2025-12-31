@@ -46,6 +46,8 @@ Every browser integration test should save a screenshot to `test/rendered/` for 
 - Use deterministic naming tied to the fixture: `test/rendered/<fixture-name>.png`
 - Overwrite is expected (re-running tests updates the same file).
 
+See: `docs/SVG_RENDERING_INTEGRATION_TESTS.md` (Saved Render Artifacts section)
+
 ## DIMENSION (Start Here)
 
 ### Fixture(s)

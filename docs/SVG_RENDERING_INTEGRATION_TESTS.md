@@ -64,6 +64,8 @@ Browser integration tests should save a screenshot under `test/rendered/` for ma
 - The file can be overwritten on re-run.
 - Prefer a deterministic filename tied to the fixture name, e.g. `test/rendered/dimension-vertical.png`.
 
+Note: these PNGs are tracked in git. If you regenerate them, include the updated files in your PR.
+
 ### Handling Non-Deterministic IDs
 
 Some renderers generate IDs using `Date.now()` (e.g. DIMENSION arrow markers). Integration tests should validate **prefix-based patterns**:
@@ -104,7 +106,7 @@ See:
 ## Adding a New Integration Test (Checklist)
 
 1. Pick or create a DXF fixture under `test/resources/`.
-2. (Recommended) Validate it with `yarn validate:fixtures`.
+2. (Recommended) Validate it with `yarn validate:fixtures` (see `docs/FIXTURE_VALIDATION_EZDXF.md`).
 3. Add a new `test/integration/*.integration.test.js`.
    - Or, for browser execution, add `test/integration-browser/*.browser.spec.js`.
 4. Assert:

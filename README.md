@@ -1,7 +1,7 @@
+# DXF-Renewed
+
 [![Build Status](https://travis-ci.org/bjnortier/dxf.svg?branch=master)](https://travis-ci.org/bjnortier/dxf)
 [![semantic-release: conventionalcommits](https://img.shields.io/badge/semantic--release-conventionalcommits-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
-
-# DXF-Renewed
 
 > **⚠️ WARNING: This repository is currently under development and has not been fully tested in production. Use at your own risk.**
 
@@ -235,7 +235,7 @@ Please open `toSVG.html` when the file listing loads in the browser (or open `ht
 
 ## Development Guidelines
 
-- Code patterns and best practices: `docs/CODE_PATTERNS.md`
+Project documentation index: `docs/README.md`
 
 ## TypeScript Support
 
@@ -314,7 +314,7 @@ To contribute:
 3. Push to your fork
 4. Open a Pull Request to `develop`
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines and [docs/SEMANTIC_RELEASE.md](./docs/SEMANTIC_RELEASE.md) for release documentation.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
 ## Contributors
 

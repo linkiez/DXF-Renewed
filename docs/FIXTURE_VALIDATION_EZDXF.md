@@ -58,3 +58,5 @@ When adding a new fixture:
 1. Add the DXF file under `test/resources/`.
 2. Run `yarn validate:fixtures`.
 3. Add unit tests (parsing) and integration tests (final SVG).
+
+See also: `docs/ENTITY_SVG_ROADMAP.md` (fixture → ezdxf → tests checklist)

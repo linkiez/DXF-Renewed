@@ -34,84 +34,15 @@ When behavior is ambiguous or disputed, treat Autodesk’s DXF reference as auth
 - Root: <https://help.autodesk.com/view/OARX/2024/ENU/>
 - DXF Format entry point (guid): <https://help.autodesk.com/view/OARX/2024/ENU/?guid=GUID-235B22E0-A567-4CF6-92D3-38A2306D73F3>
 
+Project documentation index:
+
+- `docs/README.md`
+
 ## “Sitemap” / Checklist Source
 
 - Primary navigation for implementation work: [docs/EZDXF_REFERENCE_SITEMAP.md](docs/EZDXF_REFERENCE_SITEMAP.md)
-- Secondary (deep spec index): Autodesk 2024 DXF Reference TOC (kept below)
 
-### Autodesk 2024 DXF Reference TOC (expanded nodes)
-
-### DXF Format
-
-- About the DXF Format (DXF)
-- About DXF Formatting Conventions
-- About Object and Entity Codes (DXF)
-- Group Code Value Types Reference (DXF)
-- DXF Group Codes in Numerical Order Reference
-
-### Header Section
-
-- About the DXF HEADER Section
-- HEADER Section Group Codes (DXF)
-
-### Classes Section
-
-- About the DXF CLASSES Section
-- CLASSES Section Group Codes (DXF)
-- Default Class Values (DXF)
-
-### Tables Section
-
-- About the DXF TABLES Section (DXF)
-- About Symbol Table Group Codes (DXF)
-- Common Symbol Table Group Codes (DXF)
-- APPID (DXF)
-- BLOCK_RECORD (DXF)
-- DIMSTYLE (DXF)
-- LAYER (DXF)
-- LTYPE (DXF)
-- STYLE (DXF)
-- UCS (DXF)
-- VIEW (DXF)
-- VPORT (DXF)
-
-### Blocks Section
-
-- About the DXF BLOCKS Section
-- About BLOCKS Section Group Codes (DXF)
-- BLOCK (DXF)
-- ENDBLK (DXF)
-
-### Entities Section
-
-Autodesk lists many entities (including 3D). For “complete 2D”, the critical subset includes:
-
-- ARC, CIRCLE, LINE
-- LWPOLYLINE, POLYLINE (+ VERTEX + SEQEND)
-- ELLIPSE, SPLINE
-- HATCH, SOLID, TRACE, REGION
-- POINT
-- TEXT, MTEXT
-- DIMENSION, LEADER, MLEADER, TOLERANCE
-- INSERT, ATTDEF, ATTRIB
-- VIEWPORT
-- IMAGE, UNDERLAY, WIPEOUT
-- RAY, XLINE
-- OLEFRAME, OLE2FRAME
-- TABLE (entity)
-
-### Objects Section
-
-For 2D workflows, the most commonly required objects include:
-
-- DICTIONARY / DICTIONARYVAR
-- XRECORD
-- LAYOUT
-- DIMASSOC
-- IMAGEDEF / IMAGEDEF_REACTOR
-- GROUP
-- TABLESTYLE
-- FIELD
+Note: do not embed large copies of Autodesk TOCs/spec text in this plan. Keep external links instead so this file stays maintainable.
 
 ## Current State (Repository Snapshot)
 
@@ -257,7 +188,6 @@ There is already substantial fixture coverage in `test/resources/*.dxf` and unit
 
 - PR 0.1: Add/confirm one “golden” unit test per public API (`parseString`, `toPolylines`, `toSVG`).
 - PR 0.2: Add a test-only strict mode helper (e.g., fail on unknown entity/table/object types) without changing the runtime default behavior.
-- PR 0.3: Add 1–3 new fixtures only if existing fixtures don’t cover a targeted feature.
 - PR 0.3: Add 1–3 new fixtures only if existing fixtures don’t cover a targeted feature.
   - If a fixture is too complex for stable assertions, prefer a smaller, focused fixture generated via ezdxf.
   - It is OK to replace or simplify existing fixtures if they remain representative of the behavior under test.
