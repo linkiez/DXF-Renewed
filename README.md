@@ -201,6 +201,30 @@ All npm commands in the documentation can be replaced with yarn equivalents:
 - `npm test` → `yarn test`
 - `npm run compile` → `yarn compile`
 
+## Installing from GitHub Packages
+
+This package is published to the GitHub Packages npm registry (`npm.pkg.github.com`).
+
+1) Configure scope routing (project-local `.npmrc`):
+
+```ini
+@linkiez:registry=https://npm.pkg.github.com
+```
+
+1) Authenticate (user-level `~/.npmrc`):
+
+```ini
+//npm.pkg.github.com/:_authToken=YOUR_TOKEN
+```
+
+The token must have permission to read packages (for private packages, this typically means a classic PAT with `read:packages`).
+
+1) Install:
+
+```bash
+yarn add @linkiez/dxf-renew
+```
+
 ## SVG
 
 Geometric elements are fully supported with **native SVG elements** where possible (`<circle />`, `<ellipse/>`, etc.). TEXT, MTEXT, and DIMENSION entities are now fully rendered with proper transformations and formatting.
