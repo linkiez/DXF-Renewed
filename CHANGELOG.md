@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.2.3 (2026-01-01)</small>
+
+* Revert "ci: publish to GitHub Packages npm registry" ([647277b](https://github.com/linkiez/DXF-Renewed/commit/647277b))
+* Revert "docs: add GitHub Packages install instructions" ([86392ec](https://github.com/linkiez/DXF-Renewed/commit/86392ec))
+
 ## <small>7.2.2 (2026-01-01)</small>
 
 * Merge pull request #4 from linkiez/fix/emit-types ([acb6440](https://github.com/linkiez/DXF-Renewed/commit/acb6440)), closes [#4](https://github.com/linkiez/DXF-Renewed/issues/4)
