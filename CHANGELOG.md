@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.2.1 (2026-01-01)</small>
+
+* Merge pull request #3 from linkiez/feature/2026.01.01 ([2c51f7d](https://github.com/linkiez/DXF-Renewed/commit/2c51f7d)), closes [#3](https://github.com/linkiez/DXF-Renewed/issues/3)
+* docs: add GitHub Packages install instructions ([5b4671e](https://github.com/linkiez/DXF-Renewed/commit/5b4671e))
+* ci: publish to GitHub Packages npm registry ([a37adda](https://github.com/linkiez/DXF-Renewed/commit/a37adda))
+
 ## 7.2.0 (2026-01-01)
 
 * Merge pull request #2 from linkiez/feature/2026.01.01 ([c01512f](https://github.com/linkiez/DXF-Renewed/commit/c01512f)), closes [#2](https://github.com/linkiez/DXF-Renewed/issues/2)
