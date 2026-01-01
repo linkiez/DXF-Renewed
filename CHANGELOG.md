@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 7.2.0 (2026-01-01)
+
+* Merge pull request #2 from linkiez/feature/2026.01.01 ([c01512f](https://github.com/linkiez/DXF-Renewed/commit/c01512f)), closes [#2](https://github.com/linkiez/DXF-Renewed/issues/2)
+* docs: add architecture diagram ([7f61ef2](https://github.com/linkiez/DXF-Renewed/commit/7f61ef2))
+* docs: clarify supported entities ([8cd47dc](https://github.com/linkiez/DXF-Renewed/commit/8cd47dc))
+* docs: consolidate documentation into PLAN.md ([204abf9](https://github.com/linkiez/DXF-Renewed/commit/204abf9))
+* docs: fix mermaid diagram parsing ([0cedf8d](https://github.com/linkiez/DXF-Renewed/commit/0cedf8d))
+* docs: improve README structure ([3c6659d](https://github.com/linkiez/DXF-Renewed/commit/3c6659d))
+* docs: rename plan to roadmap ([23b060e](https://github.com/linkiez/DXF-Renewed/commit/23b060e))
+* docs: update README progress ([64566b7](https://github.com/linkiez/DXF-Renewed/commit/64566b7))
+* feat: add toJson processor ([94e112c](https://github.com/linkiez/DXF-Renewed/commit/94e112c))
+* feat(entities): add handlers for additional 2D entities ([221ef8b](https://github.com/linkiez/DXF-Renewed/commit/221ef8b))
+* feat(parser): add FIELD/DIMASSOC objects and extra table types ([ef89ed7](https://github.com/linkiez/DXF-Renewed/commit/ef89ed7))
+* feat(render): support LEADER/RAY/XLINE/TRACE/SHAPE/WIPEOUT ([05a7c82](https://github.com/linkiez/DXF-Renewed/commit/05a7c82))
+* chore(tooling): remove babel/react/webpack and migrate functional tests to vite ([dd92031](https://github.com/linkiez/DXF-Renewed/commit/dd92031))
+
 ## 7.1.0 (2026-01-01)
 
 * Merge pull request #1 from linkiez/feat/seqend-sequencing ([068c6e1](https://github.com/linkiez/DXF-Renewed/commit/068c6e1)), closes [#1](https://github.com/linkiez/DXF-Renewed/issues/1)
