@@ -17,6 +17,17 @@ This document describes a phased plan to align this project’s DXF parsing beha
 - Full ObjectARX/.NET API parity (this is a DXF parser, not a CAD kernel).
 - Perfect fidelity for every proprietary/extension object (fallback behavior is acceptable).
 
+## Progress
+
+Last updated: 2026-01-01
+
+- M0 — Baseline & Regression Harness: done (existing unit + integration coverage is in place).
+- M1 — DXF Format & Section-Level Compliance: ongoing (incremental hardening as fixtures demand).
+- M2 — TABLES Coverage (2D-Relevant): in progress (added minimal parsing for APPID, BLOCK_RECORD, UCS, VIEW).
+- M3 — OBJECTS Coverage (2D-Relevant): in progress (DICTIONARY/XRECORD/IMAGEDEF/UNDERLAY definitions exist; added minimal DIMASSOC parsing).
+- M4 — ENTITIES: Complete 2D Set: ongoing (added TRACE parse + toPolylines support).
+- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE now renders in SVG as a filled path; LEADER now converts to polylines; RAY/XLINE now render via finite polyline fallback; SHAPE renders as text fallback).
+
 ## References
 
 ### Primary (ezdxf stable docs)
@@ -36,7 +47,186 @@ When behavior is ambiguous or disputed, treat Autodesk’s DXF reference as auth
 
 Project documentation index:
 
-- `docs/README.md`
+This plan also serves as the documentation index.
+
+Standalone reference docs that remain under `docs/`:
+
+- `docs/autocad_2012_pdf_dxf-reference_enu.md` (local reference copy)
+- `docs/EZDXF_REFERENCE_SITEMAP.md` (ezdxf reference navigation)
+- `docs/FIXTURE_VALIDATION_EZDXF.md` (ezdxf-based fixture validation)
+
+## Documentation (Consolidated)
+
+This section consolidates documentation previously living under `docs/` so the project roadmap and implementation guidance are in one place.
+
+### Where to Start
+
+- Entity support overview: “Implemented Entities (2D)” below
+- DXF version support notes: “DXF Version Support” below
+- Text + annotation notes: “TEXT / MTEXT / DIMENSION (SVG)” below
+- SVG integration testing: “SVG Rendering Integration Tests” below
+- Entity-by-entity workflow: “Entity SVG Roadmap” below
+
+### DXF Version Support
+
+The parser is designed around DXF group codes and sections, and does not currently gate behavior on `$ACADVER`.
+
+In practice, this means:
+
+- We aim to parse and render supported entities across many DXF versions.
+- We treat `$ACADVER` primarily as a fixture metadata signal and future compatibility hook.
+
+Supporting “the latest AutoCAD DXF” is best defined as:
+
+- The library can load DXF files produced by recent AutoCAD versions without rejecting due to version, and
+- The library has fixtures that include a recent `$ACADVER` value, validated by ezdxf.
+
+Recommended strategy:
+
+- Track `$ACADVER` in fixture validation (see `docs/FIXTURE_VALIDATION_EZDXF.md`).
+- Add at least one fixture exported from a recent AutoCAD version (keep it small and single-purpose; prefer a fixture that includes DIMENSION + text).
+- Add an integration test for that fixture (goal: “does not throw + expected key SVG features exist”).
+- Document which `$ACADVER` values are present in fixtures.
+
+Non-goals:
+
+- Guarantee support for every new entity introduced by new DXF versions.
+- Guarantee binary DXF support (unless explicitly added).
+
+If version-specific behavior is needed later:
+
+- Add a header helper that exposes `$ACADVER` in a typed way.
+- Add tests covering version-specific parsing/rendering differences.
+
+### Implemented Entities (2D)
+
+This list was generated based on the AutoCAD 2012 DXF reference documentation. It catalogs 2D entities, indicating whether they have already been implemented in this project.
+
+| Entity | Implemented | Description |
+| :--- | :---: | :--- |
+| **ARC** | ✅ | A circular arc. |
+| **CIRCLE** | ✅ | A circle. |
+| **ELLIPSE** | ✅ | An ellipse or elliptical arc. |
+| **HATCH** | ✅ | Fills a bounded area with a pattern, solid color, or gradient. |
+| **LINE** | ✅ | A straight line segment. |
+| **LWPOLYLINE** | ✅ | A lightweight 2D polyline. |
+| **MTEXT** | ✅ | Multi-line text with advanced formatting (partial formatting support in SVG). |
+| **POINT** | ✅ | A point entity. |
+| **POLYLINE** | ✅ | A 2D or 3D polyline (with vertices). |
+| **SOLID** | ✅ | A 2D area filled with solid color. |
+| **SPLINE** | ✅ | A spline curve. |
+| **TEXT** | ✅ | A single line of text. |
+| **DIMENSION** | ✅ | Dimension entity (linear, angular, radial, etc.). DIMSTYLE integration and SVG rendering are implemented (see “DIMENSION Implementation Summary”). |
+| **INSERT** | ✅ | A block insertion (block reference). |
+| **ATTDEF** | ✅ | Attribute definition for a block. |
+| **ATTRIB** | ✅ | An attribute instance attached to a block. |
+| **OLE2FRAME** | ✅ | An OLE (Object Linking and Embedding) object. |
+| **LEADER** | ✅ | A leader line, used for annotations. |
+| **MLINE** | ❌ | A multi-line entity with parallel lines. |
+| **RAY** | ✅ | A semi-infinite line that extends infinitely in one direction from its start point. |
+| **SHAPE** | ✅ | A shape from a shape file (.shx). |
+| **TOLERANCE** | ✅ | A geometric tolerance (feature control frame). |
+| **TRACE** | ✅ | A solid 2D line with width. |
+| **WIPEOUT** | ✅ | A background masking area (currently rendered as an outline-only fallback; no masking yet). |
+| **XLINE** | ✅ | An infinite construction line. |
+
+### TEXT / MTEXT / DIMENSION (SVG)
+
+This project supports SVG rendering for TEXT, MTEXT, and DIMENSION entities.
+
+Notes:
+
+- Text font selection is not currently respected in SVG (defaults to browser font).
+- Complex MTEXT formatting is not fully supported (kept intentionally incremental).
+- Text bounding boxes are approximate.
+
+Supported group code highlights:
+
+- TEXT: text (1), insertion point (10/20/30), alignment point (11/21/31), height (40), scale X (41), rotation (50), oblique (51), align (72/73)
+- MTEXT: text (1/3), insertion point (10/20/30), X-axis direction (11/21/31), nominal height (40), reference width (41), attachment (71), drawing direction (72)
+- DIMENSION: block name (2), definition point (10/20/30), text midpoint (11/21/31), measurement points (13/23/33, 14/24/34), rotation (50), type (70)
+
+Example:
+
+```typescript
+import { Helper } from '@linkiez/dxf-renew'
+
+const helper = new Helper(dxfString)
+const svg = helper.toSVG()
+```
+
+### SVG Rendering Integration Tests
+
+Goal: validate final SVG output for real DXF fixtures:
+
+`DXF fixture → parseString() → (optional denormalise) → toSVG() → SVG assertions`
+
+Framework:
+
+- Final rendering integration tests run in a real browser using Playwright.
+
+Where tests live:
+
+- Integration tests: `test/integration/**`
+- Browser integration tests: `test/integration-browser/**`
+- DXF fixtures: `test/resources/*.dxf`
+
+Recommended assertions:
+
+1. SVG well-formed envelope (`<svg>`, `</svg>`, `viewBox`)
+2. Entity-specific elements (`<line>`, `<path>`, `<circle>`, `<text>`, `<image>`)
+3. Critical attributes (e.g. `marker-start` / `marker-end` for DIMENSION)
+4. Text content (when applicable)
+5. “Does not throw” for a curated set of fixtures
+
+Saved render artifacts (PNG):
+
+- Browser integration tests should save a screenshot under `test/rendered/` for manual review.
+- Prefer deterministic filenames tied to fixtures, e.g. `test/rendered/dimension-vertical.png`.
+
+Handling non-deterministic IDs:
+
+- Some SVG IDs are timestamp-based (e.g. DIMENSION arrow markers). Validate prefix-based patterns instead of exact IDs.
+
+### Entity SVG Roadmap (Fixture → ezdxf → SVG Integration)
+
+This roadmap is a repeatable checklist for each DXF entity:
+
+- Confirm/produce a fixture in `test/resources/`.
+- Validate it with ezdxf (see `docs/FIXTURE_VALIDATION_EZDXF.md`).
+- Add/extend unit parsing tests.
+- Add final SVG integration tests.
+
+Template:
+
+- Fixture: add or pick a DXF fixture in `test/resources/<entity>-<scenario>.dxf` (keep fixtures minimal).
+- ezdxf validation: run `yarn validate:fixtures`, confirm the file loads, `$ACADVER` is present, and entity counts include your target entity.
+- Unit tests: add unit parsing tests under `test/unit/`, assert minimum required fields for the entity type.
+- SVG integration tests: add `test/integration-browser/<entity>-rendering.browser.spec.js`, assert SVG envelope + required elements/attributes + expected text content when applicable.
+
+Saved PNG per entity (required):
+
+- Every browser integration test should save a screenshot to `test/rendered/<fixture-name>.png`.
+
+### DIMENSION Implementation Summary
+
+The DIMENSION entity is implemented with support for the DIMSTYLE system, including parsing, storage, and SVG rendering.
+
+Highlights:
+
+- DIMSTYLE parsing in `src/handlers/tables.ts` (dozens of properties including arrow blocks, tolerances, alternate units).
+- Rendering module `src/dimensionToSVG.ts` dispatches by dimension type and generates SVG markers for arrows.
+- Color + lineweight support via DIMSTYLE values (dimension, extension, and text colors; line weights).
+
+Dimension types supported in SVG rendering:
+
+- Type 0/1 (linear): extension lines, dimension line, arrows, rotated text
+- Type 2 (angular): arc dimension line, arrows, rotated text
+- Type 3 (diameter): ⌀ symbol
+- Type 4 (radius): R prefix
+- Type 6 (ordinate): leader line and coordinate text
+
+Optional features (not implemented): custom arrow blocks rendering, full tolerances/alternate units formatting, per-entity XDATA overrides.
 
 ## “Sitemap” / Checklist Source
 
@@ -52,8 +242,8 @@ This section is intentionally short; it highlights gaps relevant to the migratio
 
 Entity parsers currently exist for (see `src/handlers/entities.ts` and `src/handlers/entity/*`):
 
-- Implemented: ARC, ATTDEF, ATTRIB, CIRCLE, DIMENSION, ELLIPSE, HATCH, INSERT, LINE, LWPOLYLINE, MTEXT, OLE2FRAME, POINT, POLYLINE, SOLID, SPLINE, TEXT, 3DFACE, VERTEX, VIEWPORT.
-- Missing (not exhaustive): IMAGE, LEADER, MLEADER, MLINE, OLEFRAME, RAY, REGION, SEQEND handling robustness, TRACE, UNDERLAY, WIPEOUT, XLINE, SHAPE, TABLE (entity), TOLERANCE.
+- Implemented: ARC, ATTDEF, ATTRIB, CIRCLE, DIMENSION, ELLIPSE, HATCH, INSERT, LEADER, LINE, LWPOLYLINE, MTEXT, OLE2FRAME, POINT, POLYLINE, RAY, SHAPE, SOLID, SPLINE, TEXT, TOLERANCE, TRACE, WIPEOUT, XLINE, 3DFACE, VERTEX, VIEWPORT.
+- Missing (not exhaustive): SEQEND handling robustness.
 
 ### Tables
 
@@ -66,8 +256,8 @@ Entity parsers currently exist for (see `src/handlers/entities.ts` and `src/hand
 
 `src/handlers/objects.ts` currently parses:
 
-- Implemented: LAYOUT (partial), DICTIONARY, XRECORD.
-- Missing from Autodesk TOC subset above: DIMASSOC, IMAGEDEF (+ reactor), FIELD, TABLESTYLE, GROUP, etc.
+- Implemented: LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions.
+- Missing from Autodesk TOC subset above: TABLESTYLE, GROUP, etc.
 
 ## Project Analysis (Code-Backed)
 
@@ -279,7 +469,7 @@ There is already substantial fixture coverage in `test/resources/*.dxf` and unit
 
 1. Implement missing entity handlers (prioritized)
 
-  Annotation: LEADER, MLEADER, TOLERANCE. Geometry: REGION, TRACE. Reference: IMAGE, UNDERLAY, WIPEOUT. Construction: RAY, XLINE. Legacy: OLEFRAME. Table-in-entities: TABLE (entity). Optional/edge: SHAPE, MLINE.
+  Annotation: MLEADER. Geometry: REGION. Reference: IMAGE, UNDERLAY. Legacy: OLEFRAME. Table-in-entities: TABLE (entity). Optional/edge: MLINE.
 
 1. Ensure common fields are handled consistently
 
@@ -340,27 +530,29 @@ Legend:
 
 ### A.1 Entities (2D-critical)
 
-Already parsed (handlers exist): LINE, LWPOLYLINE, POLYLINE, ARC, CIRCLE, ELLIPSE, SPLINE, TEXT, MTEXT, DIMENSION, INSERT, ATTDEF, ATTRIB, HATCH, SOLID, POINT, VIEWPORT, OLE2FRAME.
+Already parsed (handlers exist): LINE, LWPOLYLINE, POLYLINE, ARC, CIRCLE, ELLIPSE, SPLINE, TEXT, MTEXT, DIMENSION, INSERT, ATTDEF, ATTRIB, HATCH, SOLID, TRACE, POINT, VIEWPORT, OLE2FRAME, LEADER, RAY, XLINE, SHAPE, TOLERANCE, WIPEOUT.
+
+Also parsed (parse-only / safe ignore): MLEADER, MLINE, OLEFRAME, REGION, TABLE (entity).
 
 The items below are the main gaps to reach “complete 2D” as defined in this plan.
 
 | Entity | Parse | Render (SVG) | Render (Polylines) | Block-safe | Minimal implementation checklist |
 | --- | --- | --- | --- | --- | --- |
 | SEQEND | Sentinel only | N/A | N/A | N/A | Add `src/handlers/entity/seqend.ts` (optional) or harden sequencing in `src/handlers/entities.ts` + add fixture that stresses POLYLINE/VERTEX/SEQEND ordering |
-| LEADER | Yes | Yes | No | No | Add `src/types/leader-entity.ts` + export in `src/types/index.ts`; add `src/handlers/entity/leader.ts`; add `toSVG` case (even minimal); add fixture + unit test |
-| MLEADER | No | No | No | No | Add `src/types/mleader-entity.ts`; add `src/handlers/entity/mleader.ts`; likely requires OBJECTS support (DICTIONARY/XRECORD) for full fidelity; start with parse-only + safe ignore in render |
-| TOLERANCE | Yes | Yes | No | No | Add `src/types/tolerance-entity.ts`; add `src/handlers/entity/tolerance.ts`; render as text fallback (SVG only) |
+| LEADER | Yes | Yes | Yes | No | Implemented (minimal polyline support + SVG routing) |
+| MLEADER | Yes | No | No | No | Implemented parse-only + safe ignore in rendering |
+| TOLERANCE | Yes | Yes | No | No | Implemented (SVG text fallback only) |
 | IMAGE | Yes | No | No | No | Add `src/types/image-entity.ts`; add `src/handlers/entity/image.ts`; add OBJECTS: IMAGEDEF/IMAGEDEF_REACTOR; render as placeholder rect or ignore safely |
 | UNDERLAY | Yes | No | No | No | Add `src/types/underlay-entity.ts`; add `src/handlers/entity/dwfUnderlay.ts` + `src/handlers/entity/dgnUnderlay.ts`; add OBJECTS: UNDERLAYDEFINITION; render placeholder/ignore |
-| WIPEOUT | No | No | No | No | Add `src/types/wipeout-entity.ts`; add `src/handlers/entity/wipeout.ts`; render as polygon mask approximation or ignore safely |
-| RAY | No | No | No | No | Add `src/types/ray-entity.ts`; add `src/handlers/entity/ray.ts`; render as long line (bounded by extents) or ignore |
-| XLINE | No | No | No | No | Add `src/types/xline-entity.ts`; add `src/handlers/entity/xline.ts`; render as long line (bounded by extents) or ignore |
-| OLEFRAME | No | No | No | No | Add `src/types/oleframe-entity.ts`; add `src/handlers/entity/oleframe.ts`; render placeholder/ignore |
-| TRACE | No | No | No | No | Add `src/types/trace-entity.ts`; add `src/handlers/entity/trace.ts`; render as closed polyline (both SVG and polylines) |
-| REGION | No | No | No | No | Add `src/types/region-entity.ts`; add `src/handlers/entity/region.ts`; start with parse-only + safe ignore in render |
-| TABLE (entity) | No | No | No | No | Add `src/types/table-entity.ts`; add `src/handlers/entity/table.ts`; render minimal (text grid) or ignore safely |
-| SHAPE | No | No | No | No | Add `src/types/shape-entity.ts`; add `src/handlers/entity/shape.ts`; likely depends on STYLE/LTYPE; start parse-only |
-| MLINE | No | No | No | No | Add `src/types/mline-entity.ts`; add `src/handlers/entity/mline.ts`; likely depends on MLSTYLE object/table; start parse-only |
+| WIPEOUT | Yes | Yes | Yes | No | Implemented (outline-only; masking not yet implemented) |
+| RAY | Yes | Yes | Yes | No | Implemented (finite fallback in polyline/SVG) |
+| XLINE | Yes | Yes | Yes | No | Implemented (finite fallback in polyline/SVG) |
+| OLEFRAME | Yes | No | No | No | Implemented parse-only + safe ignore in rendering |
+| TRACE | Yes | Yes | Yes | No | Implemented (filled SVG + closed polyline) |
+| REGION | Yes | No | No | No | Implemented parse-only + safe ignore in rendering |
+| TABLE (entity) | Yes | No | No | No | Implemented parse-only + safe ignore in rendering |
+| SHAPE | Yes | Yes | Yes | No | Implemented (minimal polyline + SVG text fallback) |
+| MLINE | Yes | No | No | No | Implemented parse-only + safe ignore in rendering |
 
 ### A.2 Tables (2D-relevant)
 
@@ -377,10 +569,10 @@ The items below are the main gaps to reach “complete 2D” as defined in this 
 | --- | --- | --- | --- |
 | DICTIONARY | Implemented | `src/handlers/objects.ts` (+ new types file if desired) | Group objects by `0`; add DICTIONARY parser; store by handle for lookup |
 | XRECORD | Implemented | `src/handlers/objects.ts` | Add XRECORD parser; preserve raw records for downstream consumers |
-| DIMASSOC | Missing | `src/handlers/objects.ts` | Add DIMASSOC parse with safe unresolved references; add fixture-based test |
+| DIMASSOC | Implemented | `src/handlers/objects.ts` | Implemented minimal parse; preserves raw tuples for downstream consumers |
 | IMAGEDEF / IMAGEDEF_REACTOR | Implemented | `src/handlers/objects.ts` | Parse enough to resolve IMAGE entity references; do not crash if external files missing |
 | UNDERLAYDEFINITION | Implemented | `src/handlers/objects.ts` | Parse enough to resolve DWFUNDERLAY/DGNUNDERLAY references; do not crash if external files missing |
-| FIELD | Missing | `src/handlers/objects.ts` | Parse as raw text/value pairs; do not attempt full evaluation initially |
+| FIELD | Implemented | `src/handlers/objects.ts` | Implemented minimal parse; preserves raw tuples for downstream consumers |
 | TABLESTYLE | Missing | `src/handlers/objects.ts` | Parse style basics; used later for TABLE entity rendering |
 | GROUP | Missing | `src/handlers/objects.ts` | Parse group membership; safe ignore if not used |
 
@@ -400,7 +592,7 @@ This appendix provides an explicit sequence of PRs. The intent is to keep each P
 - **Stabilize existing behavior**: ✅ PR B1.1 (POLYLINE/VERTEX/SEQEND sequencing), ✅ PR B1.2 (block basepoint for TEXT/MTEXT/DIMENSION).
 - **Unblock references and metadata**: ✅ PR B1.3 (OBJECTS dispatch + DICTIONARY), ✅ PR B1.4 (XRECORD).
 - **Enable images/underlays**: ✅ PR B1.5 (IMAGEDEF / IMAGEDEF_REACTOR), ✅ PR B1.6 (IMAGE entity), ✅ PR B1.7 (UNDERLAY defs + UNDERLAY entity).
-- **Add remaining common 2D annotation**: ✅ PR B1.8 (LEADER), ✅ PR B1.9 (TOLERANCE), PR B1.10 (DIMASSOC), PR B1.11 (MLEADER).
+- **Add remaining common 2D annotation**: ✅ PR B1.8 (LEADER), ✅ PR B1.9 (TOLERANCE), ✅ PR B1.10 (DIMASSOC), ✅ PR B1.11 (MLEADER).
 
 ### B.2 PR templates by feature type
 
@@ -434,20 +626,20 @@ This table expands Appendix A into explicit PR steps.
 
 | Entity | PR 1 (Parse) | PR 2 (SVG) | PR 3 (Polylines) | PR 4 (Block-safe) |
 | --- | --- | --- | --- | --- |
-| LEADER | Add type + handler + register + tests | Add minimal `toSVG` case | Optional (usually not needed) | Update `denormalise` if leader can appear in blocks |
-| MLEADER | Add type + handler + register + tests (parse-only) | Safe ignore or placeholder first | N/A | Later, after DICTIONARY/XRECORD/DIMASSOC coverage |
-| TOLERANCE | Add type + handler + register + tests | Render as text fallback | N/A | Update `denormalise` if used in blocks |
+| LEADER | Done | Done | Done | Optional |
+| MLEADER | Done (parse-only) | Safe ignore or placeholder first | N/A | Later, after DICTIONARY/XRECORD/DIMASSOC coverage |
+| TOLERANCE | Done | Done (text fallback) | N/A | Optional |
 | IMAGE | Add IMAGEDEF(+reactor) objects, then IMAGE entity parse + tests | Placeholder rect/image element or safe ignore | N/A | Update `denormalise` for block-contained images |
 | UNDERLAY | Add underlay defs objects, then UNDERLAY entity parse + tests | Placeholder | N/A | Optional |
-| WIPEOUT | Add type + handler + tests (parse-only) | Placeholder or safe ignore | Optional (as polygon) | Optional |
-| RAY | Add type + handler + tests | Render as bounded line | Optional | Optional |
-| XLINE | Add type + handler + tests | Render as bounded line | Optional | Optional |
-| OLEFRAME | Add type + handler + tests | Placeholder or safe ignore | N/A | Optional |
-| TRACE | Add type + handler + tests | Render as closed polyline | Add polyline conversion | Optional |
-| REGION | Add type + handler + tests (parse-only) | Safe ignore first | Safe ignore | N/A |
-| TABLE (entity) | Add type + handler + tests (parse-only) | Safe ignore/placeholder | N/A | Optional |
-| SHAPE | Add type + handler + tests (parse-only) | Safe ignore first | N/A | N/A |
-| MLINE | Add type + handler + tests (parse-only) | Safe ignore first | N/A | N/A |
+| WIPEOUT | Done | Done (outline-only fallback) | Done | Optional |
+| RAY | Done | Done | Done | Optional |
+| XLINE | Done | Done | Done | Optional |
+| OLEFRAME | Done | Placeholder or safe ignore | N/A | Optional |
+| TRACE | Done | Done | Done | Optional |
+| REGION | Done (parse-only) | Safe ignore first | Safe ignore | N/A |
+| TABLE (entity) | Done (parse-only) | Safe ignore/placeholder | N/A | Optional |
+| SHAPE | Done | Done (text fallback) | Done | N/A |
+| MLINE | Done (parse-only) | Safe ignore first | N/A | N/A |
 
 ### B.4 Concrete PR checklist for missing tables
 
@@ -462,6 +654,6 @@ This table expands Appendix A into explicit PR steps.
 - PR: Add XRECORD support + tests.
 - PR: Add DIMASSOC support + tests.
 - PR: Add IMAGEDEF / IMAGEDEF_REACTOR support + tests.
-- PR: Add FIELD support + tests.
+- ✅ PR: Add FIELD support + tests.
 - PR: Add TABLESTYLE support + tests.
 - PR: Add GROUP support + tests.

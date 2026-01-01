@@ -235,7 +235,7 @@ Please open `toSVG.html` when the file listing loads in the browser (or open `ht
 
 ## Development Guidelines
 
-Project documentation index: `docs/README.md`
+Project documentation index: `PLAN.md` (see “Documentation (Consolidated)”).
 
 ## TypeScript Support
 
@@ -287,7 +287,6 @@ This project uses [semantic-release](https://semantic-release.gitbook.io/) for a
 **Releases are automatically created** when commits following [Conventional Commits](https://www.conventionalcommits.org/en/) are pushed to:
 
 - `main` - Stable production releases (`1.0.0`, `1.1.0`, `2.0.0`)
-
 
 ### Commit Format
 
