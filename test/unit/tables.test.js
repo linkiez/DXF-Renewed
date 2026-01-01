@@ -1,6 +1,6 @@
-import { getResourcePath } from './test-helpers.js'
-import fs from 'fs'
 import expectModule from 'expect'
+import fs from 'fs'
+import { getResourcePath } from './test-helpers.js'
 const expect = expectModule.expect || expectModule.default
 
 import { parseString } from '../../src'
@@ -691,6 +691,103 @@ describe('tables', () => {
         elementCount: 4,
         patternLength: 101.6,
       },
+    })
+  })
+
+  it('can parse additional table types (APPID, BLOCK_RECORD, UCS, VIEW)', () => {
+    const dxf = `0
+SECTION
+2
+TABLES
+0
+TABLE
+2
+APPID
+70
+1
+0
+APPID
+2
+ACAD
+70
+0
+0
+ENDTAB
+0
+TABLE
+2
+BLOCK_RECORD
+70
+1
+0
+BLOCK_RECORD
+2
+*Model_Space
+70
+0
+0
+ENDTAB
+0
+TABLE
+2
+UCS
+70
+1
+0
+UCS
+2
+UCS-1
+70
+0
+0
+ENDTAB
+0
+TABLE
+2
+VIEW
+70
+1
+0
+VIEW
+2
+VIEW-1
+70
+0
+0
+ENDTAB
+0
+ENDSEC
+0
+EOF
+`
+
+    const parsed = parseString(dxf)
+    expect(Object.keys(parsed.tables.appids)).toEqual(['ACAD'])
+    expect(parsed.tables.appids.ACAD).toEqual({
+      type: 'APPID',
+      name: 'ACAD',
+      flags: 0,
+    })
+
+    expect(Object.keys(parsed.tables.blockRecords)).toEqual(['*Model_Space'])
+    expect(parsed.tables.blockRecords['*Model_Space']).toEqual({
+      type: 'BLOCK_RECORD',
+      name: '*Model_Space',
+      flags: 0,
+    })
+
+    expect(Object.keys(parsed.tables.ucs)).toEqual(['UCS-1'])
+    expect(parsed.tables.ucs['UCS-1']).toEqual({
+      type: 'UCS',
+      name: 'UCS-1',
+      flags: 0,
+    })
+
+    expect(Object.keys(parsed.tables.views)).toEqual(['VIEW-1'])
+    expect(parsed.tables.views['VIEW-1']).toEqual({
+      type: 'VIEW',
+      name: 'VIEW-1',
+      flags: 0,
     })
   })
 })

@@ -70,4 +70,37 @@ describe('Objects', () => {
     expect(image).toBeDefined()
     expect(reactor.imageHandle).toEqual(image.handle)
   })
+
+  it('parses DIMASSOC objects into a handle map', () => {
+    const dxf = `0
+SECTION
+2
+OBJECTS
+0
+DIMASSOC
+5
+AA
+330
+BB
+340
+CC
+70
+1
+0
+ENDSEC
+0
+EOF
+`
+
+    const parsed = parseString(dxf)
+
+    expect(parsed.objects).toBeDefined()
+    expect(parsed.objects.dimAssocs).toBeDefined()
+    expect(parsed.objects.dimAssocs.AA).toBeDefined()
+    expect(parsed.objects.dimAssocs.AA.handle).toEqual('AA')
+    expect(parsed.objects.dimAssocs.AA.ownerHandle).toEqual('BB')
+    expect(parsed.objects.dimAssocs.AA.tuples).toEqual(
+      expect.arrayContaining([[340, 'CC'], [70, 1]]),
+    )
+  })
 })

@@ -1,4 +1,16 @@
-import type { DXFTuple, DimStyleInternal, LTypeElement, LTypeInternal, LayerInternal, StyleInternal, VPortInternal } from '../types'
+import type {
+  AppIdInternal,
+  BlockRecordInternal,
+  DXFTuple,
+  DimStyleInternal,
+  LTypeElement,
+  LTypeInternal,
+  LayerInternal,
+  StyleInternal,
+  UcsInternal,
+  VPortInternal,
+  ViewInternal,
+} from '../types'
 
 import logger from '../util/logger'
 
@@ -6,7 +18,7 @@ const ltypeHandler = (tuples: DXFTuple[]): LTypeInternal => {
   let element: LTypeElement | undefined
   let offset: { x: string | number; y: string | number } | undefined
   return tuples.reduce(
-    (layer, tuple) => {
+    (layer, tuple) => { // NOSONAR
       const type = tuple[0]
       const value = tuple[1]
       // https://documentation.help/AutoCAD-DXF/WS1a9193826455f5ff18cb41610ec0a2e719-7a4f.htm
@@ -172,7 +184,7 @@ const vPortHandler = (tuples: DXFTuple[]): VPortInternal => {
     (vport, tuple) => {
       const type = tuple[0]
       const value = tuple[1]
-      switch (type) {
+      switch (type) { // NOSONAR
         case 2:
           vport.name = value
           break
@@ -287,12 +299,100 @@ const vPortHandler = (tuples: DXFTuple[]): VPortInternal => {
   )
 }
 
+const appIdHandler = (tuples: DXFTuple[]): AppIdInternal => {
+  return tuples.reduce(
+    (appId, tuple) => {
+      const type = tuple[0]
+      const value = tuple[1]
+
+      switch (type) {
+        case 2:
+          appId.name = value
+          break
+        case 70:
+          appId.flags = value
+          break
+        default:
+      }
+
+      return appId
+    },
+    { type: 'APPID' } as AppIdInternal,
+  )
+}
+
+const blockRecordHandler = (tuples: DXFTuple[]): BlockRecordInternal => {
+  return tuples.reduce(
+    (blockRecord, tuple) => {
+      const type = tuple[0]
+      const value = tuple[1]
+
+      switch (type) {
+        case 2:
+          blockRecord.name = value
+          break
+        case 70:
+          blockRecord.flags = value
+          break
+        default:
+      }
+
+      return blockRecord
+    },
+    { type: 'BLOCK_RECORD' } as BlockRecordInternal,
+  )
+}
+
+const ucsHandler = (tuples: DXFTuple[]): UcsInternal => {
+  return tuples.reduce(
+    (ucs, tuple) => {
+      const type = tuple[0]
+      const value = tuple[1]
+
+      switch (type) {
+        case 2:
+          ucs.name = value
+          break
+        case 70:
+          ucs.flags = value
+          break
+        default:
+      }
+
+      return ucs
+    },
+    { type: 'UCS' } as UcsInternal,
+  )
+}
+
+const viewHandler = (tuples: DXFTuple[]): ViewInternal => {
+  return tuples.reduce(
+    (view, tuple) => {
+      const type = tuple[0]
+      const value = tuple[1]
+
+      switch (type) {
+        case 2:
+          view.name = value
+          break
+        case 70:
+          view.flags = value
+          break
+        default:
+      }
+
+      return view
+    },
+    { type: 'VIEW' } as ViewInternal,
+  )
+}
+
 const dimStyleHandler = (tuples: DXFTuple[]): DimStyleInternal => {
   return tuples.reduce(
     (dimStyle, tuple) => {
       const type = tuple[0]
       const value = tuple[1]
-      switch (type) {
+      switch (type) { // NOSONAR
         case 2:
           dimStyle.name = value
           break
@@ -508,7 +608,18 @@ const dimStyleHandler = (tuples: DXFTuple[]): DimStyleInternal => {
 const tableHandler = (
   tuples: DXFTuple[],
   tableType: string,
-  handler: (tuples: DXFTuple[]) => LTypeInternal | LayerInternal | StyleInternal | VPortInternal | DimStyleInternal,
+  handler: (
+    tuples: DXFTuple[],
+  ) =>
+    | LTypeInternal
+    | LayerInternal
+    | StyleInternal
+    | VPortInternal
+    | DimStyleInternal
+    | AppIdInternal
+    | BlockRecordInternal
+    | UcsInternal
+    | ViewInternal,
 ): Record<string, any> => {
   const tableRowsTuples: DXFTuple[][] = []
 
@@ -552,24 +663,22 @@ export default function parseTables(tuples: DXFTuple[]) {
     }
   }
 
-  let stylesTuples: DXFTuple[] = []
-  let layersTuples: DXFTuple[] = []
-  let vPortTuples: DXFTuple[] = []
-  let ltypeTuples: DXFTuple[] = []
-  let dimStyleTuples: DXFTuple[] = []
+  const groupsByName: Record<string, DXFTuple[]> = {}
   for (const group of tableGroups) {
-    if (group[0]?.[1] === 'STYLE') {
-      stylesTuples = group
-    } else if (group[0]?.[1] === 'LTYPE') {
-      ltypeTuples = group
-    } else if (group[0]?.[1] === 'LAYER') {
-      layersTuples = group
-    } else if (group[0]?.[1] === 'VPORT') {
-      vPortTuples = group
-    } else if (group[0]?.[1] === 'DIMSTYLE') {
-      dimStyleTuples = group
-    }
+    const name = String(group[0]?.[1] ?? '')
+    if (!name) continue
+    groupsByName[name] = group
   }
+
+  const stylesTuples = groupsByName.STYLE ?? []
+  const layersTuples = groupsByName.LAYER ?? []
+  const vPortTuples = groupsByName.VPORT ?? []
+  const ltypeTuples = groupsByName.LTYPE ?? []
+  const dimStyleTuples = groupsByName.DIMSTYLE ?? []
+  const appIdTuples = groupsByName.APPID ?? []
+  const blockRecordTuples = groupsByName.BLOCK_RECORD ?? []
+  const ucsTuples = groupsByName.UCS ?? []
+  const viewTuples = groupsByName.VIEW ?? []
 
   return {
     layers: tableHandler(layersTuples, 'LAYER', layerHandler),
@@ -577,5 +686,9 @@ export default function parseTables(tuples: DXFTuple[]) {
     vports: tableHandler(vPortTuples, 'VPORT', vPortHandler),
     ltypes: tableHandler(ltypeTuples, 'LTYPE', ltypeHandler),
     dimStyles: tableHandler(dimStyleTuples, 'DIMSTYLE', dimStyleHandler),
+    appids: tableHandler(appIdTuples, 'APPID', appIdHandler),
+    blockRecords: tableHandler(blockRecordTuples, 'BLOCK_RECORD', blockRecordHandler),
+    ucs: tableHandler(ucsTuples, 'UCS', ucsHandler),
+    views: tableHandler(viewTuples, 'VIEW', viewHandler),
   }
 }

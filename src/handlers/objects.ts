@@ -1,12 +1,14 @@
 import type {
-    DictionaryObject,
-    DXFTuple,
-    ImageDefObject,
-    ImageDefReactorObject,
-    LayoutInternal,
-    ParsedObjects,
-    UnderlayDefinitionObject,
-    XRecordObject,
+  DictionaryObject,
+  DimAssocObject,
+  DXFTuple,
+  FieldObject,
+  ImageDefObject,
+  ImageDefReactorObject,
+  LayoutInternal,
+  ParsedObjects,
+  UnderlayDefinitionObject,
+  XRecordObject,
 } from '../types'
 
 type ObjectGroup = DXFTuple[]
@@ -232,6 +234,48 @@ function parseImageDefReactorObject(group: ObjectGroup): ImageDefReactorObject |
   return reactor
 }
 
+function parseDimAssocObject(group: ObjectGroup): DimAssocObject | undefined {
+  if (group[0]?.[1] !== 'DIMASSOC') return undefined
+
+  const tuples = group.slice(1)
+
+  const dimAssoc: DimAssocObject = {
+    type: 'DIMASSOC',
+    tuples,
+  }
+
+  for (const tuple of tuples) {
+    const type = tuple[0]
+    const value = tuple[1]
+
+    if (type === 5) dimAssoc.handle = value
+    if (type === 330) dimAssoc.ownerHandle = value
+  }
+
+  return dimAssoc
+}
+
+function parseFieldObject(group: ObjectGroup): FieldObject | undefined {
+  if (group[0]?.[1] !== 'FIELD') return undefined
+
+  const tuples = group.slice(1)
+
+  const field: FieldObject = {
+    type: 'FIELD',
+    tuples,
+  }
+
+  for (const tuple of tuples) {
+    const type = tuple[0]
+    const value = tuple[1]
+
+    if (type === 5) field.handle = value
+    if (type === 330) field.ownerHandle = value
+  }
+
+  return field
+}
+
 const UNDERLAY_DEFINITION_OBJECT_TYPES = new Set([
   'UNDERLAYDEFINITION',
   'PDFDEFINITION',
@@ -311,6 +355,16 @@ const OBJECT_GROUP_HANDLERS: Record<string, ObjectGroupHandler> = {
     const handle = def?.handle ? String(def.handle) : undefined
     if (def && handle) objects.underlayDefinitions![handle] = def
   },
+  DIMASSOC: (objects, group) => {
+    const dimAssoc = parseDimAssocObject(group)
+    const handle = dimAssoc?.handle ? String(dimAssoc.handle) : undefined
+    if (dimAssoc && handle) objects.dimAssocs![handle] = dimAssoc
+  },
+  FIELD: (objects, group) => {
+    const field = parseFieldObject(group)
+    const handle = field?.handle ? String(field.handle) : undefined
+    if (field && handle) objects.fields![handle] = field
+  },
 }
 
 export default function parseObjects(tuples: DXFTuple[]): ParsedObjects {
@@ -321,6 +375,8 @@ export default function parseObjects(tuples: DXFTuple[]): ParsedObjects {
     imageDefs: {},
     imageDefReactors: {},
     underlayDefinitions: {},
+    dimAssocs: {},
+    fields: {},
   }
 
   const groups = groupObjectsByZero(tuples)

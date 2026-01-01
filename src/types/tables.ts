@@ -118,6 +118,54 @@ export interface LayerInternal {
 }
 
 /**
+ * Application ID (APPID) table entry
+ * Minimal internal representation during DXF parsing
+ */
+export interface AppIdInternal {
+  type: string
+  /** Application name */
+  name?: string | number
+  /** Standard flags (bit-coded) */
+  flags?: string | number
+}
+
+/**
+ * Block Record (BLOCK_RECORD) table entry
+ * Minimal internal representation during DXF parsing
+ */
+export interface BlockRecordInternal {
+  type: string
+  /** Block record name */
+  name?: string | number
+  /** Standard flags (bit-coded) */
+  flags?: string | number
+}
+
+/**
+ * User Coordinate System (UCS) table entry
+ * Minimal internal representation during DXF parsing
+ */
+export interface UcsInternal {
+  type: string
+  /** UCS name */
+  name?: string | number
+  /** Standard flags (bit-coded) */
+  flags?: string | number
+}
+
+/**
+ * View (VIEW) table entry
+ * Minimal internal representation during DXF parsing
+ */
+export interface ViewInternal {
+  type: string
+  /** View name */
+  name?: string | number
+  /** Standard flags (bit-coded) */
+  flags?: string | number
+}
+
+/**
  * Text Style (STYLE) table entry
  * Internal representation during DXF parsing
  */
@@ -477,6 +525,28 @@ export interface UnderlayDefinitionObject {
   tuples: DXFTuple[]
 }
 
+export interface DimAssocObject {
+  type: 'DIMASSOC'
+  handle?: string | number
+
+  /** Soft-pointer ID/handle to the owning dictionary (when present). */
+  ownerHandle?: string | number
+
+  /** Raw tuples for downstream consumers (excluding the initial 0/DIMASSOC tuple). */
+  tuples: DXFTuple[]
+}
+
+export interface FieldObject {
+  type: 'FIELD'
+  handle?: string | number
+
+  /** Soft-pointer ID/handle to the owning dictionary (when present). */
+  ownerHandle?: string | number
+
+  /** Raw tuples for downstream consumers (excluding the initial 0/FIELD tuple). */
+  tuples: DXFTuple[]
+}
+
 export interface ParsedObjects {
   /** Layout objects */
   layouts: LayoutInternal[]
@@ -495,4 +565,10 @@ export interface ParsedObjects {
 
   /** UNDERLAYDEFINITION objects keyed by handle */
   underlayDefinitions?: Record<string, UnderlayDefinitionObject>
+
+  /** DIMASSOC objects keyed by handle */
+  dimAssocs?: Record<string, DimAssocObject>
+
+  /** FIELD objects keyed by handle */
+  fields?: Record<string, FieldObject>
 }
