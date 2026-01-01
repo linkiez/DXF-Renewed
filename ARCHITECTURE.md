@@ -68,7 +68,7 @@ flowchart LR
   SectionHandlers -. populate .-> C
 
   C --> D[denormalise]
-  D --> E2[Entity[] (flattened + transforms)]
+  D --> E2["Entity[] (flattened + transforms)"]
 
   E2 --> S[toSVG]
   E2 --> P[toPolylines]
