@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.2.4 (2026-01-01)</small>
+
+* Merge pull request #5 from linkiez/fix/vecks-types ([cdff1cf](https://github.com/linkiez/DXF-Renewed/commit/cdff1cf)), closes [#5](https://github.com/linkiez/DXF-Renewed/issues/5)
+* fix(types): ship vecks shim declarations ([4254c52](https://github.com/linkiez/DXF-Renewed/commit/4254c52))
+
 ## <small>7.2.3 (2026-01-01)</small>
 
 * Revert "ci: publish to GitHub Packages npm registry" ([647277b](https://github.com/linkiez/DXF-Renewed/commit/647277b))
