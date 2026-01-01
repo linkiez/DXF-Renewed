@@ -4,6 +4,13 @@ export interface ToPolylinesOptions {
   interpolationsPerSplineSegment?: number
 }
 
+export interface ToJsonOptions {
+  /** Pretty-print JSON output (defaults to false). */
+  pretty?: boolean
+  /** Indentation spaces when pretty-printing (defaults to 2). */
+  space?: number
+}
+
 /**
  * Viewport percentage controls for DIMENSION autoScale.
  *

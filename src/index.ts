@@ -1,19 +1,10 @@
-import config from './config'
-import parseString from './parseString'
-import denormalise from './denormalise'
-import groupEntitiesByLayer from './groupEntitiesByLayer'
-import toPolylines from './toPolylines'
-import toSVG from './toSVG'
-import colors from './util/colors'
-import Helper from './Helper'
+export { default as config } from './config'
+export { default as denormalise } from './denormalise'
+export { default as groupEntitiesByLayer } from './groupEntitiesByLayer'
+export { default as Helper } from './Helper'
+export { default as parseString } from './parseString'
+export { default as toJson } from './toJson'
+export { default as toPolylines } from './toPolylines'
+export { default as toSVG } from './toSVG'
+export { default as colors } from './util/colors'
 
-export {
-  config,
-  parseString,
-  denormalise,
-  groupEntitiesByLayer,
-  toPolylines,
-  toSVG,
-  colors,
-  Helper,
-}
