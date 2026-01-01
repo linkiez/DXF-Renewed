@@ -3,17 +3,25 @@ import * as esbuild from 'esbuild'
 import { execFile } from 'node:child_process'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
-import { promisify } from 'node:util'
-
-const execFileAsync = promisify(execFile)
 
 async function emitTypeDeclarations() {
   // Generate *.d.ts into ./lib without emitting JS (esbuild handles JS output)
-  await execFileAsync(
-    process.execPath,
-    ['./node_modules/typescript/bin/tsc', '-p', './tsconfig.json', '--emitDeclarationOnly'],
-    { stdio: 'inherit' },
-  )
+  await new Promise((resolve, reject) => {
+    const child = execFile(
+      process.execPath,
+      ['./node_modules/typescript/bin/tsc', '-p', './tsconfig.json', '--emitDeclarationOnly'],
+      { stdio: 'inherit' },
+      error => {
+        if (error) {
+          reject(error)
+          return
+        }
+        resolve(undefined)
+      },
+    )
+
+    child.on('error', reject)
+  })
 }
 
 async function getEntryPoints(dir) {
