@@ -1,7 +1,20 @@
 // esbuild configuration for building the project
 import * as esbuild from 'esbuild'
+import { execFile } from 'node:child_process'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import { promisify } from 'node:util'
+
+const execFileAsync = promisify(execFile)
+
+async function emitTypeDeclarations() {
+  // Generate *.d.ts into ./lib without emitting JS (esbuild handles JS output)
+  await execFileAsync(
+    process.execPath,
+    ['./node_modules/typescript/bin/tsc', '-p', './tsconfig.json', '--emitDeclarationOnly'],
+    { stdio: 'inherit' },
+  )
+}
 
 async function getEntryPoints(dir) {
   const entries = []
@@ -29,6 +42,8 @@ async function getEntryPoints(dir) {
 }
 
 async function build() {
+  await emitTypeDeclarations()
+
   const entryPoints = await getEntryPoints('src')
 
   // Build ESM version
