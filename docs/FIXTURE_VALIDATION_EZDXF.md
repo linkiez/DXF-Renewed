@@ -59,4 +59,4 @@ When adding a new fixture:
 2. Run `yarn validate:fixtures`.
 3. Add unit tests (parsing) and integration tests (final SVG).
 
-See also: the entity workflow checklist in `PLAN.md` under “Documentation (Consolidated) → Entity SVG Roadmap”.
+See also: the entity workflow checklist in `ROADMAP.md` under “Documentation (Consolidated) → Entity SVG Roadmap”.

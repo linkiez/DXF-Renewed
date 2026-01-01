@@ -248,7 +248,7 @@ This starts a Vite dev server and opens `http://localhost:8030/toSVG.html`.
 
 ## Development Guidelines
 
-Project documentation index: `PLAN.md` (see “Documentation (Consolidated)”).
+Project documentation index: `ROADMAP.md` (see “Documentation (Consolidated)”).
 
 ## TypeScript Support
 
