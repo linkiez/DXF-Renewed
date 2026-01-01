@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.2.2 (2026-01-01)</small>
+
+* Merge pull request #4 from linkiez/fix/emit-types ([acb6440](https://github.com/linkiez/DXF-Renewed/commit/acb6440)), closes [#4](https://github.com/linkiez/DXF-Renewed/issues/4)
+* Update build.mjs ([6b0970c](https://github.com/linkiez/DXF-Renewed/commit/6b0970c))
+* fix(build): avoid import.meta in CJS output ([e5a351f](https://github.com/linkiez/DXF-Renewed/commit/e5a351f))
+* fix(build): emit TypeScript declarations ([1e6af01](https://github.com/linkiez/DXF-Renewed/commit/1e6af01))
+
 ## <small>7.2.1 (2026-01-01)</small>
 
 * Merge pull request #3 from linkiez/feature/2026.01.01 ([2c51f7d](https://github.com/linkiez/DXF-Renewed/commit/2c51f7d)), closes [#3](https://github.com/linkiez/DXF-Renewed/issues/3)
