@@ -75,6 +75,9 @@ console.log('svg:', helper.toSVG())
 
 // Create polylines (e.g. to render in WebGL)
 console.log('polylines:', helper.toPolylines())
+
+// Create a JSON representation (1-to-1 with the parsed model)
+console.log('json:', helper.toJson({ pretty: true }))
 ```
 
 JavaScript example:
@@ -95,6 +98,9 @@ console.log('svg:', helper.toSVG())
 
 // Create polylines (e.g. to render in WebGL)
 console.log('polylines:', helper.toPolylines())
+
+// Create a JSON representation (1-to-1 with the parsed model)
+console.log('json:', helper.toJson({ pretty: true }))
 ```
 
 ## Running the Examples
@@ -231,7 +237,7 @@ Running the functional tests in a browser:
 yarn test:functional
 ```
 
-Please open `toSVG.html` when the file listing loads in the browser (or open `http://localhost:8030/toSVG.html#/`).
+This starts a Vite dev server and opens `http://localhost:8030/toSVG.html`.
 
 ## Development Guidelines
 
