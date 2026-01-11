@@ -3,12 +3,10 @@ import type {
   DimAssocObject,
   DXFTuple,
   FieldObject,
-  GroupObject,
   ImageDefObject,
   ImageDefReactorObject,
   LayoutInternal,
   ParsedObjects,
-  TableStyleObject,
   UnderlayDefinitionObject,
   XRecordObject,
 } from '../types'
@@ -278,52 +276,6 @@ function parseFieldObject(group: ObjectGroup): FieldObject | undefined {
   return field
 }
 
-function parseTableStyleObject(group: ObjectGroup): TableStyleObject | undefined {
-  if (group[0]?.[1] !== 'TABLESTYLE') return undefined
-
-  const tuples = group.slice(1)
-
-  const tableStyle: TableStyleObject = {
-    type: 'TABLESTYLE',
-    tuples,
-  }
-
-  for (const tuple of tuples) {
-    const type = tuple[0]
-    const value = tuple[1]
-
-    if (type === 5) tableStyle.handle = value
-    if (type === 330) tableStyle.ownerHandle = value
-    if (type === 3) tableStyle.name = String(value)
-  }
-
-  return tableStyle
-}
-
-function parseGroupObject(group: ObjectGroup): GroupObject | undefined {
-  if (group[0]?.[1] !== 'GROUP') return undefined
-
-  const tuples = group.slice(1)
-
-  const groupObj: GroupObject = {
-    type: 'GROUP',
-    tuples,
-    entityHandles: [],
-  }
-
-  for (const tuple of tuples) {
-    const type = tuple[0]
-    const value = tuple[1]
-
-    if (type === 5) groupObj.handle = value
-    if (type === 330) groupObj.ownerHandle = value
-    if (type === 300) groupObj.name = String(value)
-    if (type === 340) groupObj.entityHandles.push(String(value))
-  }
-
-  return groupObj
-}
-
 const UNDERLAY_DEFINITION_OBJECT_TYPES = new Set([
   'UNDERLAYDEFINITION',
   'PDFDEFINITION',
@@ -413,16 +365,6 @@ const OBJECT_GROUP_HANDLERS: Record<string, ObjectGroupHandler> = {
     const handle = field?.handle ? String(field.handle) : undefined
     if (field && handle) objects.fields![handle] = field
   },
-  TABLESTYLE: (objects, group) => {
-    const tableStyle = parseTableStyleObject(group)
-    const handle = tableStyle?.handle ? String(tableStyle.handle) : undefined
-    if (tableStyle && handle) objects.tableStyles![handle] = tableStyle
-  },
-  GROUP: (objects, group) => {
-    const groupObj = parseGroupObject(group)
-    const handle = groupObj?.handle ? String(groupObj.handle) : undefined
-    if (groupObj && handle) objects.groups![handle] = groupObj
-  },
 }
 
 export default function parseObjects(tuples: DXFTuple[]): ParsedObjects {
@@ -435,8 +377,6 @@ export default function parseObjects(tuples: DXFTuple[]): ParsedObjects {
     underlayDefinitions: {},
     dimAssocs: {},
     fields: {},
-    tableStyles: {},
-    groups: {},
   }
 
   const groups = groupObjectsByZero(tuples)
