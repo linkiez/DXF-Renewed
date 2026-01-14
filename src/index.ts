@@ -8,3 +8,4 @@ export { default as toPolylines } from './toPolylines'
 export { default as toSVG } from './toSVG'
 export { default as colors } from './util/colors'
 
+export * from './types'
