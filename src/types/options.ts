@@ -54,7 +54,8 @@ export interface ToSVGOptions {
      * Percent values are expected in the `0..100` range.
      */
     autoScaleViewportPercentages?: DimensionAutoScaleViewportPercentages
-  }
+  },
+  includeHandles?: boolean
 }
 
 export interface Config {
