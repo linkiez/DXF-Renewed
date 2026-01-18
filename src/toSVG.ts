@@ -607,7 +607,7 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
           acc.bbox.expandByPoint(bbox.max)
         }
         const color = rgbToColorAttribute(rgb)
-        const handleAttr = options?.includeHandles ? ` data-handle="${entity.handle}" data-entity-type="${entity.type}" data-entity-type="${entity.layer}" ` : ''
+        const handleAttr = options?.includeHandles ? ` data-handle="${entity.handle}" data-type="${entity.type}" data-layer="${entity.layer}" ` : ''
         if (entity.type === 'SOLID' || entity.type === 'TRACE') {
           acc.elements.push(`<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`)
         } else {
