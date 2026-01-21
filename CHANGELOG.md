@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.4.2 (2026-01-21)</small>
+
+* fix: update ESLint workflow config file reference ([4a35e59](https://github.com/linkiez/DXF-Renewed/commit/4a35e59))
+
 ## <small>7.4.1 (2026-01-21)</small>
 
 * Add ESLint workflow for code quality checks ([92516d9](https://github.com/linkiez/DXF-Renewed/commit/92516d9))
