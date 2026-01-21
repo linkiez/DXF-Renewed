@@ -1,10 +1,7 @@
-import expectModule from 'expect'
+import expect from 'expect'
 import fs from 'fs'
 import { getResourcePath } from './test-helpers.ts'
-const expect = expectModule.expect || expectModule.default
-
 import { denormalise, groupEntitiesByLayer, parseString } from '../../src'
-
 describe('Group entities', () => {
   it('by layer', () => {
     const parsed = parseString(
@@ -12,7 +9,6 @@ describe('Group entities', () => {
     )
     const entities = denormalise(parsed)
     const byLayer = groupEntitiesByLayer(entities)
-
     expect(Object.keys(byLayer)).toEqual([
       '0',
       'A-NOTE',
@@ -33,7 +29,6 @@ describe('Group entities', () => {
       'xref-Bishop-Overland-08$0$A-FIXTURE',
       'View Port',
     ])
-
     const layerEntityCounts = Object.keys(byLayer).map((layer) => {
       return byLayer[layer].length
     })

@@ -1,19 +1,15 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'circlesellipsesarcs.dxf'),
   'utf-8',
 )
-
 describe('CIRCLE ELLIPSE ARC', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities
     expect(entities.length).toEqual(5)
-
     expect(entities[0]).toEqual({
       type: 'ELLIPSE',
       handle: '4D',

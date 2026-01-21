@@ -1,8 +1,5 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import round10 from '../../src/util/round10'
-
 describe('round10', () => {
   it('works correctly with some numbers', () => {
     expect(round10(55.55, -1)).toEqual(55.6)

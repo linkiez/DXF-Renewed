@@ -1,8 +1,5 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import insertKnot from '../../src/util/insertKnot'
-
 describe('Insert knot', () => {
   it('throws error if knot is invalid', () => {
     const controlPoints = [

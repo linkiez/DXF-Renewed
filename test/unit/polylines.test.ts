@@ -1,14 +1,11 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'polylines.dxf'),
   'utf-8',
 )
-
 describe('POLYLINE', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities
@@ -32,7 +29,6 @@ describe('POLYLINE', () => {
       ],
     })
   })
-
   it('flushes an open POLYLINE when SEQEND is missing', () => {
     const dxf = `0
 SECTION
@@ -63,14 +59,12 @@ ENDSEC
 0
 EOF
 `
-
     const entities = parseString(dxf).entities
     expect(entities.length).toEqual(2)
     expect(entities[0].type).toEqual('POLYLINE')
     expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
     expect(entities[1].type).toEqual('LINE')
   })
-
   it('treats SEQEND as a terminator even without a handler', () => {
     const dxf = `0
 SECTION
@@ -109,14 +103,12 @@ ENDSEC
 0
 EOF
 `
-
     const entities = parseString(dxf).entities
     expect(entities.length).toEqual(2)
     expect(entities[0].type).toEqual('POLYLINE')
     expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
     expect(entities[1].type).toEqual('LINE')
   })
-
   it('ignores orphan VERTEX entities', () => {
     const dxf = `0
 SECTION
@@ -143,7 +135,6 @@ ENDSEC
 0
 EOF
 `
-
     const entities = parseString(dxf).entities
     expect(entities.length).toEqual(1)
     expect(entities[0].type).toEqual('LINE')

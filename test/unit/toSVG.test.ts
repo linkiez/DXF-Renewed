@@ -1,11 +1,7 @@
-import expectModule from 'expect'
+import expect from 'expect'
 import fs from 'fs'
 import { parseString, toSVG } from '../../src'
 import { getResourcePath } from './test-helpers.ts'
-
-// ESM compatibility: extract expect function
-const expect = expectModule.expect || expectModule.default
-
 const dxfsFilenames = [
   'elliptical-arc1.dxf',
   'elliptical-arc2.dxf',
@@ -26,7 +22,6 @@ const dxfsFilenames = [
   'arc17.dxf',
   'squircle2.dxf',
 ]
-
 // Load and parse DXFs
 const dxfs = dxfsFilenames.reduce((dxfObj, dxfFilename) => {
   dxfObj[dxfFilename] = parseString(
@@ -34,10 +29,8 @@ const dxfs = dxfsFilenames.reduce((dxfObj, dxfFilename) => {
   )
   return dxfObj
 }, {})
-
 // Helper functions for testing SVGs
 const approx = (a, b) => Math.abs(a - b) < 1e-12
-
 expect.extend({
   toMatchViewbox(received, a, b, c, d) {
     // Use naive regex to match numbers
@@ -110,13 +103,11 @@ expect.extend({
     }
   },
 })
-
 describe('toSVG', () => {
   it('elliptical arcs', () => {
     const svg1 = toSVG(dxfs['elliptical-arc1.dxf'])
     expect(svg1).toMatchViewbox(0, -5, 10, 5)
     expect(svg1).toMatchArc(10, 0, 10, 5, 0, 0, 1, 0, 5)
-
     const svg2 = toSVG(dxfs['elliptical-arc2.dxf'])
     expect(svg2).toMatchViewbox(
       5,
@@ -135,7 +126,6 @@ describe('toSVG', () => {
       5,
       4.3301270189221945,
     )
-
     const svg3 = toSVG(dxfs['elliptical-arc3.dxf'])
     expect(svg3).toMatchViewbox(-10, -5, 17.071067811865476, 7.867882181755233)
     expect(svg3).toMatchArc(
@@ -149,11 +139,9 @@ describe('toSVG', () => {
       -8.191520442889914,
       -2.8678821817552325,
     )
-
     const svg4 = toSVG(dxfs['elliptical-arc4.dxf'])
     expect(svg4).toMatchViewbox(0, -5, 10, 5)
     expect(svg4).toMatchArc(10, 0, 10, 5, 180, 0, 1, 0, 5)
-
     const svg5 = toSVG(dxfs['elliptical-arc5.dxf'])
     expect(svg5).toMatchViewbox(
       -3.5355339059327404,
@@ -172,7 +160,6 @@ describe('toSVG', () => {
       -3.53553390593274,
       3.535533905932735,
     )
-
     const svg6 = toSVG(dxfs['elliptical-arc6.dxf'])
     expect(svg6).toMatchViewbox(
       -6.154864169189802,
@@ -191,7 +178,6 @@ describe('toSVG', () => {
       5.530179605793307,
       4.627862738637326,
     )
-
     const svg7 = toSVG(dxfs['elliptical-arc7.dxf'])
     expect(svg7).toMatchViewbox(
       -167.88778995326126,
@@ -210,7 +196,6 @@ describe('toSVG', () => {
       -81.36053316126296,
       -60.54737351535849,
     )
-
     const svg8 = toSVG(dxfs['elliptical-arc8.dxf'])
     expect(svg8).toMatchViewbox(
       3.4781225959317084,
@@ -229,7 +214,6 @@ describe('toSVG', () => {
       11.64284740886555,
       33.97960829997985,
     )
-
     const svg9 = toSVG(dxfs['elliptical-arc9.dxf'])
     expect(svg9).toMatchViewbox(
       -118.07395417897287,
@@ -248,7 +232,6 @@ describe('toSVG', () => {
       98.82825511522925,
       11.356781878370896,
     )
-
     const svg10 = toSVG(dxfs['elliptical-arc10.dxf'])
     expect(svg10).toMatchViewbox(
       -120.64872816971088,
@@ -267,15 +250,12 @@ describe('toSVG', () => {
       -72.10048373873673,
       -21.023087104240282,
     )
-
     const svg11 = toSVG(dxfs['elliptical-arc11.dxf'])
     expect(svg11).toMatchViewbox(-10, -10, 10, 20)
     expect(svg11).toMatchArc(0, 10, 10, 10, 90, 1, 1, 0, -10)
-
     const svg12 = toSVG(dxfs['elliptical-arc12.dxf'])
     expect(svg12).toMatchViewbox(-10, -10, 20, 10)
     expect(svg12).toMatchArc(10, 0, 10, 10, -90, 0, 1, -10, 0)
-
     const svg13 = toSVG(dxfs['elliptical-arc13.dxf'])
     expect(svg13).toMatchViewbox(
       -1.7632895890672167,
@@ -294,7 +274,6 @@ describe('toSVG', () => {
       1.4844885427615573,
       -8.91136141739722,
     )
-
     const svg14 = toSVG(dxfs['elliptical-arc14.dxf'])
     expect(svg14).toMatchViewbox(
       -12.414567247795588,
@@ -313,7 +292,6 @@ describe('toSVG', () => {
       292.9345460604517,
       -23.32855250669232,
     )
-
     const svg15 = toSVG(dxfs['arc15.dxf'])
     expect(svg15).toMatchViewbox(
       -10.401676865889314,
@@ -332,7 +310,6 @@ describe('toSVG', () => {
       -10.401676865889314,
       34.42756425916292,
     )
-
     const svg16 = toSVG(dxfs['arc16.dxf'])
     expect(svg16).toMatchViewbox(
       -14.41854547874551,
@@ -351,7 +328,6 @@ describe('toSVG', () => {
       -14.09320807604486,
       -19.759701934693545,
     )
-
     const svg17 = toSVG(dxfs['arc17.dxf'])
     expect(svg17).toMatchViewbox(
       -48.5,
@@ -371,7 +347,6 @@ describe('toSVG', () => {
       -31.25,
     )
   })
-
   it('splines with weights should use polyline, not bezier', () => {
     const squircle2 = toSVG(dxfs['squircle2.dxf'])
     expect(squircle2).toBePolyline()

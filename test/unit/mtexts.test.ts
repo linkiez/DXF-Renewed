@@ -1,19 +1,15 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'texts.dxf'),
   'utf-8',
 )
-
 describe('MTEXT', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities
     expect(entities.length).toEqual(2)
-
     expect(entities[0]).toEqual({
       type: 'MTEXT',
       layer: '0',

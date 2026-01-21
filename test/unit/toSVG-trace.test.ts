@@ -1,9 +1,5 @@
-import expectModule from 'expect'
-
+import expect from 'expect'
 import { parseString, toSVG } from '../../src'
-
-const expect = expectModule.expect || expectModule.default
-
 describe('toSVG (TRACE)', () => {
   it('renders TRACE as a filled path', () => {
     const dxf = `0
@@ -59,10 +55,8 @@ ENDSEC
 0
 EOF
 `
-
     const parsed = parseString(dxf)
     const svg = toSVG(parsed)
-
     expect(svg).toContain('viewBox="0 -5 10 5"')
     expect(svg).toContain('fill="rgb(255, 0, 0)"')
     expect(svg).toContain('stroke="none"')

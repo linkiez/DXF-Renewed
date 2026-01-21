@@ -1,12 +1,9 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString, denormalise } from '../../src'
 import entityToPolyline from '../../src/entityToPolyline'
 import applyTransforms from '../../src/applyTransforms'
-
 describe('Entity To Polyline', () => {
   it('supports LINE', () => {
     const parsed = parseString(
@@ -14,21 +11,18 @@ describe('Entity To Polyline', () => {
     )
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(11)
-
     const polyline = entityToPolyline(entities[0])
     expect(polyline).toEqual([
       [0, 0],
       [100, 0],
     ])
   })
-
   it('supports LWPOLYLINE', () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'lwpolylines.dxf'), 'utf-8'),
     )
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(2)
-
     const p0 = entityToPolyline(entities[0])
     expect(p0).toEqual([
       [10, 40],
@@ -48,7 +42,6 @@ describe('Entity To Polyline', () => {
       [60, 100],
     ])
   })
-
   it('address the observed closed LWPOLYLINE transform bug', () => {
     // There was a bug with LW polyline where the duplicated point
     // used for closing it was no copied by mutated multiple times
@@ -71,7 +64,6 @@ describe('Entity To Polyline', () => {
       [30, 40],
     ])
   })
-
   // https://github.com/bjnortier/dxf/issues/20
   it('warns on a LWPOLYLINE with a single vertex', () => {
     const polyline = entityToPolyline({
@@ -87,7 +79,6 @@ describe('Entity To Polyline', () => {
       [294.598692, 168.66373],
     ])
   })
-
   it('supports CIRCLE, ELLIPSE, ARC', () => {
     const parsed = parseString(
       fs.readFileSync(
@@ -97,21 +88,18 @@ describe('Entity To Polyline', () => {
     )
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(5)
-
     expect(entityToPolyline(entities[0]).length).toEqual(73)
     expect(entityToPolyline(entities[1]).length).toEqual(39)
     expect(entityToPolyline(entities[2]).length).toEqual(40)
     expect(entityToPolyline(entities[3]).length).toEqual(18)
     expect(entityToPolyline(entities[4]).length).toEqual(73)
   })
-
   it('supports SPLINE', () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'splines.dxf'), 'utf-8'),
     )
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(2)
-
     expect(entityToPolyline(entities[0]).length).toEqual(26)
     expect(entityToPolyline(entities[1]).length).toEqual(130)
     expect(
@@ -119,7 +107,6 @@ describe('Entity To Polyline', () => {
         .length,
     ).toEqual(11)
   })
-
   it('supports BLOCK with INSERT', () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'blocks1.dxf'), 'utf-8'),

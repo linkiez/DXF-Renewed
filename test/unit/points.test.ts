@@ -1,19 +1,15 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'points.dxf'),
   'utf-8',
 )
-
 describe('POINT', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities
     expect(entities.length).toEqual(2)
-
     expect(entities[0]).toEqual({
       type: 'POINT',
       colorNumber: 256,

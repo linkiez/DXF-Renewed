@@ -1,14 +1,11 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'blocks2.dxf'),
   'utf-8',
 )
-
 describe('BLOCK 2', () => {
   it('can be parsed', () => {
     const blocks = parseString(dxfContents).blocks
@@ -29,7 +26,6 @@ describe('BLOCK 2', () => {
       y: 0,
       z: 0,
     })
-
     const entities2 = blocks[2].entities
     delete blocks[2].entities
     expect(blocks[2]).toEqual({
@@ -41,7 +37,6 @@ describe('BLOCK 2', () => {
     expect(entities2.length).toEqual(2)
     expect(entities2[0].type).toEqual('INSERT')
     expect(entities2[1].type).toEqual('INSERT')
-
     const entities3 = blocks[3].entities
     delete blocks[3].entities
     expect(blocks[3]).toEqual({
@@ -57,7 +52,6 @@ describe('BLOCK 2', () => {
     expect(entities3[3].type).toEqual('LINE')
     expect(entities3[4].type).toEqual('ARC')
     expect(entities3[5].type).toEqual('MTEXT')
-
     const entities4 = blocks[4].entities
     delete blocks[4].entities
     expect(blocks[4]).toEqual({

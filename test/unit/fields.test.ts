@@ -1,8 +1,5 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import parseString from '../../src/parseString'
-
 describe('FIELD (OBJECTS)', () => {
   it('parses FIELD object and preserves raw tuples', () => {
     const dxfContent = `0
@@ -23,19 +20,14 @@ SOME_FIELD_TEXT
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
-
     expect(parsed.objects).toBeTruthy()
     expect(parsed.objects.fields).toBeTruthy()
-
     const field = parsed.objects.fields.F1
     expect(field).toBeTruthy()
-
     expect(field.type).toEqual('FIELD')
     expect(field.handle).toEqual('F1')
     expect(field.ownerHandle).toEqual('DIC1')
-
     expect(Array.isArray(field.tuples)).toEqual(true)
     expect(field.tuples.length).toBeGreaterThan(0)
   })

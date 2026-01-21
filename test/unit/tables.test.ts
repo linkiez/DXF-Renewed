@@ -1,14 +1,11 @@
-import expectModule from 'expect'
+import expect from 'expect'
 import fs from 'fs'
 import { getResourcePath } from './test-helpers.ts'
-const expect = expectModule.expect || expectModule.default
-
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'lines.dxf'),
   'utf-8',
 )
-
 describe('tables', () => {
   it('can parse the ltype', () => {
     const parsed = parseString(dxfContents)
@@ -693,7 +690,6 @@ describe('tables', () => {
       },
     })
   })
-
   it('can parse additional table types (APPID, BLOCK_RECORD, UCS, VIEW)', () => {
     const dxf = `0
 SECTION
@@ -760,7 +756,6 @@ ENDSEC
 0
 EOF
 `
-
     const parsed = parseString(dxf)
     expect(Object.keys(parsed.tables.appids)).toEqual(['ACAD'])
     expect(parsed.tables.appids.ACAD).toEqual({
@@ -768,21 +763,18 @@ EOF
       name: 'ACAD',
       flags: 0,
     })
-
     expect(Object.keys(parsed.tables.blockRecords)).toEqual(['*Model_Space'])
     expect(parsed.tables.blockRecords['*Model_Space']).toEqual({
       type: 'BLOCK_RECORD',
       name: '*Model_Space',
       flags: 0,
     })
-
     expect(Object.keys(parsed.tables.ucs)).toEqual(['UCS-1'])
     expect(parsed.tables.ucs['UCS-1']).toEqual({
       type: 'UCS',
       name: 'UCS-1',
       flags: 0,
     })
-
     expect(Object.keys(parsed.tables.views)).toEqual(['VIEW-1'])
     expect(parsed.tables.views['VIEW-1']).toEqual({
       type: 'VIEW',

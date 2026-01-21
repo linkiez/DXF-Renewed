@@ -1,11 +1,8 @@
-import expectModule from 'expect'
+import expect from 'expect'
 import fs from 'fs'
 import { getResourcePath } from './test-helpers.ts'
-const expect = expectModule.expect || expectModule.default
-
 import { denormalise, parseString } from '../../src'
 import applyTransforms from '../../src/applyTransforms'
-
 describe('Denormalise', () => {
   it('top-level entities', () => {
     const contents = fs.readFileSync(
@@ -16,7 +13,6 @@ describe('Denormalise', () => {
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(11)
   })
-
   it('entities from inserted blocks', () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'blocks1.dxf'),
@@ -26,7 +22,6 @@ describe('Denormalise', () => {
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(10)
   })
-
   it('for blocks that contain inserts', () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'blocks2.dxf'),
@@ -40,7 +35,6 @@ describe('Denormalise', () => {
       { x: 175, y: 25, scaleX: 0.5, scaleY: 0.5, scaleZ: 0, rotation: 0 },
     ])
   })
-
   it('inserts with rectangular array of blocks', () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'arrayed-holes.dxf'),
@@ -48,11 +42,9 @@ describe('Denormalise', () => {
     )
     const parsed = parseString(contents)
     const entities = denormalise(parsed)
-
     // An insert of a circle should be repeated 14 times
     expect(entities.filter((e) => e.type === 'CIRCLE').length).toEqual(14)
   })
-
   it('rectangular blocks rotate correctly', () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'array-rotated.dxf'),
@@ -60,10 +52,8 @@ describe('Denormalise', () => {
     )
     const parsed = parseString(contents)
     const entities = denormalise(parsed)
-
     // There should be six circles in a 3x2 rotated grid
     expect(entities.length).toEqual(6)
-
     // If they are arrayed correctly, their transforms should be these:
     expect(entities[0].transforms[0]).toEqual({
       x: 5,
@@ -114,7 +104,6 @@ describe('Denormalise', () => {
       rotation: 120,
     })
   })
-
   it('applies block basepoint adjustment to TEXT/MTEXT/DIMENSION', () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'block-basepoint-text-mtext-dimension.dxf'),
@@ -122,25 +111,20 @@ describe('Denormalise', () => {
     )
     const parsed = parseString(contents)
     const entities = denormalise(parsed)
-
     const texts = entities.filter((e) => e.type === 'TEXT')
     const mtexts = entities.filter((e) => e.type === 'MTEXT')
     const dimensions = entities.filter((e) => e.type === 'DIMENSION')
-
     expect(texts.length).toEqual(1)
     expect(mtexts.length).toEqual(1)
     expect(dimensions.length).toEqual(1)
-
     const text = texts[0]
     const textPos = applyTransforms([[text.x, text.y]], text.transforms)[0]
     const textAlignPos = applyTransforms([[text.x2, text.y2]], text.transforms)[0]
     expect(textPos).toEqual([101, 202])
     expect(textAlignPos).toEqual([101, 202])
-
     const mtext = mtexts[0]
     const mtextPos = applyTransforms([[mtext.x, mtext.y]], mtext.transforms)[0]
     expect(mtextPos).toEqual([102, 203])
-
     const dim = dimensions[0]
     const dimStart = applyTransforms([[dim.start.x, dim.start.y]], dim.transforms)[0]
     const dimText = applyTransforms(
@@ -155,7 +139,6 @@ describe('Denormalise', () => {
       [[dim.measureEnd.x, dim.measureEnd.y]],
       dim.transforms,
     )[0]
-
     expect(dimStart).toEqual([103, 204])
     expect(dimText).toEqual([103, 204])
     expect(dimMeasureStart).toEqual([103, 204])

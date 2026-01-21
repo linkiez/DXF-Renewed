@@ -1,15 +1,11 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
-
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'lwpolylines.dxf'),
   'utf-8',
 )
-
 describe('LWPOLYLINE', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities
@@ -28,7 +24,6 @@ describe('LWPOLYLINE', () => {
       handle: '4D',
       closed: true,
     })
-
     expect(entities[1]).toEqual({
       type: 'LWPOLYLINE',
       handle: '4E',

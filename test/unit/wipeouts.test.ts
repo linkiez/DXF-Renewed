@@ -1,10 +1,7 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
-
 describe('WIPEOUT', () => {
   it('parses WIPEOUT entity and renders outline fallback', () => {
     const dxfContent = `0
@@ -71,15 +68,11 @@ AcDbRasterImage
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
-
     expect(parsed.entities.length).toEqual(1)
     const entity = parsed.entities[0]
-
     expect(entity.type).toEqual('WIPEOUT')
     expect(entity.handle).toEqual('W1')
-
     const polylinesResult = toPolylines(parsed)
     expect(polylinesResult.polylines.length).toEqual(1)
     expect(polylinesResult.polylines[0].vertices).toEqual([
@@ -89,7 +82,6 @@ EOF`
       [0, 5],
       [0, 0],
     ])
-
     const svg = toSVG(parsed)
     expect(svg).toContain('<path')
   })

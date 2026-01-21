@@ -1,19 +1,15 @@
-import expectModule from 'expect'
+import expect from 'expect'
 import fs from 'fs'
 import { getResourcePath } from './test-helpers.ts'
-const expect = expectModule.expect || expectModule.default
-
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'dimensions.dxf'),
   'utf-8',
 )
-
 const verticalDxfDimension = fs.readFileSync(
   getResourcePath(import.meta.url, 'dimension-vertical.dxf'),
   'utf-8',
 )
-
 describe('DIMENSION', () => {
   it('can be parsed', () => {
     const parsed = parseString(dxfContents)
@@ -21,7 +17,6 @@ describe('DIMENSION', () => {
     const dimensions = entities.filter((e) => e.type === 'DIMENSION')
     const header = parsed.header
     expect(dimensions.length).toEqual(2)
-
     expect(dimensions[0]).toEqual({
       type: 'DIMENSION',
       block: '*D1',
@@ -40,7 +35,6 @@ describe('DIMENSION', () => {
       lineTypeName: 'ByLayer',
       styleName: 'Standard',
     })
-
     expect(header.dimArrowSize).toEqual(2.5)
   })
   it('can handle rotation for vertical dimension', () => {
@@ -49,7 +43,6 @@ describe('DIMENSION', () => {
     const dimensions = entities.filter((e) => e.type === 'DIMENSION')
     const header = parsed.header
     expect(dimensions.length).toEqual(1)
-
     expect(dimensions[0]).toEqual({
       type: 'DIMENSION',
       handle: '3026C',
@@ -66,7 +59,6 @@ describe('DIMENSION', () => {
       styleName: 'QCADDimStyle',
       text: '5.35',
     })
-
     expect(header.dimArrowSize).toEqual(3)
   })
 })

@@ -1,9 +1,6 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import parseString from '../../src/parseString'
 import toSVG from '../../src/toSVG'
-
 describe('TEXT, MTEXT, and DIMENSION SVG rendering', () => {
   it('TEXT entity should render to SVG', () => {
     const dxfContent = `0
@@ -26,14 +23,11 @@ Hello World
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
     const svg = toSVG(parsed)
-
     expect(svg).toContain('<text')
     expect(svg).toContain('Hello World')
   })
-
   it('MTEXT entity should render to SVG', () => {
     const dxfContent = `0
 SECTION
@@ -55,14 +49,11 @@ Multiline Text
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
     const svg = toSVG(parsed)
-
     expect(svg).toContain('<text')
     expect(svg).toContain('Multiline Text')
   })
-
   it('DIMENSION entity should render to SVG', () => {
     const dxfContent = `0
 SECTION
@@ -90,13 +81,10 @@ DIMENSION
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
     const svg = toSVG(parsed)
-
     expect(svg).toContain('<line')
   })
-
   it('should handle TEXT with rotation', () => {
     const dxfContent = `0
 SECTION
@@ -120,14 +108,11 @@ Rotated Text
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
     const svg = toSVG(parsed)
-
     expect(svg).toContain('<text')
     expect(svg).toContain('rotate')
   })
-
   it('should handle MTEXT with x-axis direction', () => {
     const dxfContent = `0
 SECTION
@@ -153,14 +138,11 @@ Rotated MTEXT
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
     const svg = toSVG(parsed)
-
     expect(svg).toContain('<text')
     expect(svg).toContain('rotate')
   })
-
   it('should handle different DIMENSION types', () => {
     const dxfContent = `0
 SECTION
@@ -188,10 +170,8 @@ DIMENSION
 ENDSEC
 0
 EOF`
-
     const parsed = parseString(dxfContent)
     const svg = toSVG(parsed)
-
     // Diameter dimension (type 3)
     expect(svg).toContain('svg')
   })

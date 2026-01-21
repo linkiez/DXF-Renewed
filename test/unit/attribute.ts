@@ -1,19 +1,15 @@
-import expectModule from 'expect'
+import expect from 'expect'
 import fs from 'fs'
 import { getResourcePath } from './test-helpers.ts'
-const expect = expectModule.expect || expectModule.default
-
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'attribute.dxf'),
   'utf-8',
 )
-
 describe('ATTRIBUTE', () => {
   it('can be parsed', () => {
     const _parsed = parseString(dxfContents)
     const attribute = _parsed.entities.find((e) => e.type === 'ATTRIB')
-
     expect(attribute).toEqual({
       type: 'ATTRIB',
       subclassMarker: 'AcDbAttribute',

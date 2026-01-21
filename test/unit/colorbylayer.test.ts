@@ -1,8 +1,5 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import getRGBForEntity from '../../src/getRGBForEntity'
-
 describe('colors', () => {
   it('Color defined in the entity but with value 256 means that we have to use the color defined in the layer.', () => {
     const fakeEntity = {

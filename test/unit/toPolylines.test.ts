@@ -1,20 +1,16 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
+import expect from 'expect'
 import { Box2 } from 'vecks'
-
 import { parseString, toPolylines } from '../../src'
 const dxfSquareAndCircle = fs.readFileSync(
   getResourcePath(import.meta.url, 'squareandcircle.dxf'),
   'utf-8',
 )
-
 const dxfPolyfaceMesh = fs.readFileSync(
   getResourcePath(import.meta.url, 'polyfacemesh.dxf'),
   'utf-8',
 )
-
 describe('DXF to coloured polylines', () => {
   it('for square and circle', () => {
     const parsed = parseString(dxfSquareAndCircle)
@@ -129,7 +125,6 @@ describe('DXF to coloured polylines', () => {
       },
     ])
   })
-
   it('for polyface mesh', () => {
     const parsed = parseString(dxfPolyfaceMesh)
     const { bbox, polylines } = toPolylines(parsed)

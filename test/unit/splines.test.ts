@@ -1,25 +1,20 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'splines.dxf'),
   'utf-8',
 )
-
 // A spline containing control point weights
 const dxfSquircle = fs.readFileSync(
   getResourcePath(import.meta.url, 'squircle2.dxf'),
   'utf-8',
 )
-
 describe('SPLINE', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities
     expect(entities.length).toEqual(2)
-
     expect(entities[0]).toEqual({
       type: 'SPLINE',
       layer: '0',
@@ -45,7 +40,6 @@ describe('SPLINE', () => {
       extrusionY: 0,
       extrusionZ: 0,
     })
-
     expect(entities[1]).toEqual({
       type: 'SPLINE',
       layer: '0',
@@ -76,11 +70,9 @@ describe('SPLINE', () => {
       extrusionZ: 0,
     })
   })
-
   it('parses control weights', () => {
     const entities = parseString(dxfSquircle).entities
     expect(entities.length).toEqual(1)
-
     expect(entities[0].weights).toEqual([
       1, 0.7071067811865476, 1, 0.7071067811865476, 1, 0.7071067811865476, 1,
       0.7071067811865476, 1,

@@ -1,8 +1,5 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString, toPolylines } from '../../src'
-
 describe('TRACE', () => {
   it('parses and converts TRACE to a closed polyline', () => {
     const dxf = `0
@@ -58,11 +55,9 @@ ENDSEC
 0
 EOF
 `
-
     const parsed = parseString(dxf)
     expect(parsed.entities.length).toEqual(1)
     expect(parsed.entities[0].type).toEqual('TRACE')
-
     const { polylines } = toPolylines(parsed)
     expect(polylines.length).toEqual(1)
     expect(polylines[0].vertices).toEqual([

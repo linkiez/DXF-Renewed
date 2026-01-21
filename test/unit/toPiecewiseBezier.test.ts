@@ -1,11 +1,8 @@
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import {
   checkPinned,
   computeInsertions,
 } from '../../src/util/toPiecewiseBezier'
-
 describe('Spline conversion to piecewise bezier', () => {
   it('checks that the spline is pinned', () => {
     expect(
@@ -43,7 +40,6 @@ describe('Spline conversion to piecewise bezier', () => {
     }).toThrow(
       /^not pinned. order: 4 knots: 0,0,0,1,0.2,0.4,0.6000000000000001,0.8,1,1,1,1$/,
     )
-
     expect(() => {
       checkPinned(
         4,
@@ -77,7 +73,6 @@ describe('Spline conversion to piecewise bezier', () => {
       /^not pinned. order: 4 knots: 0,0,0,0,0.2,0.4,0.6000000000000001,0.8,1,1,1,0.9$/,
     )
   })
-
   it('computes the knots to be inserted for a piecewise bezier', () => {
     expect(computeInsertions(4, [0, 0, 0, 0, 1, 2, 2, 2, 2])).toEqual([1, 1])
     expect(computeInsertions(4, [0, 0, 0, 0, 0.5, 2, 2, 2, 2])).toEqual([

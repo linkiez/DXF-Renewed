@@ -1,14 +1,11 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'threeDFaces.dxf'),
   'utf-8',
 )
-
 describe('3DFACE', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities

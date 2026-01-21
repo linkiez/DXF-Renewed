@@ -1,13 +1,10 @@
 import fs from 'fs'
 import { getResourcePath } from './test-helpers.ts'
-
 import { denormalise, parseString, toSVG } from '../../src'
 import entityToPolyline from '../../src/entityToPolyline'
-
 const readContents = (filename) => {
   return fs.readFileSync(getResourcePath(import.meta.url, filename), 'utf-8')
 }
-
 describe("Reference files don't generate errors", function () {
   const createTest = function (filename) {
     return function () {
@@ -20,7 +17,6 @@ describe("Reference files don't generate errors", function () {
       toSVG(parsed)
     }
   }
-
   it('entities.dxf', createTest('entities.dxf'))
   it(
     'Ceco.NET-Architecture-Tm-53.dxf',

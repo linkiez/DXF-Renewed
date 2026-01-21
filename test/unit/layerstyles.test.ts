@@ -1,14 +1,11 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'fs'
-import expectModule from 'expect'
-const expect = expectModule.expect || expectModule.default
-
+import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(
   getResourcePath(import.meta.url, 'Ceco.NET-Architecture-Tm-53.dxf'),
   'utf-8',
 )
-
 describe('Layer Styles', () => {
   it('can be parsed', () => {
     const result = parseString(dxfContents)
@@ -27,7 +24,6 @@ describe('Layer Styles', () => {
       plants: { colorNumber: 83 },
       'Ceco.NET 53': { colorNumber: 254 },
     }
-
     const reduced = {}
     Object.keys(result.tables.layers).forEach((name) => {
       const l = result.tables.layers[name]
