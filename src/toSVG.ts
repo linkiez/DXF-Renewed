@@ -166,9 +166,8 @@ const ellipseOrArc = (params: EllipticArcParams): BoundsAndElement => {
   ) {
     // Use a native <ellipse> when start and end angles are the same, and
     // arc paths with same start and end points don't render (at least on Safari)
-    const element = `<g transform="rotate(${
-      (rotationAngle / Math.PI) * 180
-    } ${cx}, ${cy})">
+    const element = `<g transform="rotate(${(rotationAngle / Math.PI) * 180
+      } ${cx}, ${cy})">
       <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" />
     </g>`
     return { bbox, element }
@@ -198,9 +197,8 @@ const ellipseOrArc = (params: EllipticArcParams): BoundsAndElement => {
     const adjustedEndAngle =
       endAngle < startAngle ? endAngle + Math.PI * 2 : endAngle
     const largeArcFlag = adjustedEndAngle - startAngle < Math.PI ? 0 : 1
-    const d = `M ${startPoint.x} ${startPoint.y} A ${rx} ${ry} ${
-      (rotationAngle / Math.PI) * 180
-    } ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y}`
+    const d = `M ${startPoint.x} ${startPoint.y} A ${rx} ${ry} ${(rotationAngle / Math.PI) * 180
+      } ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y}`
     const element = `<path d="${d}" />`
     return { bbox, element }
   }
@@ -585,13 +583,13 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
 
   const viewport = geometryBBox.valid
     ? {
-        width: geometryBBox.max.x - geometryBBox.min.x,
-        height: geometryBBox.max.y - geometryBBox.min.y,
-      }
+      width: geometryBBox.max.x - geometryBBox.min.x,
+      height: geometryBBox.max.y - geometryBBox.min.y,
+    }
     : {
-        width: 0,
-        height: 0,
-      }
+      width: 0,
+      height: 0,
+    }
 
   const { bbox, elements } = entities.reduce(
     (
@@ -609,10 +607,11 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
           acc.bbox.expandByPoint(bbox.max)
         }
         const color = rgbToColorAttribute(rgb)
+        const handleAttr = options?.includeHandles ? ` data-handle="${entity.handle}" data-type="${entity.type}" data-layer="${entity.layer}" ` : ''
         if (entity.type === 'SOLID' || entity.type === 'TRACE') {
-          acc.elements.push(`<g fill="${color}" stroke="none">${element}</g>`)
+          acc.elements.push(`<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`)
         } else {
-          acc.elements.push(`<g stroke="${color}">${element}</g>`)
+          acc.elements.push(`<g stroke="${color}" ${handleAttr}>${element}</g>`)
         }
       }
       return acc
@@ -625,17 +624,17 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
 
   const viewBox = bbox.valid
     ? {
-        x: bbox.min.x,
-        y: -bbox.max.y,
-        width: bbox.max.x - bbox.min.x,
-        height: bbox.max.y - bbox.min.y,
-      }
+      x: bbox.min.x,
+      y: -bbox.max.y,
+      width: bbox.max.x - bbox.min.x,
+      height: bbox.max.y - bbox.min.y,
+    }
     : {
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-      }
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    }
   return `<?xml version="1.0"?>
 <svg
   xmlns="http://www.w3.org/2000/svg"
