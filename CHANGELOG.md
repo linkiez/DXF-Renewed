@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.4.1 (2026-01-21)</small>
+
+* Add ESLint workflow for code quality checks ([92516d9](https://github.com/linkiez/DXF-Renewed/commit/92516d9))
+* Merge pull request #11 from linkiez/dependabot/npm_and_yarn/npm_and_yarn-2b901f0e0d ([f81a0b6](https://github.com/linkiez/DXF-Renewed/commit/f81a0b6)), closes [#11](https://github.com/linkiez/DXF-Renewed/issues/11)
+* Merge pull request #12 from linkiez/dependabot/npm_and_yarn/npm_and_yarn-1c5b4d3897 ([fb8b871](https://github.com/linkiez/DXF-Renewed/commit/fb8b871)), closes [#12](https://github.com/linkiez/DXF-Renewed/issues/12)
+* Set up Dependabot for npm, Docker, and GitHub Actions ([b15a9a4](https://github.com/linkiez/DXF-Renewed/commit/b15a9a4))
+* fix: resolve ESLint version conflicts and expect import issues ([048503b](https://github.com/linkiez/DXF-Renewed/commit/048503b))
+* fix: resolve TypeScript errors in test files ([6a4b5f1](https://github.com/linkiez/DXF-Renewed/commit/6a4b5f1))
+* build(deps): bump qs in the npm_and_yarn group across 1 directory ([af24a12](https://github.com/linkiez/DXF-Renewed/commit/af24a12))
+* build(deps): bump tar in the npm_and_yarn group across 1 directory ([0febe92](https://github.com/linkiez/DXF-Renewed/commit/0febe92))
+
 ## 7.4.0 (2026-01-21)
 
 * Merge pull request #10 from jtommy/feat/handle-svg ([96b3055](https://github.com/linkiez/DXF-Renewed/commit/96b3055)), closes [#10](https://github.com/linkiez/DXF-Renewed/issues/10)
