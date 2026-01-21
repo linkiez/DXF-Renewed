@@ -1,5 +1,5 @@
 import { getResourcePath } from './test-helpers.ts'
-import fs from 'fs'
+import fs from 'node:fs'
 import expect from 'expect'
 import { parseString } from '../../src'
 const dxfContents = fs.readFileSync(

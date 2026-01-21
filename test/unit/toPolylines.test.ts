@@ -1,5 +1,5 @@
 import { getResourcePath } from './test-helpers.ts'
-import fs from 'fs'
+import fs from 'node:fs'
 import expect from 'expect'
 import { Box2 } from 'vecks'
 import { parseString, toPolylines } from '../../src'

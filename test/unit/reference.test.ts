@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { denormalise, parseString, toSVG } from '../../src'
 import entityToPolyline from '../../src/entityToPolyline'

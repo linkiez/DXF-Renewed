@@ -1,5 +1,5 @@
 import expect from 'expect'
-import fs from 'fs'
+import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { denormalise, groupEntitiesByLayer, parseString } from '../../src'
 describe('Group entities', () => {

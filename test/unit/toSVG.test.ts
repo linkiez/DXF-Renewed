@@ -1,7 +1,32 @@
+/// <reference types="mocha" />
+
 import expect from 'expect'
-import fs from 'fs'
+import fs from 'node:fs'
 import { parseString, toSVG } from '../../src'
 import { getResourcePath } from './test-helpers.ts'
+
+/**
+ * Custom matchers interface for expect
+ */
+interface CustomMatchers<R = unknown> {
+  toMatchViewbox(a: number, b: number, c: number, d: number): R
+  toMatchArc(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    e: number,
+    f: number,
+    g: number,
+    h: number,
+    i: number,
+  ): R
+  toBePolyline(): R
+}
+
+declare module 'expect' {
+  interface Matchers<R> extends CustomMatchers<R> {}
+}
 const dxfsFilenames = [
   'elliptical-arc1.dxf',
   'elliptical-arc2.dxf',
@@ -23,14 +48,17 @@ const dxfsFilenames = [
   'squircle2.dxf',
 ]
 // Load and parse DXFs
-const dxfs = dxfsFilenames.reduce((dxfObj, dxfFilename) => {
-  dxfObj[dxfFilename] = parseString(
-    fs.readFileSync(getResourcePath(import.meta.url, '' + dxfFilename), 'utf-8'),
-  )
-  return dxfObj
-}, {})
+const dxfs = dxfsFilenames.reduce(
+  (dxfObj, dxfFilename) => {
+    dxfObj[dxfFilename] = parseString(
+      fs.readFileSync(getResourcePath(import.meta.url, '' + dxfFilename), 'utf-8'),
+    )
+    return dxfObj
+  },
+  {} as Record<string, ReturnType<typeof parseString>>,
+)
 // Helper functions for testing SVGs
-const approx = (a, b) => Math.abs(a - b) < 1e-12
+const approx = (a: number, b: number): boolean => Math.abs(a - b) < 1e-12
 expect.extend({
   toMatchViewbox(received, a, b, c, d) {
     // Use naive regex to match numbers
@@ -38,10 +66,10 @@ expect.extend({
     const result = re.exec(received)
     if (
       result &&
-      approx(parseFloat(result[1]), a) &&
-      approx(parseFloat(result[2]), b) &&
-      approx(parseFloat(result[3]), c) &&
-      approx(parseFloat(result[4]), d)
+      approx(Number.parseFloat(result[1]), a) &&
+      approx(Number.parseFloat(result[2]), b) &&
+      approx(Number.parseFloat(result[3]), c) &&
+      approx(Number.parseFloat(result[4]), d)
     ) {
       return {
         pass: true,
@@ -56,21 +84,22 @@ expect.extend({
       }
     }
   },
+  // eslint-disable-next-line max-params
   toMatchArc(received, a, b, c, d, e, f, g, h, i) {
     const re =
       /path d="M ([-0-9.e]+) ([-0-9.e]+) A ([-0-9.e]+) ([-0-9.e]+) ([-0-9.e]+) ([-0-9.e]+) ([-0-9.e]+) ([-0-9.e]+) ([-0-9.e]+)"/
     const result = re.exec(received)
     if (
       result &&
-      approx(parseFloat(result[1]), a) &&
-      approx(parseFloat(result[2]), b) &&
-      approx(parseFloat(result[3]), c) &&
-      approx(parseFloat(result[4]), d) &&
-      approx(parseFloat(result[5]), e) &&
-      approx(parseFloat(result[6]), f) &&
-      approx(parseFloat(result[7]), g) &&
-      approx(parseFloat(result[8]), h) &&
-      approx(parseFloat(result[9]), i)
+      approx(Number.parseFloat(result[1]), a) &&
+      approx(Number.parseFloat(result[2]), b) &&
+      approx(Number.parseFloat(result[3]), c) &&
+      approx(Number.parseFloat(result[4]), d) &&
+      approx(Number.parseFloat(result[5]), e) &&
+      approx(Number.parseFloat(result[6]), f) &&
+      approx(Number.parseFloat(result[7]), g) &&
+      approx(Number.parseFloat(result[8]), h) &&
+      approx(Number.parseFloat(result[9]), i)
     ) {
       return {
         pass: true,

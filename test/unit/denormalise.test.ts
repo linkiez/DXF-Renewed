@@ -1,5 +1,5 @@
 import expect from 'expect'
-import fs from 'fs'
+import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { denormalise, parseString } from '../../src'
 import applyTransforms from '../../src/applyTransforms'
