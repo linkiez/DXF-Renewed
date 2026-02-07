@@ -1,6 +1,6 @@
 {
   "name": "@linkiez/dxf-renew",
-  "version": "7.4.2",
+  "version": "7.4.3",
   "description": "DXF parser for node/browser",
   "type": "module",
   "main": "lib/index.js",

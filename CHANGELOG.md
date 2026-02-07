@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.4.3 (2026-02-07)</small>
+
+* fix(security): resolve XSS vulnerabilities and HTTP security warnings ([e6f01f3](https://github.com/linkiez/DXF-Renewed/commit/e6f01f3))
+* chore(deps)(deps): bump commander in the production-dependencies group ([0b68bf7](https://github.com/linkiez/DXF-Renewed/commit/0b68bf7))
+* chore(deps)(deps): bump npm from 11.6.2 to 11.9.0 ([59fa205](https://github.com/linkiez/DXF-Renewed/commit/59fa205))
+* chore(deps)(deps): bump tar from 7.5.6 to 7.5.7 ([5df767a](https://github.com/linkiez/DXF-Renewed/commit/5df767a))
+* Merge pull request #20 from linkiez/dependabot/npm_and_yarn/tar-7.5.7 ([077ec69](https://github.com/linkiez/DXF-Renewed/commit/077ec69)), closes [#20](https://github.com/linkiez/DXF-Renewed/issues/20)
+* Merge pull request #21 from linkiez/dependabot/npm_and_yarn/production-dependencies-62484dca60 ([b123800](https://github.com/linkiez/DXF-Renewed/commit/b123800)), closes [#21](https://github.com/linkiez/DXF-Renewed/issues/21)
+* Merge pull request #23 from linkiez/dependabot/npm_and_yarn/npm-11.9.0 ([4535639](https://github.com/linkiez/DXF-Renewed/commit/4535639)), closes [#23](https://github.com/linkiez/DXF-Renewed/issues/23)
+
 ## <small>7.4.2 (2026-01-21)</small>
 
 * fix: update ESLint workflow config file reference ([4a35e59](https://github.com/linkiez/DXF-Renewed/commit/4a35e59))
