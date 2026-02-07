@@ -1,3 +1,3 @@
-/// <reference path="./shims/vecks.d.ts" />
+import './shims/vecks'
 
 export * from '../lib/index'
