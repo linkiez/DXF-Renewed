@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>DXF Text and Dimension Example</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -83,23 +84,44 @@
       }
 
       function renderDXF(dxfContents) {
-        window.requirejs(['../dist/dxf'], function (dxf) {
+        globalThis.requirejs(['../dist/dxf'], function (dxf) {
           dxf.config.verbose = true
           try {
-            numberOfEntities.innerHTML = 'processing...'
+            numberOfEntities.textContent = 'processing...'
             const helper = new dxf.Helper(dxfContents)
-            numberOfEntities.innerHTML = helper.denormalised.length
+            // Convert to string explicitly to ensure safe output
+            numberOfEntities.textContent = String(helper.denormalised.length)
 
             const counts = countEntitiesByType(helper.denormalised)
-            textCount.innerHTML = counts.TEXT
-            mtextCount.innerHTML = counts.MTEXT
-            dimensionCount.innerHTML = counts.DIMENSION
+            textCount.textContent = counts.TEXT
+            mtextCount.textContent = counts.MTEXT
+            dimensionCount.textContent = counts.DIMENSION
 
             const svg = helper.toSVG()
-            svgContainer.innerHTML = svg
+            // Sanitize SVG content to prevent XSS attacks
+            if (globalThis.DOMPurify) {
+              // NOSONAR: DOMPurify.sanitize is specifically designed to handle untrusted input
+              // and provides comprehensive XSS protection for SVG content
+              const sanitizedSVG = globalThis.DOMPurify.sanitize(svg, {
+                USE_PROFILES: { svg: true, svgFilters: true },
+                ADD_ATTR: ['xmlns', 'viewBox', 'width', 'height']
+              })
+              svgContainer.innerHTML = sanitizedSVG
+            } else {
+              // Fallback: create a safe error message
+              const warningParagraph = document.createElement('p')
+              warningParagraph.style.color = 'orange'
+              warningParagraph.textContent = 'DOMPurify not loaded. Cannot safely display SVG.'
+              svgContainer.innerHTML = ''
+              svgContainer.appendChild(warningParagraph)
+            }
           } catch (error) {
             console.error('Error rendering DXF:', error)
-            svgContainer.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>'
+            const errorParagraph = document.createElement('p')
+            errorParagraph.style.color = 'red'
+            errorParagraph.textContent = 'Error: ' + (error?.message || 'Unknown error')
+            svgContainer.innerHTML = ''
+            svgContainer.appendChild(errorParagraph)
           }
         })
       }
@@ -107,7 +129,7 @@
       fileInput.addEventListener('change', function (event) {
         var file = event.target.files[0]
         var reader = new FileReader()
-        numberOfEntities.innerHTML = 'reading...'
+        numberOfEntities.textContent = 'reading...'
         reader.onload = function (e) {
           if (e.target.readyState === 2) {
             renderDXF(e.target.result)
@@ -116,8 +138,8 @@
         reader.readAsBinaryString(file)
       })
 
-      window.loadTestFile = function(filename) {
-        numberOfEntities.innerHTML = 'loading...'
+      globalThis.loadTestFile = function(filename) {
+        numberOfEntities.textContent = 'loading...'
         fetch('../test/resources/' + filename)
           .then(response => response.text())
           .then(dxfContents => {
@@ -125,7 +147,11 @@
           })
           .catch(error => {
             console.error('Error loading file:', error)
-            svgContainer.innerHTML = '<p style="color: red;">Error loading file: ' + error.message + '</p>'
+            const errorParagraph = document.createElement('p')
+            errorParagraph.style.color = 'red'
+            errorParagraph.textContent = 'Error loading file: ' + (error?.message || 'Unknown error')
+            svgContainer.innerHTML = ''
+            svgContainer.appendChild(errorParagraph)
           })
       }
     </script>

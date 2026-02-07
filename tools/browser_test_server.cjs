@@ -41,6 +41,9 @@ function safeJoin(baseDir, requestedPath) {
   return resolvedTarget
 }
 
+// NOSONAR: This is a local development test server for browser tests only.
+// HTTP is appropriate and safe for localhost testing. HTTPS would require
+// certificate management without providing security benefits for local testing.
 const server = http.createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
   const pathname = url.pathname
