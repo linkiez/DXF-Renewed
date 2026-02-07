@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.4.4 (2026-02-07)</small>
+
+* fix(eslint): resolve linting errors for CJS files and type definitions ([236b9eb](https://github.com/linkiez/DXF-Renewed/commit/236b9eb))
+* chore: update code structure with multiple empty code change sections ([bd2a232](https://github.com/linkiez/DXF-Renewed/commit/bd2a232))
+* chore(eslint): migrate to ESLint v10 flat config ([846ba4a](https://github.com/linkiez/DXF-Renewed/commit/846ba4a))
+
 ## <small>7.4.3 (2026-02-07)</small>
 
 * fix(security): resolve XSS vulnerabilities and HTTP security warnings ([e6f01f3](https://github.com/linkiez/DXF-Renewed/commit/e6f01f3))
