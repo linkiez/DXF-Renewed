@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.4.5 (2026-02-21)</small>
+
+* chore(deps)(deps-dev): bump the development-dependencies group across 1 directory with 7 updates ([096e5fe](https://github.com/linkiez/DXF-Renewed/commit/096e5fe))
+* chore(deps)(deps): bump qs from 6.14.1 to 6.15.0 ([6659b06](https://github.com/linkiez/DXF-Renewed/commit/6659b06))
+* chore(deps)(deps): bump tar from 7.5.7 to 7.5.9 ([b129b7e](https://github.com/linkiez/DXF-Renewed/commit/b129b7e))
+* Downgrade eslint-plugin-n from ^17.23.2 to ^16.0.0 to fix peer dependency conflict with eslint-confi ([710ca18](https://github.com/linkiez/DXF-Renewed/commit/710ca18))
+* Initial plan ([e2d079e](https://github.com/linkiez/DXF-Renewed/commit/e2d079e))
+* Merge pull request #28 from linkiez/dependabot/npm_and_yarn/development-dependencies-466d5da063 ([22e3ed9](https://github.com/linkiez/DXF-Renewed/commit/22e3ed9)), closes [#28](https://github.com/linkiez/DXF-Renewed/issues/28)
+* Merge pull request #29 from linkiez/dependabot/npm_and_yarn/tar-7.5.9 ([4894a9d](https://github.com/linkiez/DXF-Renewed/commit/4894a9d)), closes [#29](https://github.com/linkiez/DXF-Renewed/issues/29)
+* Merge pull request #30 from linkiez/dependabot/npm_and_yarn/qs-6.15.0 ([c1aeaa3](https://github.com/linkiez/DXF-Renewed/commit/c1aeaa3)), closes [#30](https://github.com/linkiez/DXF-Renewed/issues/30)
+* Merge pull request #31 from linkiez/copilot/downcast-eslint-plugin-promise ([580a6d2](https://github.com/linkiez/DXF-Renewed/commit/580a6d2)), closes [#31](https://github.com/linkiez/DXF-Renewed/issues/31)
+* ci(eslint): update workflow to use project eslint v10 and flat config ([0950ed9](https://github.com/linkiez/DXF-Renewed/commit/0950ed9))
+* chore: update yarn.lock after eslint-plugin-promise downgrade ([b23eefe](https://github.com/linkiez/DXF-Renewed/commit/b23eefe))
+* fix(deps): downgrade eslint-plugin-promise to ^6.1.1 ([6115c19](https://github.com/linkiez/DXF-Renewed/commit/6115c19))
+
 ## <small>7.4.4 (2026-02-07)</small>
 
 * fix(eslint): resolve linting errors for CJS files and type definitions ([236b9eb](https://github.com/linkiez/DXF-Renewed/commit/236b9eb))
