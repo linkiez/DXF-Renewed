@@ -38,7 +38,7 @@ export { DEFAULT_NEST_OPTIONS, NEST_PRESETS, COMMON_BIN_SIZES }
 export async function nestDXF(
   dxfText: string,
   options: Partial<NestOptions> & { autoDetectBin?: boolean },
-  extractOptions?: Partial<ExtractPartsOptions>
+  extractOptions?: Partial<ExtractPartsOptions>,
 ): Promise<NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }> {
   const startMs = performance.now()
 
@@ -89,7 +89,7 @@ export async function nestDXF(
     }
   }
 
-  // 5. Run nesting
+  // 5. Run nesting (supports multi-bin)
   const placements = await nestParts(parts, fullOptions)
 
   // 6. Determine unplaced parts
@@ -105,7 +105,7 @@ export async function nestDXF(
     parts.length,
     elapsed,
     fullOptions.maxIterations,
-    0 // bestFitness placeholder
+    0, // bestFitness placeholder
   )
 
   // 8. Generate output functions
@@ -113,6 +113,7 @@ export async function nestDXF(
   const dxf = () => generateNestDXF(placements, binSize)
   const metricsSummary = () => formatMetricsSummary(metrics)
 
+  // Print metrics once at the end
   console.log(metricsSummary())
 
   return {
@@ -135,7 +136,7 @@ export async function nestDXF(
 export async function nestWithPreset(
   dxfText: string,
   preset: keyof typeof NEST_PRESETS,
-  binSize: { width: number; height: number }
+  binSize: { width: number; height: number },
 ): Promise<NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }> {
   const presetOpts = NEST_PRESETS[preset] ?? {}
   return nestDXF(dxfText, { ...presetOpts, binSize })
@@ -145,7 +146,7 @@ export async function nestWithPreset(
  * Quick nest: auto-detect everything and nest with laser defaults.
  */
 export async function quickNest(
-  dxfText: string
+  dxfText: string,
 ): Promise<NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }> {
   return nestWithPreset(dxfText, 'laser', { width: 2000, height: 4000 })
 }

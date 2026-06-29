@@ -53,6 +53,8 @@ export interface NestOptions {
   /** Explore concave areas for better packing */
   exploreConcave: boolean
   /** Progress callback: (iteration, bestFitness) => void */
+  /** Max number of bins to use (default 10) */
+  maxBins?: number
   onProgress?: (iteration: number, bestFitness: number) => void
 }
 

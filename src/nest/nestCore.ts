@@ -3,15 +3,13 @@
 // Converte NestPart[] para o formato que o PlacementWorker do SvgNest espera
 // (arrays de {x, y} com propriedades extras como id, source, rotation).
 // Pré-computa NFPs e roda o placement direto, contornando WebWorkers.
+// Suporta multi-bin: peças que não cabem vão para bins adicionais.
 
 import type { NestPart, NestPlacement, NestOptions } from './types'
 import { loadSvgNest } from './svgnest-loader'
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 
-/**
- * Shuffle an array in place (Fisher-Yates).
- */
 function shuffleArray<T>(array: T[]): T[] {
   const result = array.slice(0)
   for (let i = result.length - 1; i > 0; i--) {
@@ -21,20 +19,13 @@ function shuffleArray<T>(array: T[]): T[] {
   return result
 }
 
-/**
- * Convert [number, number][] to {x, y}[] array that SvgNest expects.
- */
 function toSvgPoints(vertices: [number, number][]): { x: number; y: number }[] {
   return vertices.map((v) => ({ x: v[0], y: v[1] }))
 }
 
-/**
- * Create a NestPart-compatible polygon array for SvgNest.
- * The array itself contains {x, y} points and also has id/source/rotation properties.
- */
 function createSvgNestPart(
   part: NestPart,
-  index: number
+  index: number,
 ): { x: number; y: number }[] & {
   id: number
   source: number
@@ -45,7 +36,6 @@ function createSvgNestPart(
   ;(points as any).source = index
   ;(points as any).rotation = 0
 
-  // Attach holes as children if present
   if (part.holes && part.holes.length > 0) {
     ;(points as any).children = part.holes.map((hole) => toSvgPoints(hole))
   }
@@ -53,12 +43,9 @@ function createSvgNestPart(
   return points as any
 }
 
-/**
- * Create a rectangular bin polygon.
- */
 function createBinPolygon(
   width: number,
-  height: number
+  height: number,
 ): { x: number; y: number }[] & { id: number } {
   const bin = [
     { x: 0, y: 0 },
@@ -70,14 +57,11 @@ function createBinPolygon(
   return bin as any
 }
 
-/**
- * Compute final vertices after applying translation and rotation.
- */
 function computePlacedVertices(
   vertices: [number, number][],
   tx: number,
   ty: number,
-  rotationDeg: number
+  rotationDeg: number,
 ): [number, number][] {
   if (rotationDeg === 0) {
     return vertices.map((v) => [v[0] + tx, v[1] + ty] as [number, number])
@@ -87,9 +71,7 @@ function computePlacedVertices(
   const cos = Math.cos(angle)
   const sin = Math.sin(angle)
 
-  // Compute centroid for rotation pivot
-  let cx = 0,
-    cy = 0
+  let cx = 0, cy = 0
   for (const v of vertices) {
     cx += v[0]
     cy += v[1]
@@ -106,23 +88,25 @@ function computePlacedVertices(
   })
 }
 
-// ─── Core Nesting ──────────────────────────────────────────────────────
+// ─── Single Bin Nesting ────────────────────────────────────────────────
+
+interface BinNestResult {
+  placements: NestPlacement[]
+  unplaced: NestPart[]
+  fitness: number
+  timeMs: number
+}
 
 /**
- * Nest parts into a rectangular bin using the real SVGnest algorithm.
- *
- * Strategy:
- * 1. Convert NestPart vertices to {x,y}[] arrays (SvgNest format)
- * 2. Pre-compute all NFPs (Non-Fitting Polygons) using GeometryUtil.noFitPolygon
- * 3. Feed NFP cache to PlacementWorker (bypassing WebWorkers)
- * 4. Run GA iterations with different orderings/rotations
- * 5. Convert results back to NestPlacement[]
+ * Nest a set of parts into a single bin.
  */
-export async function nestParts(
+async function nestSingleBin(
   parts: NestPart[],
-  options: NestOptions
-): Promise<NestPlacement[]> {
-  if (parts.length === 0) return []
+  options: NestOptions,
+): Promise<BinNestResult> {
+  if (parts.length === 0) {
+    return { placements: [], unplaced: [], fitness: 0, timeMs: 0 }
+  }
 
   const startMs = performance.now()
 
@@ -139,7 +123,6 @@ export async function nestParts(
     onProgress,
   } = options
 
-  // 1. Load the SVGnest core libraries (injected into globalThis)
   await loadSvgNest()
   const GeometryUtil = (globalThis as any).GeometryUtil
   const PlacementWorker = (globalThis as any).PlacementWorker
@@ -148,13 +131,13 @@ export async function nestParts(
     throw new Error('[nestCore] SVGnest core not loaded')
   }
 
-  // 2. Convert parts to SvgNest format
+  // Convert parts to SvgNest format
   const svgParts = parts.map((part, idx) => createSvgNestPart(part, idx))
 
-  // 3. Create bin polygon
+  // Create bin polygon
   const binPolygon = createBinPolygon(binSize.width, binSize.height)
 
-  // 4. Config
+  // Config
   const config = {
     clipperScale: 100,
     exploreConcave: exploreConcave ?? false,
@@ -166,16 +149,16 @@ export async function nestParts(
     spacing: spacing ?? 0.2,
   }
 
-  // 5. Determine rotation angles to test
+  // Rotation angles to test
   const rotationAngles =
     maxRotations > 0
       ? Array.from({ length: maxRotations }, (_, i) => (360 / maxRotations) * i)
       : [0]
 
-  // 6. Pre-compute all NFPs needed
+  // Pre-compute all NFPs
   const nfpCache: Record<string, any[]> = {}
 
-  // 6a. NFP between bin and each part (inside = true)
+  // NFP between bin and each part (inside = true)
   for (const part of svgParts) {
     for (const rot of rotationAngles) {
       const key = JSON.stringify({
@@ -193,7 +176,7 @@ export async function nestParts(
             binPolygon,
             rotatedPart,
             true,
-            exploreConcave ?? false
+            exploreConcave ?? false,
           )
           nfpCache[key] = nfp || []
         } catch {
@@ -203,7 +186,7 @@ export async function nestParts(
     }
   }
 
-  // 6b. NFP between each pair of parts (inside = false)
+  // NFP between each pair of parts (inside = false)
   for (let i = 0; i < svgParts.length; i++) {
     for (let j = 0; j < svgParts.length; j++) {
       if (i === j) continue
@@ -226,7 +209,7 @@ export async function nestParts(
                 rotatedA,
                 rotatedB,
                 false,
-                exploreConcave ?? false
+                exploreConcave ?? false,
               )
               nfpCache[key] = nfp || []
             } catch {
@@ -239,22 +222,22 @@ export async function nestParts(
   }
 
   console.log(
-    `[nestCore] Pre-computed ${Object.keys(nfpCache).length} NFPs for ${svgParts.length} parts`
+    `[nestCore] Pre-computed ${Object.keys(nfpCache).length} NFPs for ${svgParts.length} parts`,
   )
 
-  // 7. Sort parts by decreasing area (largest first — same strategy as SVGnest)
+  // Sort parts by decreasing area (largest first)
   svgParts.sort((a, b) => {
     const areaA = Math.abs(GeometryUtil.polygonArea(a))
     const areaB = Math.abs(GeometryUtil.polygonArea(b))
     return areaB - areaA
   })
 
-  // 8. Run placement iterations
+  // Run placement iterations
   let bestResult: any = null
   let bestFitness = Infinity
 
   for (let iter = 0; iter < maxIterations; iter++) {
-    // Shuffle parts for diversity (first iter uses area-sorted order)
+    // First iteration uses area-sorted order; subsequent ones shuffle
     const iterParts =
       iter === 0
         ? svgParts.map((p) => {
@@ -271,10 +254,10 @@ export async function nestParts(
               ;(pts as any).source = p.source
               ;(pts as any).rotation = 0
               return pts as any
-            })
+            }),
           )
 
-    // Assign rotations
+    // Assign random rotations
     const iterRotations = iterParts.map(() => {
       return rotationAngles[Math.floor(Math.random() * rotationAngles.length)]
     })
@@ -302,7 +285,7 @@ export async function nestParts(
         iterParts.map((p) => p.id),
         iterRotations,
         config,
-        nfpCache
+        nfpCache,
       )
 
       const result = worker.placePaths(iterParts)
@@ -320,8 +303,9 @@ export async function nestParts(
     }
   }
 
-  // 9. Convert results back to NestPlacement[]
+  // Convert results back to NestPlacement[]
   const placements: NestPlacement[] = []
+  const placedIds = new Set<number>()
 
   if (bestResult && bestResult.placements) {
     for (const binPlacements of bestResult.placements) {
@@ -331,11 +315,13 @@ export async function nestParts(
 
         if (!originalPart) continue
 
+        placedIds.add(sourceIdx)
+
         const placedVertices = computePlacedVertices(
           originalPart.vertices,
           placement.x,
           placement.y,
-          placement.rotation
+          placement.rotation,
         )
 
         placements.push({
@@ -352,10 +338,73 @@ export async function nestParts(
     }
   }
 
+  // Determine unplaced parts
+  const unplaced = parts.filter((_, idx) => !placedIds.has(idx))
+
   const elapsed = performance.now() - startMs
   console.log(
-    `[nestCore] Placed ${placements.length}/${parts.length} parts in ${elapsed.toFixed(0)}ms (fitness: ${bestFitness.toFixed(2)})`
+    `[nestCore] Bin: placed ${placements.length}/${parts.length}, ` +
+      `unplaced ${unplaced.length} in ${elapsed.toFixed(0)}ms ` +
+      `(fitness: ${bestFitness.toFixed(2)})`,
   )
 
-  return placements
+  return { placements, unplaced, fitness: bestFitness, timeMs: elapsed }
+}
+
+// ─── Public API ────────────────────────────────────────────────────────
+
+/**
+ * Nest parts into one or more bins using the real SVGnest algorithm.
+ *
+ * If parts don't fit in a single bin, they are automatically distributed
+ * across multiple identical bins (multi-bin mode).
+ *
+ * Strategy per bin:
+ * 1. Convert NestPart vertices to {x,y}[] arrays (SvgNest format)
+ * 2. Pre-compute all NFPs (Non-Fitting Polygons) using GeometryUtil.noFitPolygon
+ * 3. Feed NFP cache to PlacementWorker (bypassing WebWorkers)
+ * 4. Run GA iterations with different orderings/rotations
+ * 5. Convert results back to NestPlacement[]
+ * 6. Repeat with unplaced parts until all fit or maxBins reached
+ */
+export async function nestParts(
+  parts: NestPart[],
+  options: NestOptions,
+): Promise<NestPlacement[]> {
+  if (parts.length === 0) return []
+
+  const allPlacements: NestPlacement[] = []
+  let remaining = parts
+  let binCount = 0
+  const maxBins = options.maxBins ?? 10
+
+  while (remaining.length > 0 && binCount < maxBins) {
+    binCount++
+
+    if (binCount > 1) {
+      console.log(`[nestCore] Opening bin ${binCount} for ${remaining.length} remaining parts`)
+    }
+
+    const result = await nestSingleBin(remaining, options)
+
+    allPlacements.push(...result.placements)
+    remaining = result.unplaced
+
+    // If nothing was placed in this bin, stop to avoid infinite loop
+    if (result.placements.length === 0 && remaining.length > 0) {
+      console.log(
+        `[nestCore] ⚠ No parts placed in bin ${binCount} — ` +
+          `parts may be larger than the bin`,
+      )
+      break
+    }
+  }
+
+  if (remaining.length > 0) {
+    console.log(
+      `[nestCore] ⚠ ${remaining.length} parts could not be placed after ${binCount} bins`,
+    )
+  }
+
+  return allPlacements
 }
