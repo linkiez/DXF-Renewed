@@ -15,7 +15,8 @@
   },
   "packageManager": "yarn@4.12.0",
   "bin": {
-    "dxf-to-svg": "lib/cli.js"
+    "dxf-to-svg": "lib/cli.js",
+    "dxfr": "./src/cli-nest.ts"
   },
   "engines": {
     "node": ">=8.9.0"
@@ -41,7 +42,8 @@
     "validate:fixtures": "bash -lc 'if [ -x ./.venv-ezdxf/bin/python ]; then ./.venv-ezdxf/bin/python tools/ezdxf_validate_fixtures.py --fail-on-audit-errors; else python3 tools/ezdxf_validate_fixtures.py --fail-on-audit-errors; fi'",
     "prepare": "husky",
     "semantic-release": "semantic-release",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "nest": "tsx src/cli-nest.ts"
   },
   "repository": {
     "type": "git",
