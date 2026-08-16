@@ -33,6 +33,7 @@ Written in **TypeScript** with full type definitions included. Uses modern ES201
 This project follows a phased migration plan to align with AutoCAD 2024 DXF specifications and achieve complete 2D coverage.
 
 **Current Status (as of 2026-01-01):**
+
 - ✅ M0 — Baseline & Regression Harness: **Complete**
 - 🔄 M1 — DXF Format & Section-Level Compliance: **Ongoing**
 - 🔄 M2 — TABLES Coverage (2D-Relevant): **In Progress**
@@ -41,6 +42,7 @@ This project follows a phased migration plan to align with AutoCAD 2024 DXF spec
 - 🔄 M5 — Rendering Parity (toPolylines / toSVG): **Ongoing**
 
 For detailed progress, implementation roadmap, and architecture documentation, see:
+
 - [ROADMAP.md](./ROADMAP.md) - Full migration plan and progress tracking
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - Architecture overview
 
@@ -125,6 +127,7 @@ Many common DXF entities are **parsed and rendered to SVG**. Some entities are p
 - ✅ **LEADER** - Rendered as an SVG path
 - ✅ **TOLERANCE** - Rendered with SVG text fallback
 - ✅ **SHAPE** - Rendered with SVG text fallback
+- ✅ **HATCH** - Solid boundary loops rendered as evenodd SVG paths with hole support
 
 > **INSERT note:** INSERT is supported via denormalisation. The library expands INSERT entities into their referenced BLOCK contents and then renders the resulting entities with transforms applied.
 
@@ -132,7 +135,6 @@ Many common DXF entities are **parsed and rendered to SVG**. Some entities are p
 
 - ⚠️ **POINT** - Parsed but currently not rendered to SVG
 - ⚠️ **3DFACE** - Parsed but currently not rendered to SVG
-- ⚠️ **HATCH** - Parsed but currently not rendered to SVG
 - ⚠️ **ATTDEF/ATTRIB** - Block attributes parsed but not rendered
 - ⚠️ **MLEADER** - Parsed but not rendered to SVG
 - ⚠️ **OLEFRAME** - Parsed but not rendered to SVG
@@ -160,6 +162,15 @@ console.log('denormalised:', helper.denormalised)
 // Create an SVG
 console.log('svg:', helper.toSVG())
 
+// Fill closed contours without requiring HATCH entities
+console.log('svg filled:', helper.toSVG({ fillClosedPolylines: true }))
+
+// Keep stroke-width relative to the viewport instead of the screen
+console.log(
+  'svg viewport strokes:',
+  helper.toSVG({ strokeWidth: { mode: 'viewport', value: 1 } }),
+)
+
 // Create polylines (e.g. to render in WebGL)
 console.log('polylines:', helper.toPolylines())
 
@@ -183,6 +194,15 @@ console.log('denormalised:', helper.denormalised)
 // Create an SVG
 console.log('svg:', helper.toSVG())
 
+// Fill closed contours without requiring HATCH entities
+console.log('svg filled:', helper.toSVG({ fillClosedPolylines: true }))
+
+// Keep stroke-width relative to the viewport instead of the screen
+console.log(
+  'svg viewport strokes:',
+  helper.toSVG({ strokeWidth: { mode: 'viewport', value: 1 } }),
+)
+
 // Create polylines (e.g. to render in WebGL)
 console.log('polylines:', helper.toPolylines())
 
@@ -200,6 +220,9 @@ The public API is exported from `src/index.ts`.
   - Expand `INSERT` entities into their referenced `BLOCK` contents.
 - `toSVG(parsed: ParsedDXF, options?): string`
   - Render the drawing to an SVG string.
+  - `options.fillClosedPolylines` fills closed POLYLINE/LWPOLYLINE entities using their resolved entity color.
+  - `options.closedPolylineFill` forces a specific fill color for closed POLYLINE/LWPOLYLINE entities.
+  - `options.strokeWidth` chooses screen-relative percentages or viewport-relative drawing units for global SVG stroke width.
 - `toPolylines(parsed: ParsedDXF, options?): any[]`
   - Convert supported entities to polyline arrays.
 - `toJson(parsed: ParsedDXF, options?): string`
@@ -252,6 +275,29 @@ All npm commands in the documentation can be replaced with yarn equivalents:
 
 Geometric elements are fully supported with **native SVG elements** where possible (`<circle />`, `<ellipse/>`, etc.). TEXT, MTEXT, and DIMENSION entities are now fully rendered with proper transformations and formatting.
 
+Closed POLYLINE/LWPOLYLINE paths can be filled either with their entity color (`fillClosedPolylines`) or an explicit fill color (`closedPolylineFill`). Solid HATCH loops are emitted as a single SVG path using `fill-rule="evenodd"`, so nested contours render holes and inner islands correctly.
+
+Global SVG stroke width can be configured with `strokeWidth`:
+
+```typescript
+toSVG(parsed, {
+  strokeWidth: {
+    mode: 'screen',
+    value: 0.25,
+  },
+})
+
+toSVG(parsed, {
+  strokeWidth: {
+    mode: 'viewport',
+    value: 1,
+  },
+})
+```
+
+- `screen`: keeps `stroke-width` as an SVG percentage.
+- `viewport`: converts the percentage into drawing units using the smallest `viewBox` dimension.
+
 **SPLINE entities** with degree 2-3 and no weights are converted to native Bézier curves. Other splines are interpolated as polylines.
 
 Here's an example you will find in the functional test output:
@@ -276,9 +322,9 @@ const svg = helper.toSVG({
     // of min(viewBoxWidth, viewBoxHeight).
     autoScaleViewportPercentages: {
       arrowSize: 1.5,
-      textHeight: 1
-    }
-  }
+      textHeight: 1,
+    },
+  },
 })
 ```
 
@@ -354,7 +400,13 @@ This library is written in TypeScript and includes full type definitions. All DX
 Example with type imports:
 
 ```typescript
-import { Helper, ParsedDXF, Entity, LineEntity, CircleEntity } from '@linkiez/dxf-renew'
+import {
+  Helper,
+  ParsedDXF,
+  Entity,
+  LineEntity,
+  CircleEntity,
+} from '@linkiez/dxf-renew'
 
 const helper = new Helper(dxfString)
 const parsed: ParsedDXF = helper.parsed
@@ -364,7 +416,9 @@ const entities: Entity[] = helper.denormalised
 entities.forEach((entity) => {
   if (entity.type === 'LINE') {
     const line = entity as LineEntity
-    console.log(`Line from (${line.start.x}, ${line.start.y}) to (${line.end.x}, ${line.end.y})`)
+    console.log(
+      `Line from (${line.start.x}, ${line.start.y}) to (${line.end.x}, ${line.end.y})`,
+    )
   }
 })
 ```
