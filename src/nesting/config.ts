@@ -81,7 +81,9 @@ export function validateNestingOptions(
     ...partial,
     kerf: partial.kerf ?? DEFAULT_KERF,
     margin: partial.margin ?? DEFAULT_MARGIN,
-    allowedRotations: partial.allowedRotations ?? [...DEFAULT_ALLOWED_ROTATIONS],
+    allowedRotations: partial.allowedRotations ?? [
+      ...DEFAULT_ALLOWED_ROTATIONS,
+    ],
   }
 
   const kerf = merged.kerf ?? DEFAULT_KERF

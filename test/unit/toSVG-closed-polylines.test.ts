@@ -227,6 +227,98 @@ EOF
     expect(svg).toContain('stroke="rgb(0, 255, 0)"')
   })
 
+  it('fills closed loops composed of multiple open LINE entities', () => {
+    const dxf = `0
+SECTION
+2
+TABLES
+0
+TABLE
+2
+LAYER
+70
+1
+0
+LAYER
+2
+0
+70
+0
+62
+3
+6
+CONTINUOUS
+0
+ENDTAB
+0
+ENDSEC
+0
+SECTION
+2
+ENTITIES
+0
+LINE
+8
+0
+10
+0
+20
+0
+11
+20
+21
+0
+0
+LINE
+8
+0
+10
+20
+20
+0
+11
+20
+21
+10
+0
+LINE
+8
+0
+10
+20
+20
+10
+11
+0
+21
+10
+0
+LINE
+8
+0
+10
+0
+20
+10
+11
+0
+21
+0
+0
+ENDSEC
+0
+EOF
+`
+
+    const parsed = parseString(dxf)
+    const svg = toSVG(parsed, { fillClosedPolylines: true })
+
+    expect(svg).toContain(
+      '<path d="M0,0L20,0L20,10L0,10Z" fill-rule="evenodd" />',
+    )
+    expect(svg).toContain('fill="rgb(0, 255, 0)"')
+  })
+
   it('orders nested contour rings for evenodd fill', () => {
     const outer = [
       [0, 0],

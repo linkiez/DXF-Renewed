@@ -36,19 +36,42 @@ function packWithAlgorithm(
   sheetHeight: number,
   margin: number,
   kerf: number,
-  maxSheets: number
+  maxSheets: number,
 ) {
   switch (algorithm) {
     case 'guillotine':
     case 'bliss':
-      return guillotinePack(shapes, sheetWidth, sheetHeight, margin, kerf, maxSheets)
+      return guillotinePack(
+        shapes,
+        sheetWidth,
+        sheetHeight,
+        margin,
+        kerf,
+        maxSheets,
+      )
     case 'maxrects':
-      return maxRectsPack(shapes, sheetWidth, sheetHeight, margin, kerf, maxSheets)
+      return maxRectsPack(
+        shapes,
+        sheetWidth,
+        sheetHeight,
+        margin,
+        kerf,
+        maxSheets,
+      )
     case 'shelf':
       return shelfPack(shapes, sheetWidth, sheetHeight, margin, kerf, maxSheets)
     default:
-      logger.warn(`Unknown algorithm "${algorithm}", falling back to guillotine`)
-      return guillotinePack(shapes, sheetWidth, sheetHeight, margin, kerf, maxSheets)
+      logger.warn(
+        `Unknown algorithm "${algorithm}", falling back to guillotine`,
+      )
+      return guillotinePack(
+        shapes,
+        sheetWidth,
+        sheetHeight,
+        margin,
+        kerf,
+        maxSheets,
+      )
   }
 }
 
@@ -63,10 +86,13 @@ function computeMetrics(
   sheets: StockSheet[],
   shapesTotalArea: number,
   algorithm: NestingAlgorithm,
-  processingTimeMs: number
+  processingTimeMs: number,
 ): NestingMetrics {
   const totalPlaced = placements.reduce((sum, sheet) => sum + sheet.length, 0)
-  const totalArea = sheets.reduce((sum, sheet) => sum + sheet.width * sheet.height, 0)
+  const totalArea = sheets.reduce(
+    (sum, sheet) => sum + sheet.width * sheet.height,
+    0,
+  )
 
   return {
     totalShapes: totalPlaced + unplaced.length,
@@ -93,7 +119,7 @@ function computeMetrics(
  */
 export async function nest(
   parsed: ParsedDXF,
-  partialOptions: Partial<NestingOptions> = {}
+  partialOptions: Partial<NestingOptions> = {},
 ): Promise<NestingResult> {
   const startTime = performance.now()
 
@@ -113,25 +139,25 @@ export async function nest(
     }
 
     logger.info(
-      `Extracted ${extraction.shapes.length} shapes from ${entities.length} entities`
+      `Extracted ${extraction.shapes.length} shapes from ${entities.length} entities`,
     )
 
     // Step 3: Analyze shapes
     const analyzedShapes = analyzeShapes(
       extraction.shapes,
-      options.computeConvexHull ?? false
+      options.computeConvexHull ?? false,
     )
 
     // Step 4: Sort shapes
     const sortedShapes = sortShapes(
       analyzedShapes as any,
-      options.sortBy ?? 'area-desc'
+      options.sortBy ?? 'area-desc',
     ) as typeof analyzedShapes
 
     // Step 5: Compute total shape area
     const shapesTotalArea = sortedShapes.reduce(
       (sum, shape) => sum + shape.area,
-      0
+      0,
     )
 
     // Step 6: Pack shapes using selected algorithm
@@ -149,7 +175,7 @@ export async function nest(
       primarySheet.height,
       options.margin ?? 10,
       options.kerf ?? 2,
-      options.maxSheets ?? 0
+      options.maxSheets ?? 0,
     )
 
     const allPlacements = packResult.sheetPlacements
@@ -169,7 +195,7 @@ export async function nest(
       sheets.slice(0, allPlacements.length),
       shapesTotalArea,
       options.algorithm ?? 'guillotine',
-      processingTimeMs
+      processingTimeMs,
     )
 
     // Build result
@@ -197,7 +223,7 @@ export async function nest(
 /** Return an empty nesting result */
 function emptyResult(
   options: NestingOptions,
-  startTime: number
+  startTime: number,
 ): NestingResult {
   return {
     placements: [],
@@ -221,7 +247,7 @@ function emptyResult(
  */
 export async function nestFromDxf(
   dxfString: string,
-  partialOptions: Partial<NestingOptions> = {}
+  partialOptions: Partial<NestingOptions> = {},
 ): Promise<NestingResult> {
   const { default: parseString } = await import('../parseString')
   const parsed = parseString(dxfString)

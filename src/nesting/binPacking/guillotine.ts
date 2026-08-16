@@ -5,12 +5,7 @@
  * Supports rotation and multiple heuristics.
  */
 
-import type {
-  NestableShape,
-  Placement,
-  FreeRect,
-  BoundingBox,
-} from '../types'
+import type { NestableShape, Placement, FreeRect, BoundingBox } from '../types'
 
 interface ShapeInfo {
   shape: NestableShape
@@ -31,7 +26,7 @@ function packSingleSheet(
   sheetWidth: number,
   sheetHeight: number,
   margin: number,
-  kerf: number
+  kerf: number,
 ): { placements: Placement[]; unplaced: ShapeInfo[] } {
   const placements: Placement[] = []
   const unplaced: ShapeInfo[] = []
@@ -47,7 +42,9 @@ function packSingleSheet(
   ]
 
   // Sort shapes by area (largest first)
-  const sorted = [...shapes].sort((a, b) => b.width * b.height - a.width * a.height)
+  const sorted = [...shapes].sort(
+    (a, b) => b.width * b.height - a.width * a.height,
+  )
 
   for (const shape of sorted) {
     let placed = false
@@ -67,7 +64,13 @@ function packSingleSheet(
         height: shape.width,
         rotation: 90,
       }
-      const rotatedResult = tryPlace(rotatedShape, freeRects, sheetWidth, sheetHeight, kerf)
+      const rotatedResult = tryPlace(
+        rotatedShape,
+        freeRects,
+        sheetWidth,
+        sheetHeight,
+        kerf,
+      )
       if (rotatedResult) {
         placements.push(rotatedResult)
         placed = true
@@ -90,7 +93,7 @@ function tryPlace(
   freeRects: FreeRect[],
   sheetWidth: number,
   sheetHeight: number,
-  kerf: number
+  kerf: number,
 ): Placement | null {
   const neededWidth = shape.width + kerf
   const neededHeight = shape.height + kerf
@@ -146,7 +149,7 @@ function splitFreeRect(
   freeRects: FreeRect[],
   rect: FreeRect,
   placedWidth: number,
-  placedHeight: number
+  placedHeight: number,
 ): void {
   // Right rectangle
   if (rect.width - placedWidth > 0) {
@@ -179,7 +182,7 @@ export function guillotinePack(
   sheetHeight: number,
   margin: number,
   kerf: number,
-  maxSheets: number = 0
+  maxSheets: number = 0,
 ): {
   sheetPlacements: Placement[][]
   unplaced: NestableShape[]
@@ -200,7 +203,13 @@ export function guillotinePack(
     if (remaining.length === 0) break
 
     const startCount = remaining.length
-    const result = packSingleSheet(remaining, sheetWidth, sheetHeight, margin, kerf)
+    const result = packSingleSheet(
+      remaining,
+      sheetWidth,
+      sheetHeight,
+      margin,
+      kerf,
+    )
     allPlacements.push(result.placements)
 
     // Update remaining BEFORE break checks

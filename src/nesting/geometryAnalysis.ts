@@ -6,10 +6,7 @@
  */
 
 import type { NestableShape, CompoundShape, BoundingBox } from './types'
-import {
-  computeRotatedBoundingBox,
-  computeConvexHull,
-} from './polygonUtils'
+import { computeRotatedBoundingBox, computeConvexHull } from './polygonUtils'
 
 // ─────────────────────────────────────────────
 // Bounding Box Analysis
@@ -19,9 +16,10 @@ import {
  * Compute bounding boxes for all allowed rotation angles.
  * Returns the smallest bounding box among all rotations.
  */
-export function computeBestRotatedBbox(
-  shape: NestableShape
-): { bbox: BoundingBox; bestRotation: number } {
+export function computeBestRotatedBbox(shape: NestableShape): {
+  bbox: BoundingBox
+  bestRotation: number
+} {
   let bestBbox: BoundingBox | null = null
   let bestRotation = 0
   let bestPerimeter = Infinity
@@ -30,7 +28,7 @@ export function computeBestRotatedBbox(
     const bbox = computeRotatedBoundingBox(
       shape.vertices,
       shape.centroid,
-      angle
+      angle,
     )
 
     // Prefer the rotation with smallest bounding box perimeter
@@ -73,7 +71,7 @@ export function enlargeBbox(bbox: BoundingBox, margin: number): BoundingBox {
  */
 export function analyzeShape(
   shape: NestableShape,
-  computeHull: boolean = false
+  computeHull: boolean = false,
 ): NestableShape & { bestRotation: number; enlargedBbox: BoundingBox } {
   const { bestRotation, bbox } = computeBestRotatedBbox(shape)
 
@@ -95,7 +93,7 @@ export function analyzeShape(
  */
 export function analyzeShapes(
   shapes: NestableShape[],
-  computeHull: boolean = false
+  computeHull: boolean = false,
 ): Array<NestableShape & { bestRotation: number; enlargedBbox: BoundingBox }> {
   return shapes.map((shape) => analyzeShape(shape, computeHull))
 }
@@ -110,7 +108,7 @@ export function analyzeShapes(
  */
 export function analyzeCompoundShape(
   compound: CompoundShape,
-  computeHull: boolean = false
+  computeHull: boolean = false,
 ): CompoundShape & { bestRotation: number; enlargedBbox: BoundingBox } {
   const outerAnalysis = analyzeShape(compound.outer, computeHull)
 
@@ -147,7 +145,7 @@ export function analyzeCompoundShape(
  */
 export function sortShapes(
   shapes: NestableShape[],
-  strategy: 'area-desc' | 'area-asc' | 'perimeter-desc' | 'none'
+  strategy: 'area-desc' | 'area-asc' | 'perimeter-desc' | 'none',
 ): NestableShape[] {
   if (strategy === 'none') return [...shapes]
 

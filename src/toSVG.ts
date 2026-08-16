@@ -51,6 +51,10 @@ const isPointEqual = (a: [number, number], b: [number, number]): boolean => {
   return a[0] === b[0] && a[1] === b[1]
 }
 
+const isPointNear = (a: [number, number], b: [number, number]): boolean => {
+  return Math.abs(a[0] - b[0]) < 1e-6 && Math.abs(a[1] - b[1]) < 1e-6
+}
+
 const buildPolylinePath = (
   vertices: [number, number][],
   closePath = false,
@@ -91,6 +95,118 @@ const isSolidHatchEntity = (entity: Entity): entity is HatchEntity => {
   return (
     hatchEntity.fillType === 'SOLID' || hatchEntity.solidOrGradient === 'SOLID'
   )
+}
+
+const isJoinableOpenEntity = (entity: Entity): boolean => {
+  if (isClosedPolylineEntity(entity)) {
+    return false
+  }
+
+  return [
+    'LINE',
+    'ARC',
+    'ELLIPSE',
+    'SPLINE',
+    'POLYLINE',
+    'LWPOLYLINE',
+  ].includes(entity.type)
+}
+
+const appendJoinableVertices = (
+  chain: [number, number][],
+  segment: [number, number][],
+): [number, number][] | null => {
+  if (chain.length === 0) {
+    return [...segment]
+  }
+
+  const chainTail = chain[chain.length - 1]
+  const segmentHead = segment[0]
+  const segmentTail = segment[segment.length - 1]
+
+  if (isPointNear(chainTail, segmentHead)) {
+    return chain.concat(segment.slice(1))
+  }
+
+  if (isPointNear(chainTail, segmentTail)) {
+    return chain.concat([...segment].reverse().slice(1))
+  }
+
+  return null
+}
+
+const buildOpenEntityFillOverlays = (
+  entities: Entity[],
+  layers: ParsedDXF['tables']['layers'],
+  options: ToSVGOptions,
+): string[] => {
+  if (!options.fillClosedPolylines && !options.closedPolylineFill) {
+    return []
+  }
+
+  const overlays: string[] = []
+  let chain: [number, number][] = []
+  let chainColor: string | null = null
+  let chainLayer: string | undefined
+  let chainSegments = 0
+
+  const flushChain = (): void => {
+    if (
+      chainSegments > 1 &&
+      chain.length > 2 &&
+      isPointNear(chain[0], chain[chain.length - 1])
+    ) {
+      const fillColor = options.closedPolylineFill ?? chainColor
+      if (fillColor) {
+        overlays.push(
+          `<g fill="${fillColor}" stroke="none"><path d="${buildPolylinePath(chain, true)}" fill-rule="evenodd" /></g>`,
+        )
+      }
+    }
+
+    chain = []
+    chainColor = null
+    chainLayer = undefined
+    chainSegments = 0
+  }
+
+  for (const entity of entities) {
+    if (!isJoinableOpenEntity(entity)) {
+      flushChain()
+      continue
+    }
+
+    const segment = entityToPolyline(entity as never)
+    if (segment.length < 2) {
+      flushChain()
+      continue
+    }
+
+    const color = rgbToColorAttribute(getRGBForEntity(layers, entity))
+    const sameStyle = chain.length === 0 || (chainColor === color && chainLayer === entity.layer)
+    const nextChain = sameStyle ? appendJoinableVertices(chain, segment) : null
+
+    if (!sameStyle || nextChain === null) {
+      flushChain()
+      chain = [...segment]
+      chainColor = color
+      chainLayer = entity.layer
+      chainSegments = 1
+      continue
+    }
+
+    chain = nextChain
+    chainColor = color
+    chainLayer = entity.layer
+    chainSegments += 1
+
+    if (isPointNear(chain[0], chain[chain.length - 1])) {
+      flushChain()
+    }
+  }
+
+  flushChain()
+  return overlays
 }
 
 const pointsToBox = (rings: Array<Array<[number, number]>>): Box2 => {
@@ -733,6 +849,11 @@ export default function toSVG(
 ): string {
   const entities = denormalise(parsed)
   const dimStyles = parsed.tables.dimStyles
+  const fillOverlays = buildOpenEntityFillOverlays(
+    entities,
+    parsed.tables.layers,
+    options,
+  )
 
   const geometryBBox = entities.reduce((acc: Box2, entity: Entity): Box2 => {
     if (entity.type === 'DIMENSION') {
@@ -847,7 +968,7 @@ export default function toSVG(
   width="100%" height="100%"
 >
   <g stroke="#000000" stroke-width="${globalStrokeWidth}" fill="none" transform="matrix(1,0,0,-1,0,0)">
-    ${elements.join('\n')}
+    ${fillOverlays.concat(elements).join('\n')}
   </g>
 </svg>`
 }

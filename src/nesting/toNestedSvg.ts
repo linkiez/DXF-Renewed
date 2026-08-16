@@ -5,12 +5,7 @@
  * and utilization metrics.
  */
 
-import type {
-  NestingResult,
-  NestableShape,
-  StockSheet,
-  Point2D,
-} from './types'
+import type { NestingResult, NestableShape, StockSheet, Point2D } from './types'
 
 // ─────────────────────────────────────────────
 // SVG Generation Helpers
@@ -43,10 +38,15 @@ function verticesToPath(vertices: Point2D[]): string {
 /** Compute viewBox from placements and sheets */
 function computeViewBox(
   sheets: StockSheet[],
-  margin: number = 50
+  margin: number = 50,
 ): { minX: number; minY: number; width: number; height: number } {
   if (sheets.length === 0) {
-    return { minX: -margin, minY: -margin, width: 100 + 2 * margin, height: 100 + 2 * margin }
+    return {
+      minX: -margin,
+      minY: -margin,
+      width: 100 + 2 * margin,
+      height: 100 + 2 * margin,
+    }
   }
 
   // Use the largest sheet dimensions
@@ -55,7 +55,7 @@ function computeViewBox(
       width: Math.max(max.width, s.width),
       height: Math.max(max.height, s.height),
     }),
-    { width: 0, height: 0 }
+    { width: 0, height: 0 },
   )
 
   return {
@@ -87,7 +87,7 @@ export function toNestedSvg(
     showLayerColors?: boolean
     strokeWidth?: number
     fillColor?: string
-  } = {}
+  } = {},
 ): string {
   const {
     showSheetOutline = true,
@@ -141,7 +141,8 @@ export function toNestedSvg(
   // Draw metrics overlay
   if (showMetrics) {
     const metricsX = 10
-    const metricsY = result.sheets.length > 0 ? result.sheets[0].height + 20 : 10
+    const metricsY =
+      result.sheets.length > 0 ? result.sheets[0].height + 20 : 10
 
     svg += `  <rect class="metrics-bg" x="${metricsX - 5}" y="${metricsY - 15}" width="300" height="100" rx="5" />\n`
     svg += `  <text class="metrics-text" x="${metricsX}" y="${metricsY}">Nesting Metrics</text>\n`
@@ -159,5 +160,3 @@ export function toNestedSvg(
 // ─────────────────────────────────────────────
 // Color Generation
 // ─────────────────────────────────────────────
-
-

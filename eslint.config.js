@@ -14,8 +14,8 @@ export default [
       '*.config.js',
       '*.config.cjs',
       'build.mjs',
-      'examples/**/*'
-    ]
+      'examples/**/*',
+    ],
   },
 
   // Base JavaScript configuration
@@ -43,11 +43,11 @@ export default [
         global: 'readonly',
         globalThis: 'readonly',
         URL: 'readonly',
-      }
+      },
     },
     rules: {
-      '@typescript-eslint/no-require-imports': 'off'
-    }
+      '@typescript-eslint/no-require-imports': 'off',
+    },
   },
 
   // Custom rules for JS/TS modules
@@ -85,16 +85,16 @@ export default [
         before: 'readonly',
         after: 'readonly',
         beforeEach: 'readonly',
-        afterEach: 'readonly'
-      }
+        afterEach: 'readonly',
+      },
     },
     rules: {
       'no-lone-blocks': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off'
-    }
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+    },
   },
 
   // Prettier config (must be last to override other configs)
-  eslintConfigPrettier
+  eslintConfigPrettier,
 ]

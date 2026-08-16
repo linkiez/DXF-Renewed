@@ -4,12 +4,7 @@
  * Maintains a list of maximum free rectangles.
  */
 
-import type {
-  NestableShape,
-  Placement,
-  FreeRect,
-  BoundingBox,
-} from '../types'
+import type { NestableShape, Placement, FreeRect, BoundingBox } from '../types'
 
 // ─────────────────────────────────────────────
 // Score & Place
@@ -18,7 +13,7 @@ import type {
 function scoreRect(
   freeRects: FreeRect[],
   width: number,
-  height: number
+  height: number,
 ): { score: number; bestRectIndex: number } {
   let bestScore = Infinity
   let bestRectIndex = -1
@@ -42,7 +37,7 @@ function scoreRect(
 function placeShape(
   shape: NestableShape,
   freeRects: FreeRect[],
-  kerf: number
+  kerf: number,
 ): Placement | null {
   const w = shape.bbox.width + kerf
   const h = shape.bbox.height + kerf
@@ -123,7 +118,7 @@ function packSingleSheet(
   sheetWidth: number,
   sheetHeight: number,
   margin: number,
-  kerf: number
+  kerf: number,
 ): { placements: Placement[]; unplaced: NestableShape[] } {
   const placements: Placement[] = []
   const unplaced: NestableShape[] = []
@@ -162,7 +157,7 @@ export function maxRectsPack(
   sheetHeight: number,
   margin: number,
   kerf: number,
-  maxSheets: number = 0
+  maxSheets: number = 0,
 ): {
   sheetPlacements: Placement[][]
   unplaced: NestableShape[]
@@ -176,7 +171,13 @@ export function maxRectsPack(
     if (remaining.length === 0) break
 
     const startCount = remaining.length
-    const result = packSingleSheet(remaining, sheetWidth, sheetHeight, margin, kerf)
+    const result = packSingleSheet(
+      remaining,
+      sheetWidth,
+      sheetHeight,
+      margin,
+      kerf,
+    )
     allPlacements.push(result.placements)
 
     remaining = result.unplaced

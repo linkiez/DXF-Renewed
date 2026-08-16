@@ -16,7 +16,13 @@ import type {
   TraceEntity,
   PolylineEntity,
 } from '../types'
-import type { NestingOptions, NestableShape, CompoundShape, ExtractionResult, Point2D } from './types'
+import type {
+  NestingOptions,
+  NestableShape,
+  CompoundShape,
+  ExtractionResult,
+  Point2D,
+} from './types'
 import { DEFAULT_CURVE_SEGMENTS, EPSILON } from './config'
 import {
   computeArea,
@@ -51,9 +57,12 @@ function extractLwpolylineVertices(entity: Entity): Point2D[] | null {
   if (!poly.vertices || poly.vertices.length < 3) return null
 
   // Check if closed (flag 70 = 1 or 12)
-  const isClosedPoly = poly.closed || (poly as any).flags === 1 || (poly as any).flags === 12
+  const isClosedPoly =
+    poly.closed || (poly as any).flags === 1 || (poly as any).flags === 12
   if (!isClosedPoly) {
-    logger.warn(`LWPOLYLINE is not closed, skipping for nesting: ${entity.handle}`)
+    logger.warn(
+      `LWPOLYLINE is not closed, skipping for nesting: ${entity.handle}`,
+    )
     return null
   }
 
@@ -73,7 +82,9 @@ function extractPolylineVertices(entity: Entity): Point2D[] | null {
 
   const isClosedPoly = poly.closed || (poly as any).flags === 1
   if (!isClosedPoly) {
-    logger.warn(`POLYLINE is not closed, skipping for nesting: ${entity.handle}`)
+    logger.warn(
+      `POLYLINE is not closed, skipping for nesting: ${entity.handle}`,
+    )
     return null
   }
 
@@ -87,7 +98,10 @@ function extractPolylineVertices(entity: Entity): Point2D[] | null {
 }
 
 /** Extract vertices from a CIRCLE entity */
-function extractCircleVertices(entity: Entity, segments: number): Point2D[] | null {
+function extractCircleVertices(
+  entity: Entity,
+  segments: number,
+): Point2D[] | null {
   const circle = entity as CircleEntity
   if (circle.r === undefined || circle.r <= 0) return null
   if (!isFinite(circle.r)) return null
@@ -96,11 +110,16 @@ function extractCircleVertices(entity: Entity, segments: number): Point2D[] | nu
 }
 
 /** Extract vertices from an ELLIPSE entity */
-function extractEllipseVertices(entity: Entity, segments: number): Point2D[] | null {
+function extractEllipseVertices(
+  entity: Entity,
+  segments: number,
+): Point2D[] | null {
   const ellipse = entity as EllipseEntity
   if (!ellipse.majorX || !ellipse.majorY || !ellipse.axisRatio) return null
 
-  const radiusX = Math.sqrt(ellipse.majorX * ellipse.majorX + ellipse.majorY * ellipse.majorY)
+  const radiusX = Math.sqrt(
+    ellipse.majorX * ellipse.majorX + ellipse.majorY * ellipse.majorY,
+  )
   const radiusY = radiusX * ellipse.axisRatio
 
   if (radiusX <= 0 || radiusY <= 0) return null
@@ -113,18 +132,37 @@ function extractEllipseVertices(entity: Entity, segments: number): Point2D[] | n
   if (Math.abs(sweep - 360) > EPSILON && Math.abs(sweep + 360) > EPSILON) {
     // It's an elliptical arc, not a full ellipse
     // Still extract as closed shape for nesting (arc segment)
-    logger.warn(`ELLIPSE is an arc (sweep: ${sweep}°), extracting as polygon: ${entity.handle}`)
-    return arcToPolygon(ellipse.x, ellipse.y, radiusX, startAngle, endAngle, segments)
+    logger.warn(
+      `ELLIPSE is an arc (sweep: ${sweep}°), extracting as polygon: ${entity.handle}`,
+    )
+    return arcToPolygon(
+      ellipse.x,
+      ellipse.y,
+      radiusX,
+      startAngle,
+      endAngle,
+      segments,
+    )
   }
 
   // Rotation from major axis direction
   const rotation = Math.atan2(ellipse.majorY, ellipse.majorX) * (180 / Math.PI)
 
-  return ellipseToPolygon(ellipse.x, ellipse.y, radiusX, radiusY, rotation, segments)
+  return ellipseToPolygon(
+    ellipse.x,
+    ellipse.y,
+    radiusX,
+    radiusY,
+    rotation,
+    segments,
+  )
 }
 
 /** Extract vertices from an ARC entity (only if full circle) */
-function extractArcVertices(entity: Entity, segments: number): Point2D[] | null {
+function extractArcVertices(
+  entity: Entity,
+  segments: number,
+): Point2D[] | null {
   const arc = entity as ArcEntity
   if (arc.r === undefined || arc.r <= 0) return null
 
@@ -134,7 +172,9 @@ function extractArcVertices(entity: Entity, segments: number): Point2D[] | null 
 
   // Only extract if it's a full circle (360° arc)
   if (Math.abs(sweep - 360) > EPSILON && Math.abs(sweep + 360) > EPSILON) {
-    logger.warn(`ARC is not a full circle (sweep: ${sweep}°), skipping for nesting: ${entity.handle}`)
+    logger.warn(
+      `ARC is not a full circle (sweep: ${sweep}°), skipping for nesting: ${entity.handle}`,
+    )
     return null
   }
 
@@ -166,12 +206,16 @@ function extractTraceVertices(entity: Entity): Point2D[] | null {
 }
 
 /** Extract vertices from a closed SPLINE entity */
-function extractSplineVertices(entity: Entity, segments: number): Point2D[] | null {
+function extractSplineVertices(
+  entity: Entity,
+  segments: number,
+): Point2D[] | null {
   const spline = entity as SplineEntity
   if (!spline.controlPoints || spline.controlPoints.length < 3) return null
 
   // Check if closed
-  const isClosedSpline = (spline as any).flags === 1 || (spline as any).closed === true
+  const isClosedSpline =
+    (spline as any).flags === 1 || (spline as any).closed === true
   if (!isClosedSpline) {
     logger.warn(`SPLINE is not closed, skipping for nesting: ${entity.handle}`)
     return null
@@ -204,10 +248,7 @@ function extractSplineVertices(entity: Entity, segments: number): Point2D[] | nu
 // ─────────────────────────────────────────────
 
 /** Route an entity to its appropriate vertex extractor */
-function extractVertices(
-  entity: Entity,
-  segments: number
-): Point2D[] | null {
+function extractVertices(entity: Entity, segments: number): Point2D[] | null {
   switch (entity.type) {
     case 'LWPOLYLINE':
       return extractLwpolylineVertices(entity)
@@ -238,7 +279,7 @@ function extractVertices(
 function createShape(
   vertices: Point2D[],
   entity: Entity,
-  options: Required<Pick<NestingOptions, 'allowedRotations' | 'kerf'>>
+  options: Required<Pick<NestingOptions, 'allowedRotations' | 'kerf'>>,
 ): NestableShape {
   // Normalize winding to CCW
   const normalized = normalizeWinding(vertices)
@@ -325,7 +366,7 @@ function detectHoles(shapes: NestableShape[]): {
  */
 export function extractShapes(
   entities: Entity[],
-  options: NestingOptions
+  options: NestingOptions,
 ): ExtractionResult {
   const segments = options.curveSegments ?? DEFAULT_CURVE_SEGMENTS
   const shapes: NestableShape[] = []

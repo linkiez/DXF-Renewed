@@ -21,10 +21,7 @@ import { rotatePolygon, computeConvexHull } from './polygonUtils'
  */
 export function bboxesOverlap(a: BoundingBox, b: BoundingBox): boolean {
   return (
-    a.minX < b.maxX &&
-    a.maxX > b.minX &&
-    a.minY < b.maxY &&
-    a.maxY > b.minY
+    a.minX < b.maxX && a.maxX > b.minX && a.minY < b.maxY && a.maxY > b.minY
   )
 }
 
@@ -34,7 +31,7 @@ export function bboxesOverlap(a: BoundingBox, b: BoundingBox): boolean {
 export function bboxesOverlapWithMargin(
   a: BoundingBox,
   b: BoundingBox,
-  margin: number
+  margin: number,
 ): boolean {
   const aEnlarged = {
     minX: a.minX - margin,
@@ -55,10 +52,7 @@ export function bboxesOverlapWithMargin(
  * Project a polygon onto an axis.
  * Returns [min, max] projection range.
  */
-function projectPolygon(
-  vertices: Point2D[],
-  axis: Point2D
-): [number, number] {
+function projectPolygon(vertices: Point2D[], axis: Point2D): [number, number] {
   let min = Infinity
   let max = -Infinity
 
@@ -77,7 +71,7 @@ function projectPolygon(
 function projectionsOverlap(
   a: [number, number],
   b: [number, number],
-  margin: number
+  margin: number,
 ): boolean {
   return a[0] < b[1] + margin && a[1] > b[0] - margin
 }
@@ -100,7 +94,7 @@ function edgeNormal(p1: Point2D, p2: Point2D): Point2D {
 export function satCollision(
   polyA: Point2D[],
   polyB: Point2D[],
-  margin: number = 0
+  margin: number = 0,
 ): boolean {
   // Ensure we use convex hulls
   const hullA = polyA.length > 3 ? computeConvexHull(polyA) : polyA
@@ -147,7 +141,7 @@ export function checkCollision(
   bboxA: BoundingBox,
   verticesB: Point2D[],
   bboxB: BoundingBox,
-  margin: number = 0
+  margin: number = 0,
 ): CollisionResult {
   // Fast reject: bounding box check
   if (!bboxesOverlapWithMargin(bboxA, bboxB, margin)) {
@@ -181,7 +175,7 @@ export function checkTransformedCollision(
   rotationB: number,
   offsetXB: number,
   offsetYB: number,
-  margin: number
+  margin: number,
 ): boolean {
   // Apply transforms
   const rotatedA = rotatePolygon(verticesA, centroidA, rotationA)
@@ -213,7 +207,7 @@ export function validatePlacements(
     vertices: Point2D[]
     bbox: BoundingBox
   }>,
-  margin: number
+  margin: number,
 ): string[][] {
   const collisions: string[][] = []
 
@@ -223,13 +217,7 @@ export function validatePlacements(
       const b = placements[j]
 
       if (
-        checkCollision(
-          a.vertices,
-          a.bbox,
-          b.vertices,
-          b.bbox,
-          margin
-        ).collides
+        checkCollision(a.vertices, a.bbox, b.vertices, b.bbox, margin).collides
       ) {
         collisions.push([a.id, b.id])
       }
