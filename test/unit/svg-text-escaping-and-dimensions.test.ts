@@ -15,16 +15,26 @@ const extractNumbersFrom = (re, text) => {
 describe('SVG text escaping', () => {
   it('escapes < and > in TEXT entity content', () => {
     const dxf = [
-      '0', 'SECTION',
-      '2', 'ENTITIES',
-      '0', 'TEXT',
-      '8', '0',
-      '10', '0',
-      '20', '0',
-      '40', '1',
-      '1', 'A<B',
-      '0', 'ENDSEC',
-      '0', 'EOF',
+      '0',
+      'SECTION',
+      '2',
+      'ENTITIES',
+      '0',
+      'TEXT',
+      '8',
+      '0',
+      '10',
+      '0',
+      '20',
+      '0',
+      '40',
+      '1',
+      '1',
+      'A<B',
+      '0',
+      'ENDSEC',
+      '0',
+      'EOF',
       '',
     ].join('\n')
     const svg = toSVG(parseString(dxf))
@@ -35,7 +45,10 @@ describe('SVG text escaping', () => {
 describe('DIMENSION SVG rendering', () => {
   it('renders numeric dimension text for dimensions.dxf', () => {
     const parsed = parseString(
-      fs.readFileSync(getResourcePath(import.meta.url, 'dimensions.dxf'), 'utf-8'),
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions.dxf'),
+        'utf-8',
+      ),
     )
     const svg = toSVG(parsed)
     // Expect at least one text node to contain a digit.
@@ -44,28 +57,92 @@ describe('DIMENSION SVG rendering', () => {
   })
   it('auto-scales arrow/text sizes when enabled', () => {
     const parsed = parseString(
-      fs.readFileSync(getResourcePath(import.meta.url, 'dimensions.dxf'), 'utf-8'),
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions.dxf'),
+        'utf-8',
+      ),
     )
     const svgDefault = toSVG(parsed)
     const svgAuto = toSVG(parsed, { dimension: { autoScale: true } })
-    const markerWidthsDefault = extractNumbersFrom(/markerWidth="([-0-9.e]+)"/g, svgDefault)
-    const markerWidthsAuto = extractNumbersFrom(/markerWidth="([-0-9.e]+)"/g, svgAuto)
+    const markerWidthsDefault = extractNumbersFrom(
+      /markerWidth="([-0-9.e]+)"/g,
+      svgDefault,
+    )
+    const markerWidthsAuto = extractNumbersFrom(
+      /markerWidth="([-0-9.e]+)"/g,
+      svgAuto,
+    )
     expect(markerWidthsDefault.length).toBeGreaterThan(0)
     expect(markerWidthsAuto.length).toBeGreaterThan(0)
     const maxMarkerDefault = Math.max(...markerWidthsDefault)
     const maxMarkerAuto = Math.max(...markerWidthsAuto)
     expect(Math.abs(maxMarkerAuto - maxMarkerDefault)).toBeGreaterThan(1e-9)
-    const fontSizesDefault = extractNumbersFrom(/font-size="([-0-9.e]+)"/g, svgDefault)
-    const fontSizesAuto = extractNumbersFrom(/font-size="([-0-9.e]+)"/g, svgAuto)
+    const fontSizesDefault = extractNumbersFrom(
+      /font-size="([-0-9.e]+)"/g,
+      svgDefault,
+    )
+    const fontSizesAuto = extractNumbersFrom(
+      /font-size="([-0-9.e]+)"/g,
+      svgAuto,
+    )
     expect(fontSizesDefault.length).toBeGreaterThan(0)
     expect(fontSizesAuto.length).toBeGreaterThan(0)
     const maxFontDefault = Math.max(...fontSizesDefault)
     const maxFontAuto = Math.max(...fontSizesAuto)
     expect(Math.abs(maxFontAuto - maxFontDefault)).toBeGreaterThan(1e-9)
   })
+  it('supports screen-relative stroke-width scaling for dimension strokes', () => {
+    const parsed = parseString(
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions.dxf'),
+        'utf-8',
+      ),
+    )
+    const svg = toSVG(parsed, {
+      strokeWidth: {
+        mode: 'screen',
+        value: 0.25,
+      },
+    })
+
+    expect(svg).toMatch(/stroke-width="0\.25%"/)
+  })
+  it('supports viewport-relative stroke-width scaling for dimension strokes', () => {
+    const parsed = parseString(
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions.dxf'),
+        'utf-8',
+      ),
+    )
+    const svg = toSVG(parsed, {
+      strokeWidth: {
+        mode: 'viewport',
+        value: 1,
+      },
+    })
+
+    const viewBox =
+      /viewBox="([-0-9.e]+)\s+([-0-9.e]+)\s+([-0-9.e]+)\s+([-0-9.e]+)"/i.exec(
+        svg,
+      )
+    expect(viewBox).not.toBeNull()
+    const viewBoxWidth = Number.parseFloat(viewBox[3])
+    const viewBoxHeight = Number.parseFloat(viewBox[4])
+    const viewportMin = Math.min(
+      Math.abs(viewBoxWidth),
+      Math.abs(viewBoxHeight),
+    )
+    expect(viewportMin).toBeGreaterThan(0)
+    expect(svg).toContain('stroke-width="0.9"')
+    expect(svg).not.toContain('stroke-width="-')
+    expect(svg).toContain('stroke="none"')
+  })
   it('defines forward and backward arrow markers', () => {
     const parsed = parseString(
-      fs.readFileSync(getResourcePath(import.meta.url, 'dimensions.dxf'), 'utf-8'),
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions.dxf'),
+        'utf-8',
+      ),
     )
     const svg = toSVG(parsed)
     const markerTags = svg.match(/<marker\b[^>]*>/g) ?? []
@@ -75,20 +152,27 @@ describe('DIMENSION SVG rendering', () => {
         const markerWidth = /markerWidth="([-0-9.e]+)"/i.exec(tag)?.[1]
         const refX = /refX="([-0-9.e]+)"/i.exec(tag)?.[1]
         return {
-          markerWidth: markerWidth ? Number.parseFloat(markerWidth) : Number.NaN,
+          markerWidth: markerWidth
+            ? Number.parseFloat(markerWidth)
+            : Number.NaN,
           refX: refX ? Number.parseFloat(refX) : Number.NaN,
         }
       })
       .filter((m) => Number.isFinite(m.markerWidth) && Number.isFinite(m.refX))
     expect(markers.length).toBeGreaterThan(0)
     const hasBackward = markers.some((m) => Math.abs(m.refX) < 1e-9)
-    const hasForward = markers.some((m) => Math.abs(m.refX - m.markerWidth) < 1e-9)
+    const hasForward = markers.some(
+      (m) => Math.abs(m.refX - m.markerWidth) < 1e-9,
+    )
     expect(hasBackward).toBe(true)
     expect(hasForward).toBe(true)
   })
   it('does not render marker-only zero-length lines', () => {
     const parsed = parseString(
-      fs.readFileSync(getResourcePath(import.meta.url, 'dimensions.dxf'), 'utf-8'),
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions.dxf'),
+        'utf-8',
+      ),
     )
     const svg = toSVG(parsed, { dimension: { autoScale: true } })
     const lineTags = svg.match(/<line\b[^>]*>/g) ?? []
@@ -111,7 +195,10 @@ describe('DIMENSION SVG rendering', () => {
   })
   it('supports viewport-percentage autoScale overrides per element', () => {
     const parsed = parseString(
-      fs.readFileSync(getResourcePath(import.meta.url, 'dimensions.dxf'), 'utf-8'),
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions.dxf'),
+        'utf-8',
+      ),
     )
     const svg = toSVG(parsed, {
       dimension: {
@@ -122,11 +209,17 @@ describe('DIMENSION SVG rendering', () => {
         },
       },
     })
-    const viewBox = /viewBox="([-0-9.e]+)\s+([-0-9.e]+)\s+([-0-9.e]+)\s+([-0-9.e]+)"/i.exec(svg)
+    const viewBox =
+      /viewBox="([-0-9.e]+)\s+([-0-9.e]+)\s+([-0-9.e]+)\s+([-0-9.e]+)"/i.exec(
+        svg,
+      )
     expect(viewBox).not.toBeNull()
     const viewBoxWidth = Number.parseFloat(viewBox[3])
     const viewBoxHeight = Number.parseFloat(viewBox[4])
-    const viewportMin = Math.min(Math.abs(viewBoxWidth), Math.abs(viewBoxHeight))
+    const viewportMin = Math.min(
+      Math.abs(viewBoxWidth),
+      Math.abs(viewBoxHeight),
+    )
     expect(Number.isFinite(viewportMin)).toBe(true)
     expect(viewportMin).toBeGreaterThan(0)
     const targetArrow = viewportMin * 0.1
@@ -143,7 +236,10 @@ describe('DIMENSION SVG rendering', () => {
   })
   it('does not throw for angular 3-point DIMENSION (type 5)', () => {
     const parsed = parseString(
-      fs.readFileSync(getResourcePath(import.meta.url, 'dimensions-angular-3p.dxf'), 'utf-8'),
+      fs.readFileSync(
+        getResourcePath(import.meta.url, 'dimensions-angular-3p.dxf'),
+        'utf-8',
+      ),
     )
     const svg = toSVG(parsed)
     // Should render an angular arc (SVG A command).

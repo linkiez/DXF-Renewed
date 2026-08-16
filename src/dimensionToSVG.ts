@@ -9,6 +9,8 @@ import type { DimStyleTable } from './types/dxf'
 import type { BoundsAndElement } from './types/svg'
 
 const DEFAULT_DIMENSION_DECIMALS = 2
+const DEFAULT_SCREEN_STROKE_WIDTH_PERCENT = 0.1
+const DEFAULT_DIMENSION_LINE_WEIGHT = 0.5
 
 export interface DimensionViewport {
   width: number
@@ -24,19 +26,26 @@ const computeViewportAutoScaleFactor = (
   viewport: DimensionViewport,
   options: ToSVGOptions | undefined,
 ): number => {
-  const viewportMin = Math.min(Math.abs(viewport.width), Math.abs(viewport.height))
+  const viewportMin = Math.min(
+    Math.abs(viewport.width),
+    Math.abs(viewport.height),
+  )
   if (!Number.isFinite(viewportMin) || viewportMin <= 0) return 1
 
   const reference = options?.dimension?.autoScaleViewportReference
-  const safeReference = Number.isFinite(reference) && (reference ?? 0) > 0
-    ? (reference as number)
-    : AUTOSCALE_VIEWPORT_REFERENCE
+  const safeReference =
+    Number.isFinite(reference) && (reference ?? 0) > 0
+      ? (reference as number)
+      : AUTOSCALE_VIEWPORT_REFERENCE
 
   return viewportMin / safeReference
 }
 
 const getViewportMin = (viewport: DimensionViewport): number => {
-  const viewportMin = Math.min(Math.abs(viewport.width), Math.abs(viewport.height))
+  const viewportMin = Math.min(
+    Math.abs(viewport.width),
+    Math.abs(viewport.height),
+  )
   return Number.isFinite(viewportMin) ? viewportMin : Number.NaN
 }
 
@@ -105,13 +114,16 @@ const getScaledDimensionSizes = (
   const arrowFromPct = getViewportPercentageSize(viewport, perc?.arrowSize)
   const textFromPct = getViewportPercentageSize(viewport, perc?.textHeight)
   const offsetFromPct = getViewportPercentageSize(viewport, perc?.extLineOffset)
-  const extensionFromPct = getViewportPercentageSize(viewport, perc?.extLineExtension)
+  const extensionFromPct = getViewportPercentageSize(
+    viewport,
+    perc?.extLineExtension,
+  )
 
   return {
-    arrowSize: arrowFromPct ?? (baseArrowSize * scale),
-    textHeight: textFromPct ?? (baseTextHeight * scale),
-    extLineOffset: offsetFromPct ?? (baseExtLineOffset * scale),
-    extLineExtension: extensionFromPct ?? (baseExtLineExtension * scale),
+    arrowSize: arrowFromPct ?? baseArrowSize * scale,
+    textHeight: textFromPct ?? baseTextHeight * scale,
+    extLineOffset: offsetFromPct ?? baseExtLineOffset * scale,
+    extLineExtension: extensionFromPct ?? baseExtLineExtension * scale,
   }
 }
 
@@ -233,7 +245,12 @@ const resolveDimensionText = (entity: DimensionEntity): string => {
   return trimmed
 }
 
-const expandBBoxForMarker = (bbox: Box2, x: number, y: number, size: number) => {
+const expandBBoxForMarker = (
+  bbox: Box2,
+  x: number,
+  y: number,
+  size: number,
+) => {
   bbox.expandByPoint({ x: x - size, y: y - size })
   bbox.expandByPoint({ x: x + size, y: y + size })
 }
@@ -273,22 +290,67 @@ function colorNumberToSVG(colorNumber?: number): string {
   return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`
 }
 
+const getScaledStrokeWidth = (
+  baseWeight: number,
+  viewport: DimensionViewport | undefined,
+  options: ToSVGOptions | undefined,
+): string => {
+  if (!options?.strokeWidth) {
+    return String(baseWeight)
+  }
+
+  const ratio = baseWeight / DEFAULT_DIMENSION_LINE_WEIGHT
+  const value =
+    Number.isFinite(options.strokeWidth.value) &&
+    (options.strokeWidth.value ?? 0) > 0
+      ? (options.strokeWidth.value as number)
+      : DEFAULT_SCREEN_STROKE_WIDTH_PERCENT
+
+  if (options.strokeWidth.mode === 'viewport') {
+    if (!viewport) {
+      return String(baseWeight)
+    }
+
+    const viewportMin = getViewportMin(viewport)
+    if (!Number.isFinite(viewportMin) || viewportMin <= 0) {
+      return String(baseWeight)
+    }
+
+    return String((viewportMin * value * ratio) / 100)
+  }
+
+  return `${value * ratio}%`
+}
+
+const normalizeDimensionLineWeight = (weight: number | undefined): number => {
+  return Number.isFinite(weight) && (weight ?? 0) > 0
+    ? (weight as number)
+    : DEFAULT_DIMENSION_LINE_WEIGHT
+}
+
 /**
  * Get dimension colors and weights from DIMSTYLE with defaults
  */
-function getDimensionColors(dimStyle?: DimStyleTable): {
+function getDimensionColors(
+  dimStyle: DimStyleTable | undefined,
+  options: ToSVGOptions | undefined,
+  viewport: DimensionViewport | undefined,
+): {
   dimLineColor: string
   extLineColor: string
   textColor: string
-  dimLineWeight: number
-  extLineWeight: number
+  dimLineWeight: string
+  extLineWeight: string
 } {
+  const dimLineWeight = normalizeDimensionLineWeight(dimStyle?.dimLwd)
+  const extLineWeight = normalizeDimensionLineWeight(dimStyle?.dimLwe)
+
   return {
     dimLineColor: colorNumberToSVG(dimStyle?.dimClrd),
     extLineColor: colorNumberToSVG(dimStyle?.dimClre),
     textColor: colorNumberToSVG(dimStyle?.dimClrt),
-    dimLineWeight: dimStyle?.dimLwd ?? 0.5,
-    extLineWeight: dimStyle?.dimLwe ?? 0.5,
+    dimLineWeight: getScaledStrokeWidth(dimLineWeight, viewport, options),
+    extLineWeight: getScaledStrokeWidth(extLineWeight, viewport, options),
   }
 }
 
@@ -338,8 +400,18 @@ function renderAngular3PointDimension(
   const elements: string[] = []
   const markers: string[] = []
 
-  const { arrowSize, textHeight } = getScaledDimensionSizes(dimStyle, options, viewport)
-  const { dimLineColor, extLineColor, textColor, dimLineWeight, extLineWeight } = getDimensionColors(dimStyle)
+  const { arrowSize, textHeight } = getScaledDimensionSizes(
+    dimStyle,
+    options,
+    viewport,
+  )
+  const {
+    dimLineColor,
+    extLineColor,
+    textColor,
+    dimLineWeight,
+    extLineWeight,
+  } = getDimensionColors(dimStyle, options, viewport)
 
   const vertexX = entity.angleVertex?.x ?? 0
   const vertexY = entity.angleVertex?.y ?? 0
@@ -358,7 +430,10 @@ function renderAngular3PointDimension(
 
   const arcPointRadius =
     Number.isFinite(arcPointX) && Number.isFinite(arcPointY)
-      ? Math.hypot((arcPointX as number) - vertexX, (arcPointY as number) - vertexY)
+      ? Math.hypot(
+          (arcPointX as number) - vertexX,
+          (arcPointY as number) - vertexY,
+        )
       : Number.NaN
 
   const useArcPoint = Number.isFinite(arcPointRadius) && arcPointRadius > 1e-9
@@ -432,7 +507,7 @@ function renderAngular3PointDimension(
     expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
 
     elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
+      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
     )
   }
 
@@ -451,9 +526,10 @@ export function createArrowMarker(
   color: string,
   direction: 'forward' | 'backward' = 'forward',
 ): string {
-  const arrowPath = direction === 'forward'
-    ? `M 0 0 L ${size} ${size / 2} L 0 ${size} z`
-    : `M ${size} 0 L 0 ${size / 2} L ${size} ${size} z`
+  const arrowPath =
+    direction === 'forward'
+      ? `M 0 0 L ${size} ${size / 2} L 0 ${size} z`
+      : `M ${size} 0 L 0 ${size / 2} L ${size} ${size} z`
   const refX = direction === 'forward' ? size : 0
 
   return `<marker id="${id}" markerWidth="${size}" markerHeight="${size}" refX="${refX}" refY="${size / 2}" orient="auto" markerUnits="userSpaceOnUse">
@@ -477,7 +553,13 @@ function renderLinearDimension(
   // Get dimension style properties with defaults (optionally auto-scaled)
   const { arrowSize, textHeight, extLineOffset, extLineExtension } =
     getScaledDimensionSizes(dimStyle, options, viewport)
-  const { dimLineColor, extLineColor, textColor, dimLineWeight, extLineWeight } = getDimensionColors(dimStyle)
+  const {
+    dimLineColor,
+    extLineColor,
+    textColor,
+    dimLineWeight,
+    extLineWeight,
+  } = getDimensionColors(dimStyle, options, viewport)
 
   // Extract dimension geometry
   const defPoint1X = entity.measureStart?.x ?? 0
@@ -546,7 +628,7 @@ function renderLinearDimension(
     const textRotation = (angle * 180) / Math.PI
     expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
     elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
+      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
     )
   }
 
@@ -570,8 +652,18 @@ function renderAngularDimension(
   const markers: string[] = []
 
   // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight } = getScaledDimensionSizes(dimStyle, options, viewport)
-  const { dimLineColor, extLineColor, textColor, dimLineWeight, extLineWeight } = getDimensionColors(dimStyle)
+  const { arrowSize, textHeight } = getScaledDimensionSizes(
+    dimStyle,
+    options,
+    viewport,
+  )
+  const {
+    dimLineColor,
+    extLineColor,
+    textColor,
+    dimLineWeight,
+    extLineWeight,
+  } = getDimensionColors(dimStyle, options, viewport)
 
   // Extract points
   const centerX = entity.start?.x ?? 0
@@ -627,7 +719,7 @@ function renderAngularDimension(
     expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
 
     elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
+      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
     )
   }
 
@@ -651,8 +743,16 @@ function renderDiameterDimension(
   const markers: string[] = []
 
   // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight } = getScaledDimensionSizes(dimStyle, options, viewport)
-  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(dimStyle)
+  const { arrowSize, textHeight } = getScaledDimensionSizes(
+    dimStyle,
+    options,
+    viewport,
+  )
+  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(
+    dimStyle,
+    options,
+    viewport,
+  )
 
   // Extract geometry
   const x1 = entity.measureStart?.x ?? 0
@@ -670,7 +770,9 @@ function renderDiameterDimension(
   if (Number.isFinite(diameterLen) && diameterLen > 1e-6) {
     // Create arrow markers
     const markerId = `dim-diameter-arrow-${Date.now()}`
-    markers.push(createArrowMarker(markerId, arrowSize, dimLineColor, 'backward'))
+    markers.push(
+      createArrowMarker(markerId, arrowSize, dimLineColor, 'backward'),
+    )
 
     // Create diameter line with arrow at the end
     elements.push(
@@ -689,7 +791,7 @@ function renderDiameterDimension(
   expandBBoxForText(bbox, textX, textY, textHeight, diameterText)
 
   elements.push(
-    `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(diameterText)}</text>`,
+    `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(diameterText)}</text>`,
   )
 
   return {
@@ -712,8 +814,16 @@ function renderRadialDimension(
   const markers: string[] = []
 
   // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight } = getScaledDimensionSizes(dimStyle, options, viewport)
-  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(dimStyle)
+  const { arrowSize, textHeight } = getScaledDimensionSizes(
+    dimStyle,
+    options,
+    viewport,
+  )
+  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(
+    dimStyle,
+    options,
+    viewport,
+  )
 
   // Extract geometry
   const x1 = entity.measureStart?.x ?? 0
@@ -731,7 +841,9 @@ function renderRadialDimension(
   if (Number.isFinite(radiusLen) && radiusLen > 1e-6) {
     // Create arrow markers
     const markerId = `dim-radius-arrow-${Date.now()}`
-    markers.push(createArrowMarker(markerId, arrowSize, dimLineColor, 'backward'))
+    markers.push(
+      createArrowMarker(markerId, arrowSize, dimLineColor, 'backward'),
+    )
 
     // Create radius line with arrow at the end
     elements.push(
@@ -750,7 +862,7 @@ function renderRadialDimension(
   expandBBoxForText(bbox, textX, textY, textHeight, radiusText)
 
   elements.push(
-    `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(radiusText)}</text>`,
+    `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(radiusText)}</text>`,
   )
 
   return {
@@ -773,7 +885,11 @@ function renderOrdinateDimension(
 
   // Get dimension style properties (optionally auto-scaled)
   const { textHeight } = getScaledDimensionSizes(dimStyle, options, viewport)
-  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(dimStyle)
+  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(
+    dimStyle,
+    options,
+    viewport,
+  )
 
   // Extract geometry
   const x1 = entity.measureStart?.x ?? 0
@@ -801,7 +917,7 @@ function renderOrdinateDimension(
     expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
 
     elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
+      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
     )
   }
 
@@ -827,7 +943,7 @@ function renderFallbackDimension(entity: DimensionEntity): BoundsAndElement {
     const resolvedText = resolveDimensionText(entity)
     if (resolvedText) {
       elements.push(
-        `<text x="${textX}" y="${textY}" font-size="2.5" text-anchor="middle" transform="scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
+        `<text x="${textX}" y="${textY}" font-size="2.5" stroke="none" text-anchor="middle" transform="scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
       )
     }
   }

@@ -87,7 +87,7 @@ const interpolateEllipse = (
   ry: number,
   start: number,
   end: number,
-  rotationAngle?: number
+  rotationAngle?: number,
 ): Point[] => {
   if (end < start) {
     end += Math.PI * 2
@@ -133,7 +133,7 @@ export const interpolateBSpline = (
   degree: number,
   knots: number[],
   interpolationsPerSplineSegment?: number,
-  weights?: number[]
+  weights?: number[],
 ): Point[] => {
   const polyline: Point[] = []
   const controlPointsForLib = controlPoints.map(function (p): Point {
@@ -166,7 +166,8 @@ export const interpolateBSpline = (
   return polyline
 }
 
-export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => { // NOSONAR
+export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => {
+  // NOSONAR
   const vertices: Array<{ x: number; y: number }> = []
   const faces: Array<{ indices: number[]; hiddens: boolean[] }> = []
 
@@ -243,7 +244,10 @@ export default function entityToPolyline( // NOSONAR
 
   const INFINITE_LINE_LENGTH = 1000
 
-  const normalize2 = (x: number, y: number): { x: number; y: number } | null => {
+  const normalize2 = (
+    x: number,
+    y: number,
+  ): { x: number; y: number } | null => {
     const len = Math.hypot(x, y)
     if (len === 0) return null
     return { x: x / len, y: y / len }
@@ -350,16 +354,17 @@ export default function entityToPolyline( // NOSONAR
     } else if (entity.polygonMesh) {
       // Do not attempt to render polygon meshes
     } else if (entity.vertices.length) {
-      if (entity.closed) {
-        entity.vertices = entity.vertices.concat(entity.vertices[0])
-      }
-      for (let i = 0, il = entity.vertices.length; i < il - 1; ++i) {
-        const from: Point = [entity.vertices[i].x, entity.vertices[i].y]
-        const to: Point = [entity.vertices[i + 1].x, entity.vertices[i + 1].y]
+      const vertices = entity.closed
+        ? entity.vertices.concat(entity.vertices[0])
+        : entity.vertices
+
+      for (let i = 0, il = vertices.length; i < il - 1; ++i) {
+        const from: Point = [vertices[i].x, vertices[i].y]
+        const to: Point = [vertices[i + 1].x, vertices[i + 1].y]
         polyline.push(from)
-        if (entity.vertices[i].bulge) {
+        if (vertices[i].bulge) {
           polyline = polyline.concat(
-            createArcForLWPolyine(from, to, entity.vertices[i].bulge!),
+            createArcForLWPolyine(from, to, vertices[i].bulge!),
           )
         }
         // The last iteration of the for loop
