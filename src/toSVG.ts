@@ -17,6 +17,7 @@ import type {
   DimensionEntity,
   EllipseEntity,
   Entity,
+  HatchEntity,
   LeaderEntity,
   MTextEntity,
   ParsedDXF,
@@ -46,6 +47,161 @@ const addFlipXIfApplicable = (
   }
 }
 
+const isPointEqual = (a: [number, number], b: [number, number]): boolean => {
+  return a[0] === b[0] && a[1] === b[1]
+}
+
+const buildPolylinePath = (
+  vertices: [number, number][],
+  closePath = false,
+): string => {
+  if (vertices.length === 0) return ''
+
+  const normalizedVertices =
+    closePath &&
+    vertices.length > 1 &&
+    isPointEqual(vertices[0], vertices[vertices.length - 1])
+      ? vertices.slice(0, -1)
+      : vertices
+
+  const d = normalizedVertices.reduce((acc, point, i) => {
+    acc += i === 0 ? 'M' : 'L'
+    acc += point[0] + ',' + point[1]
+    return acc
+  }, '')
+
+  return closePath ? `${d}Z` : d
+}
+
+export const buildEvenOddPath = (
+  rings: Array<Array<[number, number]>>,
+): string => {
+  return rings
+    .filter((ring) => ring.length > 1)
+    .map((ring) => buildPolylinePath(ring, true))
+    .join(' ')
+}
+
+const isSolidHatchEntity = (entity: Entity): entity is HatchEntity => {
+  return (
+    entity.type === 'HATCH' &&
+    (entity.fillType === 'SOLID' || entity.solidOrGradient === 'SOLID')
+  )
+}
+
+const pointsToBox = (rings: Array<Array<[number, number]>>): Box2 => {
+  return rings
+    .flat()
+    .reduce((acc, [x, y]) => acc.expandByPoint({ x, y }), new Box2())
+}
+
+const DEFAULT_SCREEN_STROKE_WIDTH_PERCENT = 0.1
+
+const getViewportMinDimension = (viewport: {
+  width: number
+  height: number
+}): number => {
+  return Math.min(Math.abs(viewport.width), Math.abs(viewport.height))
+}
+
+const getGlobalStrokeWidth = (
+  viewport: { width: number; height: number },
+  options: ToSVGOptions,
+): string => {
+  const value =
+    Number.isFinite(options.strokeWidth?.value) &&
+    (options.strokeWidth?.value ?? 0) > 0
+      ? (options.strokeWidth?.value as number)
+      : DEFAULT_SCREEN_STROKE_WIDTH_PERCENT
+
+  if (options.strokeWidth?.mode === 'viewport') {
+    const viewportMin = getViewportMinDimension(viewport)
+    if (!Number.isFinite(viewportMin) || viewportMin <= 0) {
+      return '0'
+    }
+
+    return String((viewportMin * value) / 100)
+  }
+
+  return `${value}%`
+}
+
+const hatchLoopToRing = (
+  loop: NonNullable<HatchEntity['boundary']>['loops'][number],
+): Array<[number, number]> | null => {
+  const polylineEntity = loop.entities.find((candidate) => {
+    return candidate?.type === 'POLYLINE' && Array.isArray(candidate.points)
+  }) as { points: Array<{ x: number; y: number }> } | undefined
+
+  if (polylineEntity) {
+    return polylineEntity.points.map((point) => [point.x, point.y])
+  }
+
+  if (!loop.entities.every((candidate) => candidate?.type === 'LINE')) {
+    return null
+  }
+
+  const segments = loop.entities as Array<{
+    start: { x: number; y: number }
+    end: { x: number; y: number }
+  }>
+
+  if (segments.length === 0) {
+    return null
+  }
+
+  const ring: Array<[number, number]> = []
+  for (const segment of segments) {
+    if (ring.length === 0) {
+      ring.push([segment.start.x, segment.start.y])
+    }
+
+    const [currentX, currentY] = ring[ring.length - 1]
+    if (segment.start.x === currentX && segment.start.y === currentY) {
+      ring.push([segment.end.x, segment.end.y])
+      continue
+    }
+
+    if (segment.end.x === currentX && segment.end.y === currentY) {
+      ring.push([segment.start.x, segment.start.y])
+      continue
+    }
+
+    return null
+  }
+
+  return ring
+}
+
+const hatch = (entity: HatchEntity): BoundsAndElement | null => {
+  if (!isSolidHatchEntity(entity)) {
+    return null
+  }
+
+  const rings =
+    entity.boundary?.loops
+      .map(hatchLoopToRing)
+      .filter((ring): ring is Array<[number, number]> => ring !== null) ?? []
+
+  if (rings.length === 0) {
+    return null
+  }
+
+  return transformBoundingBoxAndElement(
+    pointsToBox(rings),
+    `<path d="${buildEvenOddPath(rings)}" fill-rule="evenodd" />`,
+    entity.transforms ?? [],
+  )
+}
+
+const isClosedPolylineEntity = (entity: Entity): boolean => {
+  if (entity.type !== 'POLYLINE' && entity.type !== 'LWPOLYLINE') {
+    return false
+  }
+
+  return Boolean((entity as { closed?: boolean }).closed)
+}
+
 /**
  * Create a <path /> element. Interpolates curved entities.
  */
@@ -55,15 +211,13 @@ const polyline = (entity: Entity): BoundsAndElement => {
     (acc, [x, y]) => acc.expandByPoint({ x, y }),
     new Box2(),
   )
-  const d = vertices.reduce((acc, point, i) => {
-    acc += i === 0 ? 'M' : 'L'
-    acc += point[0] + ',' + point[1]
-    return acc
-  }, '')
+  const d = buildPolylinePath(vertices, isClosedPolylineEntity(entity))
   // Empirically it appears that flipping horizontally does not apply to polyline
   return transformBoundingBoxAndElement(
     bbox,
-    `<path d="${d}" />`,
+    isClosedPolylineEntity(entity)
+      ? `<path d="${d}" fill-rule="evenodd" />`
+      : `<path d="${d}" />`,
     entity.transforms ?? [],
   )
 }
@@ -78,21 +232,15 @@ const lwpolyline = (entity: Entity): BoundsAndElement => {
     (acc, [x, y]) => acc.expandByPoint({ x, y }),
     new Box2(),
   )
-  const d = vertices.reduce((acc, point, i) => {
-    acc += i === 0 ? 'M' : 'L'
-    acc += point[0] + ',' + point[1]
-    return acc
-  }, '')
-  const element0 = `<path d="${d}" />`
+  const d = buildPolylinePath(vertices, isClosedPolylineEntity(entity))
+  const element0 = isClosedPolylineEntity(entity)
+    ? `<path d="${d}" fill-rule="evenodd" />`
+    : `<path d="${d}" />`
   const { bbox, element } = addFlipXIfApplicable(entity, {
     bbox: bbox0,
     element: element0,
   })
-  return transformBoundingBoxAndElement(
-    bbox,
-    element,
-    entity.transforms ?? [],
-  )
+  return transformBoundingBoxAndElement(bbox, element, entity.transforms ?? [])
 }
 
 const leader = (entity: LeaderEntity): BoundsAndElement | null => {
@@ -114,7 +262,6 @@ const leader = (entity: LeaderEntity): BoundsAndElement | null => {
     entity.transforms ?? [],
   )
 }
-
 
 /**
  * Create a <circle /> element for the CIRCLE entity.
@@ -166,8 +313,9 @@ const ellipseOrArc = (params: EllipticArcParams): BoundsAndElement => {
   ) {
     // Use a native <ellipse> when start and end angles are the same, and
     // arc paths with same start and end points don't render (at least on Safari)
-    const element = `<g transform="rotate(${(rotationAngle / Math.PI) * 180
-      } ${cx}, ${cy})">
+    const element = `<g transform="rotate(${
+      (rotationAngle / Math.PI) * 180
+    } ${cx}, ${cy})">
       <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" />
     </g>`
     return { bbox, element }
@@ -197,8 +345,9 @@ const ellipseOrArc = (params: EllipticArcParams): BoundsAndElement => {
     const adjustedEndAngle =
       endAngle < startAngle ? endAngle + Math.PI * 2 : endAngle
     const largeArcFlag = adjustedEndAngle - startAngle < Math.PI ? 0 : 1
-    const d = `M ${startPoint.x} ${startPoint.y} A ${rx} ${ry} ${(rotationAngle / Math.PI) * 180
-      } ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y}`
+    const d = `M ${startPoint.x} ${startPoint.y} A ${rx} ${ry} ${
+      (rotationAngle / Math.PI) * 180
+    } ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y}`
     const element = `<path d="${d}" />`
     return { bbox, element }
   }
@@ -334,7 +483,7 @@ const text = (entity: TextEntity): BoundsAndElement => {
     .expandByPoint({ x: x + textWidth, y: y + height })
 
   const rotationDegrees = (rotation * 180) / Math.PI
-  const element0 = `<text x="${x}" y="${y}" font-size="${height}" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
+  const element0 = `<text x="${x}" y="${y}" font-size="${height}" stroke="none" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
 
   const { bbox, element } = addFlipXIfApplicable(entity, {
     bbox: bbox0,
@@ -353,17 +502,18 @@ const mtext = (entity: MTextEntity): BoundsAndElement => {
   const content = entity.string ?? ''
 
   // Estimate text bounding box (approximate)
-  const textWidth = (entity.refRectangleWidth ?? content.length * height * 0.6)
+  const textWidth = entity.refRectangleWidth ?? content.length * height * 0.6
   const bbox0 = new Box2()
     .expandByPoint({ x, y })
     .expandByPoint({ x: x + textWidth, y: y + height })
 
   // Calculate rotation from x-axis direction
-  const rotation = entity.xAxisX !== undefined && entity.xAxisY !== undefined
-    ? Math.atan2(entity.xAxisY, entity.xAxisX)
-    : 0
+  const rotation =
+    entity.xAxisX !== undefined && entity.xAxisY !== undefined
+      ? Math.atan2(entity.xAxisY, entity.xAxisX)
+      : 0
   const rotationDegrees = (rotation * 180) / Math.PI
-  const element0 = `<text x="${x}" y="${y}" font-size="${height}" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
+  const element0 = `<text x="${x}" y="${y}" font-size="${height}" stroke="none" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
 
   const { bbox, element } = addFlipXIfApplicable(entity, {
     bbox: bbox0,
@@ -392,7 +542,7 @@ const tolerance = (entity: ToleranceEntity): BoundsAndElement => {
     .expandByPoint({ x, y })
     .expandByPoint({ x: x + textWidth, y: y + height })
 
-  const element0 = `<text x="${x}" y="${y}" font-size="${height}" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
+  const element0 = `<text x="${x}" y="${y}" font-size="${height}" stroke="none" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
 
   const { bbox, element } = addFlipXIfApplicable(entity, {
     bbox: bbox0,
@@ -418,7 +568,7 @@ const shape = (entity: ShapeEntity): BoundsAndElement => {
     .expandByPoint({ x: x + textWidth, y: y + height })
 
   const rotationDegrees = (rotation * 180) / Math.PI
-  const element0 = `<text x="${x}" y="${y}" font-size="${height}" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
+  const element0 = `<text x="${x}" y="${y}" font-size="${height}" stroke="none" transform="rotate(${-rotationDegrees} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
 
   const { bbox, element } = addFlipXIfApplicable(entity, {
     bbox: bbox0,
@@ -505,23 +655,28 @@ const entityToBoundsAndElement = (
       return mtext(entity as MTextEntity)
     case 'DIMENSION': {
       const dimEntity = entity as DimensionEntity
-      const styleName = typeof dimEntity.styleName === 'string'
-        ? dimEntity.styleName
-        : undefined
-      const dimStyle = styleName && dimStyles
-        ? dimStyles[styleName]
-        : undefined
+      const styleName =
+        typeof dimEntity.styleName === 'string'
+          ? dimEntity.styleName
+          : undefined
+      const dimStyle = styleName && dimStyles ? dimStyles[styleName] : undefined
       return dimension(dimEntity, dimStyle, options, viewport)
     }
     case 'SPLINE': {
       const splineEntity = entity as SplineEntity
       const hasWeights = splineEntity.weights?.some((w: number) => w !== 1)
-      if ((splineEntity.degree === 2 || splineEntity.degree === 3) && !hasWeights) {
+      if (
+        (splineEntity.degree === 2 || splineEntity.degree === 3) &&
+        !hasWeights
+      ) {
         try {
           return bezier(splineEntity)
         } catch (err) {
           const error = err as Error
-          logger.warn('bezier conversion failed, using polyline:', error.message)
+          logger.warn(
+            'bezier conversion failed, using polyline:',
+            error.message,
+          )
           return polyline(entity)
         }
       } else {
@@ -553,13 +708,19 @@ const entityToBoundsAndElement = (
     case 'SHAPE': {
       return shape(entity as ShapeEntity)
     }
+    case 'HATCH': {
+      return hatch(entity as HatchEntity)
+    }
     default:
       logger.warn('entity type not supported in SVG rendering:', entity.type)
       return null
   }
 }
 
-export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): string {
+export default function toSVG(
+  parsed: ParsedDXF,
+  options: ToSVGOptions = {},
+): string {
   const entities = denormalise(parsed)
   const dimStyles = parsed.tables.dimStyles
 
@@ -573,7 +734,11 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
       return acc
     }
 
-    const boundsAndElement = entityToBoundsAndElement(entity, dimStyles, options)
+    const boundsAndElement = entityToBoundsAndElement(
+      entity,
+      dimStyles,
+      options,
+    )
     if (boundsAndElement?.bbox.valid) {
       acc.expandByPoint(boundsAndElement.bbox.min)
       acc.expandByPoint(boundsAndElement.bbox.max)
@@ -583,13 +748,13 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
 
   const viewport = geometryBBox.valid
     ? {
-      width: geometryBBox.max.x - geometryBBox.min.x,
-      height: geometryBBox.max.y - geometryBBox.min.y,
-    }
+        width: geometryBBox.max.x - geometryBBox.min.x,
+        height: geometryBBox.max.y - geometryBBox.min.y,
+      }
     : {
-      width: 0,
-      height: 0,
-    }
+        width: 0,
+        height: 0,
+      }
 
   const { bbox, elements } = entities.reduce(
     (
@@ -597,7 +762,12 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
       entity: Entity,
     ): { bbox: Box2; elements: string[] } => {
       const rgb = getRGBForEntity(parsed.tables.layers, entity)
-      const boundsAndElement = entityToBoundsAndElement(entity, dimStyles, options, viewport)
+      const boundsAndElement = entityToBoundsAndElement(
+        entity,
+        dimStyles,
+        options,
+        viewport,
+      )
       // Ignore entities that don't produce SVG elements or have unsupported types
       if (boundsAndElement) {
         const { bbox, element } = boundsAndElement
@@ -607,9 +777,31 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
           acc.bbox.expandByPoint(bbox.max)
         }
         const color = rgbToColorAttribute(rgb)
-        const handleAttr = options?.includeHandles ? ` data-handle="${entity.handle}" data-type="${entity.type}" data-layer="${entity.layer}" ` : ''
+        const handleAttr = options?.includeHandles
+          ? ` data-handle="${entity.handle}" data-type="${entity.type}" data-layer="${entity.layer}" `
+          : ''
         if (entity.type === 'SOLID' || entity.type === 'TRACE') {
-          acc.elements.push(`<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`)
+          acc.elements.push(
+            `<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`,
+          )
+        } else if (isSolidHatchEntity(entity)) {
+          acc.elements.push(
+            `<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`,
+          )
+        } else if (
+          isClosedPolylineEntity(entity) &&
+          options.closedPolylineFill
+        ) {
+          acc.elements.push(
+            `<g stroke="${color}" fill="${options.closedPolylineFill}" ${handleAttr}>${element}</g>`,
+          )
+        } else if (
+          isClosedPolylineEntity(entity) &&
+          options.fillClosedPolylines
+        ) {
+          acc.elements.push(
+            `<g stroke="${color}" fill="${color}" ${handleAttr}>${element}</g>`,
+          )
         } else {
           acc.elements.push(`<g stroke="${color}" ${handleAttr}>${element}</g>`)
         }
@@ -624,17 +816,18 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
 
   const viewBox = bbox.valid
     ? {
-      x: bbox.min.x,
-      y: -bbox.max.y,
-      width: bbox.max.x - bbox.min.x,
-      height: bbox.max.y - bbox.min.y,
-    }
+        x: bbox.min.x,
+        y: -bbox.max.y,
+        width: bbox.max.x - bbox.min.x,
+        height: bbox.max.y - bbox.min.y,
+      }
     : {
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    }
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      }
+  const globalStrokeWidth = getGlobalStrokeWidth(viewport, options)
   return `<?xml version="1.0"?>
 <svg
   xmlns="http://www.w3.org/2000/svg"
@@ -643,7 +836,7 @@ export default function toSVG(parsed: ParsedDXF, options: ToSVGOptions = {}): st
   viewBox="${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}"
   width="100%" height="100%"
 >
-  <g stroke="#000000" stroke-width="0.1%" fill="none" transform="matrix(1,0,0,-1,0,0)">
+  <g stroke="#000000" stroke-width="${globalStrokeWidth}" fill="none" transform="matrix(1,0,0,-1,0,0)">
     ${elements.join('\n')}
   </g>
 </svg>`

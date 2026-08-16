@@ -5,7 +5,10 @@ export { default as Helper } from './Helper'
 export { default as parseString } from './parseString'
 export { default as toJson } from './toJson'
 export { default as toPolylines } from './toPolylines'
-export { default as toSVG } from './toSVG'
+export { default as toSVG, buildEvenOddPath } from './toSVG'
 export { default as colors } from './util/colors'
+
+// Nesting module (2D bin packing for sheet optimization)
+export * from './nesting/index'
 
 export * from './types/index'
