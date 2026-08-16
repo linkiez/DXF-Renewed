@@ -5,15 +5,10 @@
  * area, perimeter, centroid, and convex hulls.
  */
 
-import type { NestableShape, CompoundShape, BoundingBox, Point2D } from './types'
+import type { NestableShape, CompoundShape, BoundingBox } from './types'
 import {
-  computeBoundingBox,
   computeRotatedBoundingBox,
   computeConvexHull,
-  computeArea,
-  computePerimeter,
-  computeCentroid,
-  rotatePolygon,
 } from './polygonUtils'
 
 // ─────────────────────────────────────────────

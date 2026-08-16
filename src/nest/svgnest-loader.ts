@@ -6,9 +6,9 @@
 //   svgparser-core.js      — SvgParser (MIT)
 //   svgnest-core.js        — SvgNest (MIT)
 
-import { createRequire } from 'module'
-import { fileURLToPath } from 'url'
-import path from 'path'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -22,7 +22,7 @@ let _svgNest: any = null
 function injectPolyfills(): void {
   if (typeof (globalThis as any).navigator === 'undefined') {
     try {
-      (globalThis as any).navigator = { userAgent: 'Node.js', appName: 'Node' }
+      ;(globalThis as any).navigator = { userAgent: 'Node.js', appName: 'Node' }
     } catch {
       Object.defineProperty(globalThis, 'navigator', {
         value: { userAgent: 'Node.js', appName: 'Node' },
@@ -34,7 +34,7 @@ function injectPolyfills(): void {
 
   if (typeof (globalThis as any).window === 'undefined') {
     try {
-      (globalThis as any).window = globalThis
+      ;(globalThis as any).window = globalThis
     } catch {
       Object.defineProperty(globalThis, 'window', {
         value: globalThis,
@@ -46,7 +46,7 @@ function injectPolyfills(): void {
 
   if (typeof (globalThis as any).self === 'undefined') {
     try {
-      (globalThis as any).self = globalThis
+      ;(globalThis as any).self = globalThis
     } catch {
       Object.defineProperty(globalThis, 'self', {
         value: globalThis,
@@ -57,7 +57,7 @@ function injectPolyfills(): void {
   }
 
   if (typeof (globalThis as any).document === 'undefined') {
-    (globalThis as any).document = {
+    ;(globalThis as any).document = {
       createElement: () => null,
       createElementNS: () => null,
       getElementById: () => null,
@@ -71,7 +71,7 @@ function injectPolyfills(): void {
   //   for(var i=0; i<svg.childNodes.length; i++) { if(child.tagName == 'svg') ... }
   //   depois itera sobre svgRoot.childNodes procurando paths
   if (typeof (globalThis as any).DOMParser === 'undefined') {
-    (globalThis as any).DOMParser = class {
+    ;(globalThis as any).DOMParser = class {
       parseFromString(str: string, _mimeType: string) {
         // Extrai paths do SVG
         const paths: any[] = []
@@ -88,7 +88,9 @@ function injectPolyfills(): void {
             tagName: 'path',
             attributes: attrs,
             getAttribute: (name: string) => attrs[name] ?? null,
-            setAttribute: (name: string, val: string) => { attrs[name] = val },
+            setAttribute: (name: string, val: string) => {
+              attrs[name] = val
+            },
             parentNode: null,
             childNodes: [],
           })
@@ -109,7 +111,9 @@ function injectPolyfills(): void {
             tagName: 'rect',
             attributes: attrs,
             getAttribute: (name: string) => attrs[name] ?? null,
-            setAttribute: (name: string, val: string) => { attrs[name] = val },
+            setAttribute: (name: string, val: string) => {
+              attrs[name] = val
+            },
             parentNode: null,
             childNodes: [],
           })
@@ -146,7 +150,7 @@ async function loadClipper(): Promise<any> {
     throw new Error('[svgnest-loader] ClipperLib não carregou')
   }
 
-  (globalThis as any).ClipperLib = _clipperLib
+  ;(globalThis as any).ClipperLib = _clipperLib
   return _clipperLib
 }
 
@@ -193,7 +197,9 @@ export async function initSvgNest(): Promise<{
     loadSvgNest(),
   ])
 
-  console.log('[svgnest-loader] ✅ SVGnest carregado (ClipperLib + GeometryUtil + SvgNest)')
+  console.log(
+    '[svgnest-loader] ✅ SVGnest carregado (ClipperLib + GeometryUtil + SvgNest)',
+  )
   return { ClipperLib, GeometryUtil, SvgNest }
 }
 

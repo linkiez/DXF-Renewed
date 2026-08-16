@@ -9,7 +9,7 @@
 
 import type { Point2D, BoundingBox, CollisionResult } from './types'
 import { EPSILON } from './config'
-import { distanceSquared, rotatePolygon, computeConvexHull } from './polygonUtils'
+import { rotatePolygon, computeConvexHull } from './polygonUtils'
 
 // ─────────────────────────────────────────────
 // Bounding Box Overlap

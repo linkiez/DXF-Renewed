@@ -6,8 +6,6 @@
  * to minimize material waste.
  */
 
-import type { Box2 } from 'vecks'
-
 // ─────────────────────────────────────────────
 // Point & Geometry Primitives
 // ─────────────────────────────────────────────

@@ -10,6 +10,7 @@ export default [
       'lib/**/*',
       'dist/**/*',
       'node_modules/**/*',
+      'src/nest/**/*',
       '*.config.js',
       '*.config.cjs',
       'build.mjs',

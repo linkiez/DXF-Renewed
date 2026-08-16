@@ -83,16 +83,26 @@ export const buildEvenOddPath = (
 }
 
 const isSolidHatchEntity = (entity: Entity): entity is HatchEntity => {
+  if (entity.type !== 'HATCH') {
+    return false
+  }
+
+  const hatchEntity = entity as HatchEntity
   return (
-    entity.type === 'HATCH' &&
-    (entity.fillType === 'SOLID' || entity.solidOrGradient === 'SOLID')
+    hatchEntity.fillType === 'SOLID' || hatchEntity.solidOrGradient === 'SOLID'
   )
 }
 
 const pointsToBox = (rings: Array<Array<[number, number]>>): Box2 => {
-  return rings
-    .flat()
-    .reduce((acc, [x, y]) => acc.expandByPoint({ x, y }), new Box2())
+  const bbox = new Box2()
+
+  for (const ring of rings) {
+    for (const [x, y] of ring) {
+      bbox.expandByPoint({ x, y })
+    }
+  }
+
+  return bbox
 }
 
 const DEFAULT_SCREEN_STROKE_WIDTH_PERCENT = 0.1

@@ -37,7 +37,7 @@ function packSingleSheet(
   const unplaced: ShapeInfo[] = []
 
   // Free rectangles list
-  let freeRects: FreeRect[] = [
+  const freeRects: FreeRect[] = [
     {
       x: margin,
       y: margin,

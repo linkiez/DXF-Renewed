@@ -8,9 +8,9 @@
  *   npx dxfr nest <arquivo.dxf> --auto --output resultado
  */
 
-import fs from 'fs'
-import path from 'path'
-import { nestDXF, quickNest, NEST_PRESETS, COMMON_BIN_SIZES } from './nest/index'
+import fs from 'node:fs'
+import path from 'node:path'
+import { nestDXF, NEST_PRESETS } from './nest/index'
 
 // ─── Argument parsing simples ─────────────────────────────────────────
 
@@ -152,12 +152,18 @@ async function main() {
     const result = await nestDXF(dxfText, options)
 
     console.log(`\n✅ Nesting concluído!`)
-    console.log(`   Peças posicionadas: ${result.metrics.placedParts}/${result.metrics.totalParts}`)
-    console.log(`   Utilização: ${result.metrics.utilizationPercent.toFixed(1)}%`)
+    console.log(
+      `   Peças posicionadas: ${result.metrics.placedParts}/${result.metrics.totalParts}`,
+    )
+    console.log(
+      `   Utilização: ${result.metrics.utilizationPercent.toFixed(1)}%`,
+    )
     console.log(`   Bins usados: ${result.metrics.binsUsed}`)
 
     if (result.metrics.unplacedParts > 0) {
-      console.log(`   ⚠ ${result.metrics.unplacedParts} peças não foram posicionadas`)
+      console.log(
+        `   ⚠ ${result.metrics.unplacedParts} peças não foram posicionadas`,
+      )
     }
 
     // Salvar saída
@@ -167,16 +173,20 @@ async function main() {
     const svg = result.svg()
     const svgPath = outputBase + '.svg'
     fs.writeFileSync(svgPath, svg)
-    console.log(`\n📄 SVG salvo: ${svgPath} (${(svg.length / 1024).toFixed(1)} KB)`)
+    console.log(
+      `\n📄 SVG salvo: ${svgPath} (${(svg.length / 1024).toFixed(1)} KB)`,
+    )
 
     // DXF
     const dxf = result.dxf()
     const dxfPath = outputBase + '.dxf'
     fs.writeFileSync(dxfPath, dxf)
-    console.log(`📄 DXF salvo: ${dxfPath} (${(dxf.length / 1024).toFixed(1)} KB)`)
-
-  } catch (err: any) {
-    console.error(`\n❌ Erro: ${err.message}`)
+    console.log(
+      `📄 DXF salvo: ${dxfPath} (${(dxf.length / 1024).toFixed(1)} KB)`,
+    )
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`\n❌ Erro: ${message}`)
     process.exit(1)
   }
 

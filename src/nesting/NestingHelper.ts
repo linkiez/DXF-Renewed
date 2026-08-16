@@ -6,12 +6,8 @@
  */
 
 import Helper from '../Helper'
-import type { ParsedDXF, Entity } from '../types'
-import type {
-  NestingOptions,
-  NestingResult,
-  NestableShape,
-} from './types'
+import type { Entity } from '../types'
+import type { NestingOptions, NestingResult, NestableShape } from './types'
 import { nest } from './applyNesting'
 import { toNestedSvg } from './toNestedSvg'
 import { toNestedDxf } from './toNestedDxf'
@@ -44,12 +40,18 @@ export class NestingHelper extends Helper {
   private _shapeEntityMap = new Map<string, Entity>()
 
   /** Perform nesting with the given options */
-  async nest(partialOptions: Partial<NestingOptions> = {}): Promise<NestingResult> {
+  async nest(
+    partialOptions: Partial<NestingOptions> = {},
+  ): Promise<NestingResult> {
     this._nestingResult = await nest(this.parsed, partialOptions)
 
     // Extract shapes for SVG output
     const extraction = extractShapes(this.denormalised, {
       ...partialOptions,
+      stockSheet: partialOptions.stockSheet ?? {
+        width: 3000,
+        height: 2000,
+      },
       curveSegments: partialOptions.curveSegments ?? 36,
       allowedRotations: partialOptions.allowedRotations ?? [0, 90, 180, 270],
       kerf: partialOptions.kerf ?? 2,
@@ -58,7 +60,11 @@ export class NestingHelper extends Helper {
     this._shapes = extraction.shapes
 
     // Build shape → entity map
-    for (let i = 0; i < extraction.shapes.length && i < this.denormalised.length; i++) {
+    for (
+      let i = 0;
+      i < extraction.shapes.length && i < this.denormalised.length;
+      i++
+    ) {
       this._shapeEntityMap.set(extraction.shapes[i].id, this.denormalised[i])
     }
 

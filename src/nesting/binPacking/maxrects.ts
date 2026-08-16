@@ -67,7 +67,6 @@ function placeShape(
     const rotated = scoreRect(freeRects, h, w)
     if (rotated.bestRectIndex >= 0 && rotated.score < bestScore) {
       bestIdx = rotated.bestRectIndex
-      bestScore = rotated.score
       bestW = h
       bestH = w
       bestRotation = 90

@@ -4,7 +4,12 @@
  * Sensible defaults for nesting operations.
  */
 
-import type { NestingOptions, NestingAlgorithm, SortStrategy, StockSheet } from './types'
+import type {
+  NestingOptions,
+  NestingAlgorithm,
+  SortStrategy,
+  StockSheet,
+} from './types'
 
 // ─────────────────────────────────────────────
 // Default Values
@@ -69,12 +74,20 @@ export const DEFAULT_NESTING_OPTIONS: NestingOptions = {
 
 /** Validate and normalize nesting options */
 export function validateNestingOptions(
-  partial: Partial<NestingOptions> = {}
+  partial: Partial<NestingOptions> = {},
 ): NestingOptions {
   const merged: NestingOptions = {
     ...DEFAULT_NESTING_OPTIONS,
     ...partial,
+    kerf: partial.kerf ?? DEFAULT_KERF,
+    margin: partial.margin ?? DEFAULT_MARGIN,
+    allowedRotations: partial.allowedRotations ?? [...DEFAULT_ALLOWED_ROTATIONS],
   }
+
+  const kerf = merged.kerf ?? DEFAULT_KERF
+  const margin = merged.margin ?? DEFAULT_MARGIN
+  merged.kerf = kerf
+  merged.margin = margin
 
   // Normalize stockSheet to array
   if (!Array.isArray(merged.stockSheet)) {
@@ -85,24 +98,24 @@ export function validateNestingOptions(
   for (const sheet of merged.stockSheet) {
     if (sheet.width <= 0 || sheet.height <= 0) {
       throw new Error(
-        `Stock sheet must have positive dimensions, got ${sheet.width}x${sheet.height}`
+        `Stock sheet must have positive dimensions, got ${sheet.width}x${sheet.height}`,
       )
     }
   }
 
   // Validate kerf
-  if (merged.kerf < 0) {
-    throw new Error(`Kerf must be non-negative, got ${merged.kerf}`)
+  if (kerf < 0) {
+    throw new Error(`Kerf must be non-negative, got ${kerf}`)
   }
 
   // Validate margin
-  if (merged.margin < 0) {
-    throw new Error(`Margin must be non-negative, got ${merged.margin}`)
+  if (margin < 0) {
+    throw new Error(`Margin must be non-negative, got ${margin}`)
   }
 
   // Validate rotations
   if (merged.allowedRotations && merged.allowedRotations.length === 0) {
-    merged.allowedRotations = DEFAULT_ALLOWED_ROTATIONS
+    merged.allowedRotations = [...DEFAULT_ALLOWED_ROTATIONS]
   }
 
   // Validate maxSheets
@@ -111,18 +124,28 @@ export function validateNestingOptions(
   }
 
   // Validate algorithm
-  const validAlgorithms: NestingAlgorithm[] = ['guillotine', 'maxrects', 'shelf', 'bliss']
+  const validAlgorithms: NestingAlgorithm[] = [
+    'guillotine',
+    'maxrects',
+    'shelf',
+    'bliss',
+  ]
   if (merged.algorithm && !validAlgorithms.includes(merged.algorithm)) {
     throw new Error(
-      `Unknown algorithm "${merged.algorithm}". Valid: ${validAlgorithms.join(', ')}`
+      `Unknown algorithm "${merged.algorithm}". Valid: ${validAlgorithms.join(', ')}`,
     )
   }
 
   // Validate sortBy
-  const validSorts: SortStrategy[] = ['area-desc', 'area-asc', 'perimeter-desc', 'none']
+  const validSorts: SortStrategy[] = [
+    'area-desc',
+    'area-asc',
+    'perimeter-desc',
+    'none',
+  ]
   if (merged.sortBy && !validSorts.includes(merged.sortBy)) {
     throw new Error(
-      `Unknown sort strategy "${merged.sortBy}". Valid: ${validSorts.join(', ')}`
+      `Unknown sort strategy "${merged.sortBy}". Valid: ${validSorts.join(', ')}`,
     )
   }
 
@@ -134,7 +157,7 @@ export function parseSheetSize(input: string): StockSheet {
   const match = input.match(/^(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)$/)
   if (!match) {
     throw new Error(
-      `Invalid sheet size format: "${input}". Expected "WxH" (e.g., "3000x2000")`
+      `Invalid sheet size format: "${input}". Expected "WxH" (e.g., "3000x2000")`,
     )
   }
   return {

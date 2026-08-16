@@ -12,8 +12,6 @@
 // ─────────────────────────────────────────────
 
 export type {
-  // Geometry primitives
-  Point2D,
   BoundingBox,
   RotationTransform,
 

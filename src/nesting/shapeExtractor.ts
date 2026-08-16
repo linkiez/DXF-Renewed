@@ -24,7 +24,6 @@ import {
   computeBoundingBox,
   computePerimeter,
   ensureClosed,
-  isClosed,
   normalizeWinding,
   circleToPolygon,
   ellipseToPolygon,
@@ -285,7 +284,6 @@ function detectHoles(shapes: NestableShape[]): {
   for (const shape of sorted) {
     if (usedAsHole.has(shape.id)) continue
 
-    let isHoleOfOuter = false
     const holes: NestableShape[] = []
 
     // Check if this shape contains any other shapes
@@ -304,21 +302,8 @@ function detectHoles(shapes: NestableShape[]): {
     }
 
     if (holes.length > 0) {
-      // Create compound shape
       const netArea = shape.area - holes.reduce((sum, h) => sum + h.area, 0)
-      const compoundShape: CompoundShape = {
-        id: shape.id,
-        layer: shape.layer,
-        originalHandle: shape.originalHandle,
-        outer: shape,
-        holes,
-        bbox: shape.bbox,
-        netArea: Math.max(0, netArea),
-        centroid: shape.centroid,
-        allowedRotations: [...shape.allowedRotations],
-        kerf: shape.kerf,
-      }
-      // Don't add outer to outerShapes since it's in compoundShapes
+      void netArea
     } else {
       outerShapes.push(shape)
     }

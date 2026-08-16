@@ -8,11 +8,9 @@
 import type {
   NestingResult,
   NestableShape,
-  Placement,
   StockSheet,
   Point2D,
 } from './types'
-import { degToRad } from './polygonUtils'
 
 // ─────────────────────────────────────────────
 // SVG Generation Helpers
@@ -45,7 +43,6 @@ function verticesToPath(vertices: Point2D[]): string {
 /** Compute viewBox from placements and sheets */
 function computeViewBox(
   sheets: StockSheet[],
-  placements: Placement[],
   margin: number = 50
 ): { minX: number; minY: number; width: number; height: number } {
   if (sheets.length === 0) {
@@ -95,12 +92,11 @@ export function toNestedSvg(
   const {
     showSheetOutline = true,
     showMetrics = true,
-    showLayerColors = true,
     strokeWidth = 1,
     fillColor = 'none',
   } = options
 
-  const viewBox = computeViewBox(result.sheets, result.placements)
+  const viewBox = computeViewBox(result.sheets)
 
   // Build shape lookup
   const shapeMap = new Map<string, NestableShape>()
@@ -164,19 +160,4 @@ export function toNestedSvg(
 // Color Generation
 // ─────────────────────────────────────────────
 
-/** Generate a color for a layer name */
-function layerToColor(layer: string): string {
-  // Simple hash-based color generation
-  let hash = 0
-  for (let i = 0; i < layer.length; i++) {
-    hash = ((hash << 5) - hash + layer.charCodeAt(i)) | 0
-  }
 
-  const h = Math.abs(hash) % 360
-  return `hsl(${h}, 70%, 50%)`
-}
-
-/** Get stroke color for a shape based on its layer */
-function getShapeStrokeColor(shape: NestableShape): string {
-  return layerToColor(shape.layer)
-}

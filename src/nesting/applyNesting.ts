@@ -6,7 +6,7 @@
  * and result generation.
  */
 
-import type { Entity, ParsedDXF } from '../types'
+import type { ParsedDXF } from '../types'
 import type {
   NestingOptions,
   NestingResult,
