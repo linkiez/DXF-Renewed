@@ -15,7 +15,8 @@
   },
   "packageManager": "yarn@4.12.0",
   "bin": {
-    "dxf-to-svg": "lib/cli.js"
+    "dxf-to-svg": "lib/cli.js",
+    "dxfr": "./src/cli-nest.ts"
   },
   "engines": {
     "node": ">=8.9.0"
@@ -41,7 +42,8 @@
     "validate:fixtures": "bash -lc 'if [ -x ./.venv-ezdxf/bin/python ]; then ./.venv-ezdxf/bin/python tools/ezdxf_validate_fixtures.py --fail-on-audit-errors; else python3 tools/ezdxf_validate_fixtures.py --fail-on-audit-errors; fi'",
     "prepare": "husky",
     "semantic-release": "semantic-release",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "nest": "tsx src/cli-nest.ts"
   },
   "repository": {
     "type": "git",
@@ -63,8 +65,8 @@
   },
   "homepage": "https://github.com/linkiez/DXF-Renewed",
   "devDependencies": {
-    "@commitlint/cli": "^20.4.1",
-    "@commitlint/config-conventional": "^20.4.1",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@semantic-release/changelog": "^6.0.3",
@@ -78,12 +80,12 @@
     "browserify": "^17.0.1",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-n": "^17.24.0",
+    "eslint-plugin-n": "^18.0.1",
     "eslint-plugin-promise": "^7.2.1",
     "expect": "^30.2.0",
     "husky": "^9.1.7",
@@ -94,7 +96,7 @@
     "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.54.0",
     "vite": "^8.0.0",
     "xml2js": "^0.6.2"
