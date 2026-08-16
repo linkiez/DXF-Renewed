@@ -71,7 +71,9 @@ const extractNumbersFrom = (re, text) => {
 }
 
 const ensureRenderedPng = async (page, fixtureName) => {
-  const screenshotPath = resolve(`test/rendered/${fixtureName.replace(/\.dxf$/i, '')}.png`)
+  const screenshotPath = resolve(
+    `test/rendered/${fixtureName.replace(/\.dxf$/i, '')}.png`,
+  )
   await mkdir(dirname(screenshotPath), { recursive: true })
   await page.locator('#render-output svg').screenshot({ path: screenshotPath })
 }
@@ -87,9 +89,7 @@ test.describe('SVG browser integration: implemented entity renderers', () => {
   const cases = [
     {
       fixture: 'arc15.dxf',
-      assertions: [
-        (svg) => expect(svg).toMatch(/<path\s+d="[^"]*A\s+/),
-      ],
+      assertions: [(svg) => expect(svg).toMatch(/<path\s+d="[^"]*A\s+/)],
     },
     {
       fixture: 'circlesellipsesarcs.dxf',
@@ -101,21 +101,15 @@ test.describe('SVG browser integration: implemented entity renderers', () => {
     },
     {
       fixture: 'lines.dxf',
-      assertions: [
-        (svg) => expect(svg).toContain('<path'),
-      ],
+      assertions: [(svg) => expect(svg).toContain('<path')],
     },
     {
       fixture: 'lwpolylines.dxf',
-      assertions: [
-        (svg) => expect(svg).toContain('<path'),
-      ],
+      assertions: [(svg) => expect(svg).toContain('<path')],
     },
     {
       fixture: 'polylines.dxf',
-      assertions: [
-        (svg) => expect(svg).toContain('<path'),
-      ],
+      assertions: [(svg) => expect(svg).toContain('<path')],
     },
     {
       fixture: 'splines.dxf',
@@ -143,15 +137,21 @@ test.describe('SVG browser integration: implemented entity renderers', () => {
           // Default DIMSTYLE arrow size / text height is typically 2.5.
           // With autoScale enabled for this fixture, we expect at least one
           // markerWidth or font-size to differ from 2.5.
-          const markerWidths = extractNumbersFrom(/markerWidth="([-0-9.e]+)"/g, svg)
+          const markerWidths = extractNumbersFrom(
+            /markerWidth="([-0-9.e]+)"/g,
+            svg,
+          )
           const fontSizes = extractNumbersFrom(/font-size="([-0-9.e]+)"/g, svg)
 
           // If the fixture has no markers (unexpected), still allow validation
           // to pass via font-size, and vice-versa.
           expect(markerWidths.length + fontSizes.length).toBeGreaterThan(0)
 
-          const differsFromDefault = (values) => values.some((v) => Math.abs(v - 2.5) > 1e-9)
-          expect(differsFromDefault(markerWidths) || differsFromDefault(fontSizes)).toBeTruthy()
+          const differsFromDefault = (values) =>
+            values.some((v) => Math.abs(v - 2.5) > 1e-9)
+          expect(
+            differsFromDefault(markerWidths) || differsFromDefault(fontSizes),
+          ).toBeTruthy()
         },
       ],
     },
@@ -233,7 +233,10 @@ test.describe('SVG browser integration: implemented entity renderers', () => {
       assertions: [
         (svg) => expect(svg).toContain('<text'),
         (svg) => {
-          const markerWidths = extractNumbersFrom(/markerWidth="([-0-9.e]+)"/g, svg)
+          const markerWidths = extractNumbersFrom(
+            /markerWidth="([-0-9.e]+)"/g,
+            svg,
+          )
           const fontSizes = extractNumbersFrom(/font-size="([-0-9.e]+)"/g, svg)
           expect(markerWidths.length + fontSizes.length).toBeGreaterThan(0)
 
@@ -248,9 +251,7 @@ test.describe('SVG browser integration: implemented entity renderers', () => {
     },
     {
       fixture: 'leader-basic.dxf',
-      assertions: [
-        (svg) => expect(svg).toContain('<path'),
-      ],
+      assertions: [(svg) => expect(svg).toContain('<path')],
     },
     {
       fixture: 'tolerance-basic.dxf',
@@ -265,9 +266,12 @@ test.describe('SVG browser integration: implemented entity renderers', () => {
     test(`renders ${fixture} without throwing`, async ({ page }) => {
       await page.goto('/')
 
-      const svg = await page.evaluate(async ({ fixtureName, options }) => {
-        return await globalThis.renderFixtureToSVG(fixtureName, options)
-      }, { fixtureName: fixture, options: toSVGOptions })
+      const svg = await page.evaluate(
+        async ({ fixtureName, options }) => {
+          return await globalThis.renderFixtureToSVG(fixtureName, options)
+        },
+        { fixtureName: fixture, options: toSVGOptions },
+      )
 
       await page.evaluate(async (svgString) => {
         globalThis.renderSVGToDom(svgString)
