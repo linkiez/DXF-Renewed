@@ -86,6 +86,51 @@ export const buildEvenOddPath = (
     .join(' ')
 }
 
+const resolveRotatingColor = (
+  colorOption: string | string[] | undefined,
+  closedPolygonIndex: number,
+): string | undefined => {
+  if (!colorOption) {
+    return undefined
+  }
+  if (typeof colorOption === 'string') {
+    return colorOption
+  }
+  if (colorOption.length === 0) {
+    return undefined
+  }
+  return colorOption[closedPolygonIndex % colorOption.length]
+}
+
+const buildEntityGroupMarkup = (
+  entity: Entity,
+  color: string,
+  options: ToSVGOptions,
+  handleAttr: string,
+  element: string,
+  closedPolygonIndex: number,
+): string => {
+  const isClosed = isClosedPolylineEntity(entity)
+  const closedFill = isClosed
+    ? resolveRotatingColor(options.closedPolylineFill, closedPolygonIndex)
+    : undefined
+  const closedStroke = isClosed
+    ? resolveRotatingColor(options.closedPolylineStroke, closedPolygonIndex)
+    : undefined
+  const strokeColor = closedStroke ?? color
+
+  if (entity.type === 'SOLID' || entity.type === 'TRACE' || isSolidHatchEntity(entity)) {
+    return `<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`
+  }
+  if (isClosed && closedFill) {
+    return `<g stroke="${strokeColor}" fill="${closedFill}" ${handleAttr}>${element}</g>`
+  }
+  if (isClosed && options.fillClosedPolylines) {
+    return `<g stroke="${strokeColor}" fill="${color}" ${handleAttr}>${element}</g>`
+  }
+  return `<g stroke="${strokeColor}" ${handleAttr}>${element}</g>`
+}
+
 const isSolidHatchEntity = (entity: Entity): entity is HatchEntity => {
   if (entity.type !== 'HATCH') {
     return false
@@ -149,6 +194,7 @@ const buildOpenEntityFillOverlays = (
   let chainColor: string | null = null
   let chainLayer: string | undefined
   let chainSegments = 0
+  let closedChainIndex = 0
 
   const flushChain = (): void => {
     if (
@@ -156,12 +202,15 @@ const buildOpenEntityFillOverlays = (
       chain.length > 2 &&
       isPointNear(chain[0], chain[chain.length - 1])
     ) {
-      const fillColor = options.closedPolylineFill ?? chainColor
+      const fillColor =
+        resolveRotatingColor(options.closedPolylineFill, closedChainIndex) ??
+        chainColor
       if (fillColor) {
         overlays.push(
           `<g fill="${fillColor}" stroke="none"><path d="${buildPolylinePath(chain, true)}" fill-rule="evenodd" /></g>`,
         )
       }
+      closedChainIndex += 1
     }
 
     chain = []
@@ -889,9 +938,9 @@ export default function toSVG(
 
   const { bbox, elements } = entities.reduce(
     (
-      acc: { bbox: Box2; elements: string[] },
+      acc: { bbox: Box2; elements: string[]; closedPolygonIndex: number },
       entity: Entity,
-    ): { bbox: Box2; elements: string[] } => {
+    ): { bbox: Box2; elements: string[]; closedPolygonIndex: number } => {
       const rgb = getRGBForEntity(parsed.tables.layers, entity)
       const boundsAndElement = entityToBoundsAndElement(
         entity,
@@ -911,30 +960,18 @@ export default function toSVG(
         const handleAttr = options?.includeHandles
           ? ` data-handle="${entity.handle}" data-type="${entity.type}" data-layer="${entity.layer}" `
           : ''
-        if (entity.type === 'SOLID' || entity.type === 'TRACE') {
-          acc.elements.push(
-            `<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`,
-          )
-        } else if (isSolidHatchEntity(entity)) {
-          acc.elements.push(
-            `<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`,
-          )
-        } else if (
-          isClosedPolylineEntity(entity) &&
-          options.closedPolylineFill
-        ) {
-          acc.elements.push(
-            `<g stroke="${color}" fill="${options.closedPolylineFill}" ${handleAttr}>${element}</g>`,
-          )
-        } else if (
-          isClosedPolylineEntity(entity) &&
-          options.fillClosedPolylines
-        ) {
-          acc.elements.push(
-            `<g stroke="${color}" fill="${color}" ${handleAttr}>${element}</g>`,
-          )
-        } else {
-          acc.elements.push(`<g stroke="${color}" ${handleAttr}>${element}</g>`)
+        acc.elements.push(
+          buildEntityGroupMarkup(
+            entity,
+            color,
+            options,
+            handleAttr,
+            element,
+            acc.closedPolygonIndex,
+          ),
+        )
+        if (isClosedPolylineEntity(entity)) {
+          acc.closedPolygonIndex += 1
         }
       }
       return acc
@@ -942,6 +979,7 @@ export default function toSVG(
     {
       bbox: new Box2(),
       elements: [],
+      closedPolygonIndex: 0,
     },
   )
 

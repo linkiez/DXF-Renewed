@@ -227,6 +227,232 @@ EOF
     expect(svg).toContain('stroke="rgb(0, 255, 0)"')
   })
 
+  it('applies closedPolylineStroke only to closed POLYLINE/LWPOLYLINE entities', () => {
+    const dxf = `0
+SECTION
+2
+TABLES
+0
+TABLE
+2
+LAYER
+70
+1
+0
+LAYER
+2
+0
+70
+0
+62
+3
+6
+CONTINUOUS
+0
+ENDTAB
+0
+ENDSEC
+0
+SECTION
+2
+ENTITIES
+0
+LWPOLYLINE
+8
+0
+90
+4
+70
+1
+10
+0
+20
+0
+10
+20
+20
+0
+10
+20
+20
+10
+10
+0
+20
+10
+0
+LINE
+8
+0
+10
+30
+20
+0
+11
+40
+21
+0
+0
+ENDSEC
+0
+EOF
+`
+
+    const parsed = parseString(dxf)
+    const svg = toSVG(parsed, { closedPolylineStroke: '#ef4444' })
+
+    expect(svg).toContain('stroke="#ef4444"')
+    expect(svg).toContain('stroke="rgb(0, 255, 0)"')
+  })
+
+  it('rotates fill colors across multiple closed polygons when an array is provided', () => {
+    const dxf = `0
+SECTION
+2
+TABLES
+0
+TABLE
+2
+LAYER
+70
+1
+0
+LAYER
+2
+0
+70
+0
+62
+3
+6
+CONTINUOUS
+0
+ENDTAB
+0
+ENDSEC
+0
+SECTION
+2
+ENTITIES
+0
+LWPOLYLINE
+8
+0
+90
+4
+70
+1
+10
+0
+20
+0
+10
+10
+20
+0
+10
+10
+20
+10
+10
+0
+20
+10
+0
+LWPOLYLINE
+8
+0
+90
+4
+70
+1
+10
+20
+20
+0
+10
+30
+20
+0
+10
+30
+20
+10
+10
+20
+20
+10
+0
+LWPOLYLINE
+8
+0
+90
+4
+70
+1
+10
+40
+20
+0
+10
+50
+20
+0
+10
+50
+20
+10
+10
+40
+20
+10
+0
+LWPOLYLINE
+8
+0
+90
+4
+70
+1
+10
+60
+20
+0
+10
+70
+20
+0
+10
+70
+20
+10
+10
+60
+20
+10
+0
+ENDSEC
+0
+EOF
+`
+
+    const parsed = parseString(dxf)
+    const svg = toSVG(parsed, {
+      closedPolylineFill: ['#ff0000', '#00ff00', '#0000ff'],
+    })
+
+    const fillMatches = [...svg.matchAll(/fill="(#[0-9a-f]{6})"/g)].map(
+      (match) => match[1],
+    )
+
+    expect(fillMatches).toEqual([
+      '#ff0000',
+      '#00ff00',
+      '#0000ff',
+      '#ff0000',
+    ])
+  })
+
   it('fills closed loops composed of multiple open LINE entities', () => {
     const dxf = `0
 SECTION

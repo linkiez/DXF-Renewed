@@ -221,7 +221,8 @@ The public API is exported from `src/index.ts`.
 - `toSVG(parsed: ParsedDXF, options?): string`
   - Render the drawing to an SVG string.
   - `options.fillClosedPolylines` fills closed POLYLINE/LWPOLYLINE entities using their resolved entity color.
-  - `options.closedPolylineFill` forces a specific fill color for closed POLYLINE/LWPOLYLINE entities.
+  - `options.closedPolylineFill` forces a specific fill color for closed POLYLINE/LWPOLYLINE entities. Accepts an array of colors to rotate across multiple closed polygons.
+  - `options.closedPolylineStroke` forces a specific stroke color for closed POLYLINE/LWPOLYLINE entities only; open entities keep their resolved entity color. Accepts an array of colors to rotate across multiple closed polygons.
   - `options.strokeWidth` chooses screen-relative percentages or viewport-relative drawing units for global SVG stroke width.
 - `toPolylines(parsed: ParsedDXF, options?): any[]`
   - Convert supported entities to polyline arrays.
@@ -275,7 +276,22 @@ All npm commands in the documentation can be replaced with yarn equivalents:
 
 Geometric elements are fully supported with **native SVG elements** where possible (`<circle />`, `<ellipse/>`, etc.). TEXT, MTEXT, and DIMENSION entities are now fully rendered with proper transformations and formatting.
 
-Closed POLYLINE/LWPOLYLINE paths can be filled either with their entity color (`fillClosedPolylines`) or an explicit fill color (`closedPolylineFill`). Solid HATCH loops are emitted as a single SVG path using `fill-rule="evenodd"`, so nested contours render holes and inner islands correctly.
+Closed POLYLINE/LWPOLYLINE paths can be filled either with their entity color (`fillClosedPolylines`) or an explicit fill color (`closedPolylineFill`). An explicit stroke color for closed polygons only can be set with `closedPolylineStroke`, leaving open entities unaffected. Both accept an array of colors that rotate across each closed polygon in drawing order (`index % colors.length`) when there is more than one. Solid HATCH loops are emitted as a single SVG path using `fill-rule="evenodd"`, so nested contours render holes and inner islands correctly.
+
+A curated, colorblind-friendly palette is exported for convenience — pass it directly to `closedPolylineFill`/`closedPolylineStroke` to get pleasant, rotating colors without picking your own:
+
+```javascript
+const {
+  toSVG,
+  CLOSED_POLYGON_FILL_PALETTE,
+  CLOSED_POLYGON_STROKE_PALETTE,
+} = require('@linkiez/dxf-renew')
+
+toSVG(parsed, {
+  closedPolylineFill: CLOSED_POLYGON_FILL_PALETTE,
+  closedPolylineStroke: CLOSED_POLYGON_STROKE_PALETTE,
+})
+```
 
 Global SVG stroke width can be configured with `strokeWidth`:
 

@@ -7,6 +7,10 @@ export { default as toJson } from './toJson'
 export { default as toPolylines } from './toPolylines'
 export { default as toSVG, buildEvenOddPath } from './toSVG'
 export { default as colors } from './util/colors'
+export {
+  CLOSED_POLYGON_FILL_PALETTE,
+  CLOSED_POLYGON_STROKE_PALETTE,
+} from './util/palette'
 
 // Nesting module (2D bin packing for sheet optimization)
 export * from './nesting/index'

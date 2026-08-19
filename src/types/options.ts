@@ -57,8 +57,17 @@ export interface ToSVGOptions {
   /**
    * Fill color applied to closed POLYLINE/LWPOLYLINE entities in SVG output.
    * When omitted, closed polylines keep the historical stroke-only behavior.
+   * When an array is provided, colors rotate across closed polygons in the
+   * order they are drawn (index modulo array length).
    */
-  closedPolylineFill?: string
+  closedPolylineFill?: string | string[]
+  /**
+   * Stroke color applied only to closed POLYLINE/LWPOLYLINE entities in SVG output.
+   * Open entities keep using their resolved entity color for stroke.
+   * When an array is provided, colors rotate across closed polygons in the
+   * order they are drawn (index modulo array length).
+   */
+  closedPolylineStroke?: string | string[]
   dimension?: {
     /**
      * Automatically scale DIMENSION arrow size, extension endpoints, and
