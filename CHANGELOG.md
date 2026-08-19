@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 7.6.0 (2026-08-19)
+
+* feat(svg): add closed polygon stroke color and rotating fill/stroke palettes ([ebf7d04](https://github.com/linkiez/DXF-Renewed/commit/ebf7d04))
+
 ## <small>7.5.1 (2026-08-16)</small>
 
 * fix(svg): fill joined outline segments ([9dc8078](https://github.com/linkiez/DXF-Renewed/commit/9dc8078))
