@@ -119,7 +119,11 @@ const buildEntityGroupMarkup = (
     : undefined
   const strokeColor = closedStroke ?? color
 
-  if (entity.type === 'SOLID' || entity.type === 'TRACE' || isSolidHatchEntity(entity)) {
+  if (
+    entity.type === 'SOLID' ||
+    entity.type === 'TRACE' ||
+    isSolidHatchEntity(entity)
+  ) {
     return `<g fill="${color}" stroke="none" ${handleAttr}>${element}</g>`
   }
   if (isClosed && closedFill) {
@@ -232,7 +236,9 @@ const buildOpenEntityFillOverlays = (
     }
 
     const color = rgbToColorAttribute(getRGBForEntity(layers, entity))
-    const sameStyle = chain.length === 0 || (chainColor === color && chainLayer === entity.layer)
+    const sameStyle =
+      chain.length === 0 ||
+      (chainColor === color && chainLayer === entity.layer)
     const nextChain = sameStyle ? appendJoinableVertices(chain, segment) : null
 
     if (!sameStyle || nextChain === null) {

@@ -445,12 +445,7 @@ EOF
       (match) => match[1],
     )
 
-    expect(fillMatches).toEqual([
-      '#ff0000',
-      '#00ff00',
-      '#0000ff',
-      '#ff0000',
-    ])
+    expect(fillMatches).toEqual(['#ff0000', '#00ff00', '#0000ff', '#ff0000'])
   })
 
   it('fills closed loops composed of multiple open LINE entities', () => {
