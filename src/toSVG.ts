@@ -23,6 +23,7 @@ import type {
   ImageEntity,
   LeaderEntity,
   MLineEntity,
+  MLeaderEntity,
   MTextEntity,
   Ole2FrameEntity,
   OleFrameEntity,
@@ -176,9 +177,9 @@ const appendJoinableVertices = (
     return [...segment]
   }
 
-  const chainTail = chain[chain.length - 1]
+  const chainTail = chain.slice(-1)[0]
   const segmentHead = segment[0]
-  const segmentTail = segment[segment.length - 1]
+  const segmentTail = segment.slice(-1)[0]
 
   if (isPointNear(chainTail, segmentHead)) {
     return chain.concat(segment.slice(1))
@@ -449,6 +450,25 @@ const leader = (entity: LeaderEntity): BoundsAndElement | null => {
     `<path d="${d}" />`,
     entity.transforms ?? [],
   )
+}
+
+/**
+ * Minimal MLEADER fallback: render its extracted text at its insertion point.
+ * ponytail: nested leader vertices and MTEXT formatting remain unsupported;
+ * retain the raw text until those structures are parsed explicitly.
+ */
+const mleader = (entity: MLeaderEntity): BoundsAndElement => {
+  const x = entity.insertionPoint?.x ?? 0
+  const y = entity.insertionPoint?.y ?? 0
+  const height = entity.textHeight ?? 1
+  const content = entity.text ?? ''
+  const textWidth = content.length * height * 0.6
+  const bbox = new Box2()
+    .expandByPoint({ x, y })
+    .expandByPoint({ x: x + textWidth, y: y + height })
+  const element = `<text x="${x}" y="${y}" font-size="${height}" stroke="none" transform="scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
+
+  return transformBoundingBoxAndElement(bbox, element, entity.transforms ?? [])
 }
 
 /**
@@ -1037,6 +1057,9 @@ const entityToBoundsAndElement = (
     }
     case 'MLINE': {
       return mline(entity as MLineEntity)
+    }
+    case 'MLEADER': {
+      return mleader(entity as MLeaderEntity)
     }
     case 'TOLERANCE': {
       return tolerance(entity as ToleranceEntity)

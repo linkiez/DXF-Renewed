@@ -1,14 +1,11 @@
-import type { DXFTuple } from '../../types'
+import type { DXFTuple, MLeaderEntity as PublicMLeaderEntity } from '../../types'
 
 import common from './common'
 
 export const TYPE = 'MLEADER'
 
-interface MLeaderEntity {
+interface MLeaderEntity extends PublicMLeaderEntity {
   type: typeof TYPE
-
-  styleName?: string
-  text?: string
 
   [key: string]: unknown
 }
@@ -28,6 +25,22 @@ export const process = (tuples: DXFTuple[]): MLeaderEntity => {
         // Text string (simplified). MLEADER text can also be stored in more complex structures.
         case 1:
           entity.text = String(value)
+          break
+
+        case 10:
+          entity.insertionPoint ??= { x: 0, y: 0, z: 0 }
+          entity.insertionPoint.x = value as number
+          break
+        case 20:
+          entity.insertionPoint ??= { x: 0, y: 0, z: 0 }
+          entity.insertionPoint.y = value as number
+          break
+        case 30:
+          entity.insertionPoint ??= { x: 0, y: 0, z: 0 }
+          entity.insertionPoint.z = value as number
+          break
+        case 40:
+          entity.textHeight = value as number
           break
 
         default:
