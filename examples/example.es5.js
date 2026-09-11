@@ -1,5 +1,5 @@
-const fs = require('fs')
-const join = require('path').join
+const fs = require('node:fs')
+const join = require('node:path').join
 
 const Helper = require('..').Helper
 

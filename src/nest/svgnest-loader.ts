@@ -146,7 +146,7 @@ async function loadClipper(): Promise<any> {
 
   _clipperLib = require(path.join(__dirname, 'clipper-core.js'))
 
-  if (!_clipperLib || !_clipperLib.Clipper) {
+  if (!_clipperLib?.Clipper) {
     throw new Error('[svgnest-loader] ClipperLib não carregou')
   }
 
