@@ -200,6 +200,15 @@ const appendRadialDimensionText = (
   })
 }
 
+const finishDimensionRender = (
+  bbox: Box2,
+  elements: string[],
+  markers: string[],
+): BoundsAndElement => ({
+  bbox,
+  element: `<defs>${markers.join('')}</defs><g>${elements.join('')}</g>`,
+})
+
 const computeRadiusFallback = (entity: DimensionEntity): number => {
   const cx = entity.start?.x ?? 0
   const cy = entity.start?.y ?? 0
@@ -617,10 +626,7 @@ function renderAngular3PointDimension(
     })
   }
 
-  return {
-    bbox,
-    element: `<defs>${markers.join('')}</defs><g>${elements.join('')}</g>`,
-  }
+  return finishDimensionRender(bbox, elements, markers)
 }
 
 /**
@@ -740,10 +746,7 @@ function renderLinearDimension(
     })
   }
 
-  return {
-    bbox,
-    element: `<defs>${markers.join('')}</defs><g>${elements.join('')}</g>`,
-  }
+  return finishDimensionRender(bbox, elements, markers)
 }
 
 /**
