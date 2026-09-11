@@ -163,6 +163,43 @@ const getDimensionMeasurementPoints = (entity: DimensionEntity) => ({
   y2: entity.measureEnd?.y ?? 0,
 })
 
+const getRadialDimensionGeometry = (
+  entity: DimensionEntity,
+  bbox: Box2,
+) => {
+  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
+  const textX = entity.textMidpoint?.x ?? (x1 + x2) / 2
+  const textY = entity.textMidpoint?.y ?? (y1 + y2) / 2
+
+  bbox.expandByPoint({ x: x1, y: y1 })
+  bbox.expandByPoint({ x: x2, y: y2 })
+  bbox.expandByPoint({ x: textX, y: textY })
+
+  return { x1, y1, x2, y2, textX, textY }
+}
+
+const appendRadialDimensionText = (
+  bbox: Box2,
+  elements: string[],
+  text: {
+    x: number
+    y: number
+    height: number
+    color: string
+    content: string
+    angle: number
+  },
+): void => {
+  appendDimensionText(bbox, elements, {
+    x: text.x,
+    y: text.y,
+    height: text.height,
+    color: text.color,
+    content: text.content,
+    rotation: (text.angle * 180) / Math.PI,
+  })
+}
+
 const computeRadiusFallback = (entity: DimensionEntity): number => {
   const cx = entity.start?.x ?? 0
   const cy = entity.start?.y ?? 0
@@ -802,13 +839,10 @@ function renderDiameterDimension(
   )
 
   // Extract geometry
-  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
-  const textX = entity.textMidpoint?.x ?? (x1 + x2) / 2
-  const textY = entity.textMidpoint?.y ?? (y1 + y2) / 2
-
-  bbox.expandByPoint({ x: x1, y: y1 })
-  bbox.expandByPoint({ x: x2, y: y2 })
-  bbox.expandByPoint({ x: textX, y: textY })
+  const { x1, y1, x2, y2, textX, textY } = getRadialDimensionGeometry(
+    entity,
+    bbox,
+  )
 
   const diameterLen = Math.hypot(x2 - x1, y2 - y1)
   if (Number.isFinite(diameterLen) && diameterLen > 1e-6) {
@@ -824,13 +858,14 @@ function renderDiameterDimension(
   const resolvedText = resolveDimensionText(entity)
   const diameterText = resolvedText ? `⌀${resolvedText}` : '⌀'
   const angle = Math.atan2(y2 - y1, x2 - x1)
-  const textRotation = (angle * 180) / Math.PI
-
-  expandBBoxForText(bbox, textX, textY, textHeight, diameterText)
-
-  elements.push(
-    `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(diameterText)}</text>`,
-  )
+  appendRadialDimensionText(bbox, elements, {
+    x: textX,
+    y: textY,
+    height: textHeight,
+    color: textColor,
+    content: diameterText,
+    angle,
+  })
 
   return {
     bbox,
@@ -854,13 +889,10 @@ function renderRadialDimension(
   )
 
   // Extract geometry
-  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
-  const textX = entity.textMidpoint?.x ?? (x1 + x2) / 2
-  const textY = entity.textMidpoint?.y ?? (y1 + y2) / 2
-
-  bbox.expandByPoint({ x: x1, y: y1 })
-  bbox.expandByPoint({ x: x2, y: y2 })
-  bbox.expandByPoint({ x: textX, y: textY })
+  const { x1, y1, x2, y2, textX, textY } = getRadialDimensionGeometry(
+    entity,
+    bbox,
+  )
 
   const radiusLen = Math.hypot(x2 - x1, y2 - y1)
   if (Number.isFinite(radiusLen) && radiusLen > 1e-6) {
@@ -876,13 +908,14 @@ function renderRadialDimension(
   const resolvedText = resolveDimensionText(entity)
   const radiusText = resolvedText ? `R${resolvedText}` : 'R'
   const angle = Math.atan2(y2 - y1, x2 - x1)
-  const textRotation = (angle * 180) / Math.PI
-
-  expandBBoxForText(bbox, textX, textY, textHeight, radiusText)
-
-  elements.push(
-    `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(radiusText)}</text>`,
-  )
+  appendRadialDimensionText(bbox, elements, {
+    x: textX,
+    y: textY,
+    height: textHeight,
+    color: textColor,
+    content: radiusText,
+    angle,
+  })
 
   return {
     bbox,
