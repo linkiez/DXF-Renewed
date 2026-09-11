@@ -85,4 +85,71 @@ EOF
       expect.arrayContaining([[340, 'CC'], [70, 1]]),
     )
   })
+  it('parses TABLESTYLE objects into a handle map', () => {
+    const dxf = `0
+SECTION
+2
+OBJECTS
+0
+TABLESTYLE
+5
+AA
+330
+BB
+100
+AcDbTableStyle
+3
+Standard
+0
+ENDSEC
+0
+EOF
+`
+    const parsed = parseString(dxf)
+    expect(parsed.objects).toBeDefined()
+    expect(parsed.objects.tableStyles).toBeDefined()
+    expect(parsed.objects.tableStyles.AA).toEqual({
+      type: 'TABLESTYLE',
+      handle: 'AA',
+      ownerHandle: 'BB',
+      name: 'Standard',
+      tuples: expect.any(Array),
+    })
+  })
+  it('parses GROUP objects into a handle map', () => {
+    const dxf = `0
+SECTION
+2
+OBJECTS
+0
+GROUP
+5
+CC
+330
+DD
+100
+AcDbGroup
+300
+My Group
+340
+E1
+340
+E2
+0
+ENDSEC
+0
+EOF
+`
+    const parsed = parseString(dxf)
+    expect(parsed.objects).toBeDefined()
+    expect(parsed.objects.groups).toBeDefined()
+    expect(parsed.objects.groups.CC).toEqual({
+      type: 'GROUP',
+      handle: 'CC',
+      ownerHandle: 'DD',
+      description: 'My Group',
+      entityHandles: ['E1', 'E2'],
+      tuples: expect.any(Array),
+    })
+  })
 })

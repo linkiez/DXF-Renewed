@@ -547,6 +547,37 @@ export interface FieldObject {
   tuples: DXFTuple[]
 }
 
+export interface TableStyleObject {
+  type: 'TABLESTYLE'
+  handle?: string | number
+
+  /** Soft-pointer ID/handle to the owning dictionary (when present). */
+  ownerHandle?: string | number
+
+  /** Table style name (group code 3). */
+  name?: string
+
+  /** Raw tuples for downstream consumers (excluding the initial 0/TABLESTYLE tuple). */
+  tuples: DXFTuple[]
+}
+
+export interface GroupObject {
+  type: 'GROUP'
+  handle?: string | number
+
+  /** Soft-pointer ID/handle to the owning dictionary (when present). */
+  ownerHandle?: string | number
+
+  /** Group description (group code 300). */
+  description?: string
+
+  /** Member entity handles (group code 340, repeated). */
+  entityHandles?: string[]
+
+  /** Raw tuples for downstream consumers (excluding the initial 0/GROUP tuple). */
+  tuples: DXFTuple[]
+}
+
 export interface ParsedObjects {
   /** Layout objects */
   layouts: LayoutInternal[]
@@ -571,4 +602,10 @@ export interface ParsedObjects {
 
   /** FIELD objects keyed by handle */
   fields?: Record<string, FieldObject>
+
+  /** TABLESTYLE objects keyed by handle */
+  tableStyles?: Record<string, TableStyleObject>
+
+  /** GROUP objects keyed by handle */
+  groups?: Record<string, GroupObject>
 }
