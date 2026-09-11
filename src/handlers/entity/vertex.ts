@@ -1,6 +1,7 @@
 import type { DXFTuple } from '../../types/dxf'
 
 import type { Vertex } from '../../types'
+import { assignPointCoordinate } from './point-fields'
 
 const TYPE = 'VERTEX'
 
@@ -16,16 +17,8 @@ const process = (tuples: DXFTuple[]): Vertex => {
   return tuples.reduce((entity, tuple) => {
     const type = tuple[0]
     const value = tuple[1]
+    if (assignPointCoordinate(entity, type, value)) return entity
     switch (type) {
-      case 10:
-        entity.x = value as number
-        break
-      case 20:
-        entity.y = value as number
-        break
-      case 30:
-        entity.z = value as number
-        break
       case 42:
         entity.bulge = value as number
         break
