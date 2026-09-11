@@ -1,6 +1,7 @@
 import type { DXFTuple, PartialPoint3D } from '../../types'
 
 import common from './common'
+import { assignSegmentCoordinate } from './segment-fields'
 
 const TYPE = 'RAY'
 
@@ -16,28 +17,8 @@ const process = (tuples: DXFTuple[]): RayEntity => {
     (entity, tuple) => {
       const type = tuple[0]
       const value = tuple[1]
-      switch (type) {
-        case 10:
-          entity.start.x = value as number
-          break
-        case 20:
-          entity.start.y = value as number
-          break
-        case 30:
-          entity.start.z = value as number
-          break
-        case 11:
-          entity.direction.x = value as number
-          break
-        case 21:
-          entity.direction.y = value as number
-          break
-        case 31:
-          entity.direction.z = value as number
-          break
-        default:
-          Object.assign(entity, common(type, value))
-          break
+      if (!assignSegmentCoordinate(entity.start, entity.direction, type, value)) {
+        Object.assign(entity, common(type, value))
       }
       return entity
     },
