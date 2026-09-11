@@ -1,6 +1,7 @@
 import type { DXFTuple } from '../../types/dxf'
 
 import common from './common'
+import { assignPointCoordinate } from './point-fields'
 
 const TYPE = 'CIRCLE'
 
@@ -19,22 +20,11 @@ const process = (tuples: DXFTuple[]): CircleEntity => {
     (entity, tuple) => {
       const type = tuple[0]
       const value = tuple[1]
-      switch (type) {
-        case 10:
-          entity.x = value as number
-          break
-        case 20:
-          entity.y = value as number
-          break
-        case 30:
-          entity.z = value as number
-          break
-        case 40:
-          entity.r = value as number
-          break
-        default:
-          Object.assign(entity, common(type, value))
-          break
+      if (assignPointCoordinate(entity, type, value)) return entity
+      if (type === 40) {
+        entity.r = value as number
+      } else {
+        Object.assign(entity, common(type, value))
       }
       return entity
     },
