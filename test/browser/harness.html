@@ -4,6 +4,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DXF-Renewed Browser Test Harness</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 10px;
+        background: white;
+      }
+      #render-output {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 600px;
+        border: 1px solid #ccc;
+      }
+      #render-output svg {
+        max-width: 100%;
+        max-height: 100%;
+        border: 1px solid #ddd;
+      }
+    </style>
   </head>
   <body>
     <div id="render-output"></div>
