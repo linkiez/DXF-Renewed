@@ -24,6 +24,8 @@ import type {
   LeaderEntity,
   MLineEntity,
   MTextEntity,
+  Ole2FrameEntity,
+  OleFrameEntity,
   ParsedDXF,
   PdfUnderlayEntity,
   ShapeEntity,
@@ -471,6 +473,39 @@ const mline = (entity: MLineEntity): BoundsAndElement | null => {
   return transformBoundingBoxAndElement(
     bbox,
     `<path d="M${start.x},${start.y}L${end.x},${end.y}" />`,
+    entity.transforms ?? [],
+  )
+}
+
+/**
+ * Placeholder for OLEFRAME / OLE2FRAME: draws the frame rectangle from the
+ * parsed corner points.
+ * ponytail: the payload is an embedded OLE object carried as 310 binary
+ * chunks; embedding it is out of scope. Upgrade: emit <image href> once the
+ * OLE object is extracted to a renderable asset.
+ */
+const oleFrame = (
+  entity: OleFrameEntity | Ole2FrameEntity,
+): BoundsAndElement | null => {
+  const x1 = Number(entity.upperLeftX)
+  const y1 = Number(entity.upperLeftY)
+  const x2 = Number(entity.lowerRightX)
+  const y2 = Number(entity.lowerRightY)
+
+  if (![x1, y1, x2, y2].every(Number.isFinite)) return null
+
+  const minX = Math.min(x1, x2)
+  const minY = Math.min(y1, y2)
+  const maxX = Math.max(x1, x2)
+  const maxY = Math.max(y1, y2)
+
+  const bbox = new Box2()
+    .expandByPoint({ x: minX, y: minY })
+    .expandByPoint({ x: maxX, y: maxY })
+
+  return transformBoundingBoxAndElement(
+    bbox,
+    `<path d="M${minX},${minY}L${maxX},${minY}L${maxX},${maxY}L${minX},${maxY}Z" fill="none" stroke-dasharray="6 3" />`,
     entity.transforms ?? [],
   )
 }
@@ -1021,6 +1056,10 @@ const entityToBoundsAndElement = (
       return underlay(
         entity as DwfUnderlayEntity | DgnUnderlayEntity | PdfUnderlayEntity,
       )
+    }
+    case 'OLEFRAME':
+    case 'OLE2FRAME': {
+      return oleFrame(entity as OleFrameEntity | Ole2FrameEntity)
     }
     default:
       logger.warn('entity type not supported in SVG rendering:', entity.type)

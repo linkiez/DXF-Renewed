@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('OLEFRAME', () => {
-  it('parses OLEFRAME entity and safely ignores rendering', () => {
+  it('parses OLEFRAME entity and renders a placeholder rectangle', () => {
     const dxfContent = `0
 SECTION
 2
@@ -35,20 +35,20 @@ ENDSEC
 0
 EOF`
     const parsed = parseString(dxfContent)
-    expect(parsed.entities.length).toEqual(1)
+    expect(parsed.entities).toHaveLength(1)
     const entity = parsed.entities[0]
     expect(entity.type).toEqual('OLEFRAME')
     expect(entity.handle).toEqual('OF1')
     expect(entity.layer).toEqual('0')
-    // Bounding box points (optional fields)
     expect(entity.upperLeftX).toEqual(1)
     expect(entity.upperLeftY).toEqual(2)
     expect(entity.lowerRightX).toEqual(11)
     expect(entity.lowerRightY).toEqual(22)
     const polylinesResult = toPolylines(parsed)
-    expect(polylinesResult.polylines.length).toEqual(1)
+    expect(polylinesResult.polylines).toHaveLength(1)
     expect(polylinesResult.polylines[0].vertices).toEqual([])
     const svg = toSVG(parsed)
-    expect(svg).toContain('<svg')
+    expect(svg).toContain('<path d="M1,2L11,2L11,22L1,22Z"')
+    expect(svg).not.toContain('not supported in SVG rendering')
   })
 })

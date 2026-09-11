@@ -13,6 +13,7 @@ import type { LineEntity } from './line-entity'
 import type { MLeaderEntity } from './mleader-entity'
 import type { MLineEntity } from './mline-entity'
 import type { MTextEntity } from './mtext-entity'
+import type { Ole2FrameEntity } from './ole2frame-entity'
 import type { OleFrameEntity } from './oleframe-entity'
 import type { PointEntity } from './point-entity'
 import type { PolylineEntity } from './polyline-entity'
@@ -55,6 +56,7 @@ export type Entity =
   | HatchEntity
   | BaseEntity
   | OleFrameEntity
+  | Ole2FrameEntity
   | RayEntity
   | RegionEntity
   | ShapeEntity
