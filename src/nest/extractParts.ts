@@ -33,6 +33,91 @@ const DEFAULT_EXTRACT_OPTIONS: Required<ExtractPartsOptions> = {
   mergeDistance: 1.0,
 }
 
+type ExtractedPolyline = {
+  vertices: [number, number][]
+  layer: string
+  color: [number, number, number]
+  type: string
+}
+
+const shouldSkipEntity = (
+  entity: ParsedDXF['entities'][number],
+  options: Required<ExtractPartsOptions>,
+): boolean => {
+  if (options.skipTypes.includes(entity.type)) return true
+  const layerName = (entity.layer ?? '0').toUpperCase()
+  return (
+    entity.visible === false ||
+    options.skipLayers.some((skip) => layerName.includes(skip.toUpperCase()))
+  )
+}
+
+const toExtractedPolyline = (
+  entity: ParsedDXF['entities'][number],
+  parsed: ParsedDXF,
+): ExtractedPolyline | undefined => {
+  try {
+    const rawVertices = entityToPolyline(entity as any)
+    const vertices = entity.transforms
+      ? applyTransforms(rawVertices, entity.transforms)
+      : rawVertices
+    if (vertices.length < 3) return undefined
+
+    const layer = entity.layer ?? '0'
+    const entityColor = 'colorNumber' in entity ? entity.colorNumber : undefined
+    const layerColor = parsed.tables?.layers?.[layer]?.colorNumber
+    let colorNumber = 0
+    if (typeof entityColor === 'number') colorNumber = entityColor
+    else if (typeof layerColor === 'number') colorNumber = layerColor
+
+    return {
+      vertices,
+      layer,
+      color: colors[colorNumber] ?? [0, 0, 0],
+      type: entity.type,
+    }
+  } catch {
+    return undefined
+  }
+}
+
+const toNestPart = (
+  polyline: ExtractedPolyline,
+  index: number,
+  minArea: number,
+): NestPart | undefined => {
+  const vertices = simplifyPolygon(polyline.vertices)
+  const area = polygonArea(vertices)
+  if (area < minArea) return undefined
+
+  return {
+    id: `part-${index}`,
+    layer: polyline.layer,
+    vertices,
+    holes: [],
+    color: polyline.color,
+    bbox: getBBox(vertices),
+    area,
+  }
+}
+
+const forEachTransformedPolyline = (
+  parsed: ParsedDXF,
+  callback: (vertices: [number, number][]) => void,
+): void => {
+  for (const entity of denormalise(parsed)) {
+    try {
+      const rawVertices = entityToPolyline(entity as any)
+      const vertices = entity.transforms
+        ? applyTransforms(rawVertices, entity.transforms)
+        : rawVertices
+      callback(vertices)
+    } catch {
+      continue
+    }
+  }
+}
+
 /**
  * Extract nestable parts from a parsed DXF.
  *
@@ -49,115 +134,31 @@ export function extractParts(
   const entities = denormalise(parsed)
 
   // 2. Filter entities
-  const filtered = entities.filter((entity) => {
-    // Skip by type
-    if (opts.skipTypes.includes(entity.type)) return false
-
-    // Skip by layer name (case-insensitive partial match)
-    const layerName = (entity.layer ?? '0').toUpperCase()
-    if (opts.skipLayers.some((skip) => layerName.includes(skip.toUpperCase()))) return false
-
-    // Skip invisible entities
-    if (entity.visible === false) return false
-
-    return true
-  })
+  const filtered = entities.filter((entity) => !shouldSkipEntity(entity, opts))
 
   // 3. Convert each entity to polyline
-  const polylines: {
-    vertices: [number, number][]
-    layer: string
-    color: [number, number, number]
-    type: string
-  }[] = []
-
-  for (const entity of filtered) {
-    try {
-      const rawVertices = entityToPolyline(entity as any)
-      const vertices = entity.transforms
-        ? applyTransforms(rawVertices, entity.transforms)
-        : rawVertices
-
-      if (vertices.length < 3) continue
-
-      // Get color
-      let colorNumber = 0
-      if ('colorNumber' in entity && typeof entity.colorNumber === 'number') {
-        colorNumber = entity.colorNumber
-      } else {
-        const layerTable = parsed.tables?.layers?.[entity.layer ?? '0']
-        if (layerTable && typeof layerTable.colorNumber === 'number') {
-          colorNumber = layerTable.colorNumber
-        }
-      }
-      const rgb = colors[colorNumber] ?? [0, 0, 0]
-
-      polylines.push({
-        vertices,
-        layer: entity.layer ?? '0',
-        color: rgb,
-        type: entity.type,
-      })
-    } catch {
-      // Skip entities that can't be converted
-      continue
-    }
-  }
+  const polylines = filtered.flatMap((entity) => {
+    const polyline = toExtractedPolyline(entity, parsed)
+    return polyline ? [polyline] : []
+  })
 
   // 4. Group by layer (if mergeByLayer)
   const parts: NestPart[] = []
-  let partIndex = 0
+  const sourcePolylines = opts.mergeByLayer
+    ? Array.from(
+        polylines.reduce((groups, polyline) => {
+          const group = groups.get(polyline.layer) ?? []
+          group.push(polyline)
+          groups.set(polyline.layer, group)
+          return groups
+        }, new Map<string, ExtractedPolyline[]>()),
+      ).flatMap(([, group]) => group)
+    : polylines
 
-  if (opts.mergeByLayer) {
-    const byLayer = new Map<string, typeof polylines>()
-    for (const pl of polylines) {
-      const list = byLayer.get(pl.layer) ?? []
-      list.push(pl)
-      byLayer.set(pl.layer, list)
-    }
-
-    for (const [layer, layerPolylines] of byLayer) {
-      // Each polyline in the layer becomes a separate part for now
-      // Future: implement contour detection to separate distinct parts
-      for (const pl of layerPolylines) {
-        const simplified = simplifyPolygon(pl.vertices)
-        const area = polygonArea(simplified)
-
-        if (area < opts.minArea) continue
-
-        const bbox = getBBox(simplified)
-
-        parts.push({
-          id: `part-${partIndex++}`,
-          layer,
-          vertices: simplified,
-          holes: [], // Hole detection in Phase 2
-          color: pl.color,
-          bbox,
-          area,
-        })
-      }
-    }
-  } else {
-    for (const pl of polylines) {
-      const simplified = simplifyPolygon(pl.vertices)
-      const area = polygonArea(simplified)
-
-      if (area < opts.minArea) continue
-
-      const bbox = getBBox(simplified)
-
-      parts.push({
-        id: `part-${partIndex++}`,
-        layer: pl.layer,
-        vertices: simplified,
-        holes: [],
-        color: pl.color,
-        bbox,
-        area,
-      })
-    }
-  }
+  sourcePolylines.forEach((polyline, index) => {
+    const part = toNestPart(polyline, index, opts.minArea)
+    if (part) parts.push(part)
+  })
 
   console.log(`[extractParts] Extracted ${parts.length} parts from ${filtered.length} entities`)
   return parts
@@ -184,27 +185,16 @@ export function autoDetectBin(
   parsed: ParsedDXF,
   marginPercent = 10
 ): { width: number; height: number } {
-  const entities = denormalise(parsed)
-
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
 
-  for (const entity of entities) {
-    try {
-      const vertices = entityToPolyline(entity as any)
-      const transformed = entity.transforms
-        ? applyTransforms(vertices, entity.transforms)
-        : vertices
-
-      for (const v of transformed) {
-        if (v[0] < minX) minX = v[0]
-        if (v[0] > maxX) maxX = v[0]
-        if (v[1] < minY) minY = v[1]
-        if (v[1] > maxY) maxY = v[1]
-      }
-    } catch {
-      continue
+  forEachTransformedPolyline(parsed, (vertices) => {
+    for (const [x, y] of vertices) {
+      if (x < minX) minX = x
+      if (x > maxX) maxX = x
+      if (y < minY) minY = y
+      if (y > maxY) maxY = y
     }
-  }
+  })
 
   if (minX === Infinity) return { width: 1000, height: 1000 }
 
