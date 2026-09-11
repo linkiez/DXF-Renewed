@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('TABLE (entity)', () => {
-  it('parses TABLE entity and safely ignores rendering', () => {
+  it('parses TABLE entity and renders extracted cell text', () => {
     const dxfContent = `0
 SECTION
 2
@@ -33,7 +33,7 @@ ENDSEC
 0
 EOF`
     const parsed = parseString(dxfContent)
-    expect(parsed.entities.length).toEqual(1)
+    expect(parsed.entities).toHaveLength(1)
     const entity = parsed.entities[0]
     expect(entity.type).toEqual('TABLE')
     expect(entity.handle).toEqual('T1')
@@ -43,9 +43,11 @@ EOF`
     expect(entity.columns).toEqual(3)
     expect(entity.cellText).toEqual(['CELL_1', 'CELL_2', 'CELL_3'])
     const polylinesResult = toPolylines(parsed)
-    expect(polylinesResult.polylines.length).toEqual(1)
+    expect(polylinesResult.polylines).toHaveLength(1)
     expect(polylinesResult.polylines[0].vertices).toEqual([])
     const svg = toSVG(parsed)
-    expect(svg).toContain('<svg')
+    expect(svg).toContain('<text')
+    expect(svg).toContain('CELL_1')
+    expect(svg).not.toContain('not supported in SVG rendering')
   })
 })

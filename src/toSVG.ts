@@ -31,6 +31,7 @@ import type {
   PdfUnderlayEntity,
   ShapeEntity,
   SplineEntity,
+  TableEntity,
   TextEntity,
   ToleranceEntity,
   ToSVGOptions,
@@ -467,6 +468,31 @@ const mleader = (entity: MLeaderEntity): BoundsAndElement => {
     .expandByPoint({ x, y })
     .expandByPoint({ x: x + textWidth, y: y + height })
   const element = `<text x="${x}" y="${y}" font-size="${height}" stroke="none" transform="scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`
+
+  return transformBoundingBoxAndElement(bbox, element, entity.transforms ?? [])
+}
+
+/**
+ * Minimal TABLE fallback: render extracted cell text as stacked SVG text.
+ * ponytail: TABLE cell geometry and TABLESTYLE formatting are not retained;
+ * preserve the parser's cell order until the full layout model exists.
+ */
+const table = (entity: TableEntity): BoundsAndElement | null => {
+  const cells = entity.cellText ?? []
+  if (cells.length === 0) return null
+
+  const height = 1
+  const lineHeight = height * 1.5
+  const width = Math.max(...cells.map((cell) => cell.length * 0.6), 0)
+  const bbox = new Box2()
+    .expandByPoint({ x: 0, y: 0 })
+    .expandByPoint({ x: width, y: cells.length * lineHeight })
+  const element = cells
+    .map(
+      (cell, index) =>
+        `<text x="0" y="${index * lineHeight}" font-size="${height}" stroke="none" transform="scale(1,-1) translate(0 0)">${escapeXmlText(cell)}</text>`,
+    )
+    .join('')
 
   return transformBoundingBoxAndElement(bbox, element, entity.transforms ?? [])
 }
@@ -1060,6 +1086,9 @@ const entityToBoundsAndElement = (
     }
     case 'MLEADER': {
       return mleader(entity as MLeaderEntity)
+    }
+    case 'TABLE': {
+      return table(entity as TableEntity)
     }
     case 'TOLERANCE': {
       return tolerance(entity as ToleranceEntity)
