@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.7.5 (2026-09-11)</small>
+
+* refactor(svg): share angular dimension text ([07bcbe9](https://github.com/linkiez/DXF-Renewed/commit/07bcbe9))
+* refactor(svg): share angular render state ([bb1b82b](https://github.com/linkiez/DXF-Renewed/commit/bb1b82b))
+* refactor(svg): share dimension marker creation ([88a0bc7](https://github.com/linkiez/DXF-Renewed/commit/88a0bc7))
+* refactor(svg): share dimension render assembly ([0b64c8a](https://github.com/linkiez/DXF-Renewed/commit/0b64c8a))
+* refactor(svg): share dimension render state ([9cb356c](https://github.com/linkiez/DXF-Renewed/commit/9cb356c))
+* refactor(svg): share radial dimension arrows ([b08011b](https://github.com/linkiez/DXF-Renewed/commit/b08011b))
+* refactor(svg): share radial dimension geometry ([da2046a](https://github.com/linkiez/DXF-Renewed/commit/da2046a))
+
 ## <small>7.7.4 (2026-09-11)</small>
 
 * fix(hatch): document stateful dispatch complexity ([9ebbf92](https://github.com/linkiez/DXF-Renewed/commit/9ebbf92))
