@@ -25,7 +25,7 @@ Last updated: 2026-09-10
 - M2 — TABLES Coverage (2D-Relevant): done (LAYER, LTYPE, STYLE, VPORT, DIMSTYLE plus APPID, BLOCK_RECORD, UCS, VIEW).
 - M3 — OBJECTS Coverage (2D-Relevant): done (LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions, TABLESTYLE, GROUP).
 - M4 — ENTITIES: Complete 2D Set: ongoing (POLYLINE/VERTEX/SEQEND sequencing hardened and covered by unit tests; HATCH solid-loop SVG rendering exists; remaining gaps are still centered on parse-only entities such as MLINE/REGION/TABLE entity and richer annotation/reference fidelity).
-- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
+- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; MLINE renders as an axis segment; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
 
 ## References
 
@@ -121,7 +121,7 @@ This list was generated based on the AutoCAD 2012 DXF reference documentation. I
 | **ATTRIB**     |     ✅      | An attribute instance attached to a block.                                                                                                         |
 | **OLE2FRAME**  |     ✅      | An OLE (Object Linking and Embedding) object.                                                                                                      |
 | **LEADER**     |     ✅      | A leader line, used for annotations.                                                                                                               |
-| **MLINE**      |     ❌      | A multi-line entity with parallel lines.                                                                                                           |
+| **MLINE**      |     ✅      | A multi-line entity with parallel lines (rendered as an axis segment).                                                                             |
 | **RAY**        |     ✅      | A semi-infinite line that extends infinitely in one direction from its start point.                                                                |
 | **SHAPE**      |     ✅      | A shape from a shape file (.shx).                                                                                                                  |
 | **TOLERANCE**  |     ✅      | A geometric tolerance (feature control frame).                                                                                                     |
@@ -249,7 +249,7 @@ This section is intentionally short; it highlights gaps relevant to the migratio
 Entity parsers currently exist for (see `src/handlers/entities.ts` and `src/handlers/entity/*`):
 
 - Implemented: ARC, ATTDEF, ATTRIB, CIRCLE, DIMENSION, DGNUNDERLAY, DWFUNDERLAY, PDFUNDERLAY, ELLIPSE, HATCH, IMAGE, INSERT, LEADER, LINE, LWPOLYLINE, MLEADER, MLINE, MTEXT, OLE2FRAME, OLEFRAME, POINT, POLYLINE, RAY, REGION, SHAPE, SOLID, SPLINE, TABLE, TEXT, TOLERANCE, TRACE, WIPEOUT, XLINE, 3DFACE, VERTEX, VIEWPORT.
-- Missing (not exhaustive): none for the 2D set; remaining work is render parity for parse-only entities (MLEADER, MLINE, REGION, TABLE entity, OLEFRAME).
+- Missing (not exhaustive): none for the 2D set; remaining work is render parity for parse-only entities (MLEADER, REGION, TABLE entity, OLEFRAME).
 
 ### Tables
 
@@ -567,7 +567,7 @@ The items below are the main gaps to reach “complete 2D” as defined in this 
 | REGION         | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
 | TABLE (entity) | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
 | SHAPE          | Yes           | Yes                                  | Yes                | No         | Implemented (minimal polyline + SVG text fallback)                                                                                                                              |
-| MLINE          | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
+| MLINE          | Yes           | Yes (axis segment)                   | No                 | No         | Implemented (axis segment between start point and last parsed vertex; multi-vertex collapse and MLINESTYLE offsets remain future work)                                       |
 
 ### A.2 Tables (2D-relevant)
 
@@ -654,7 +654,7 @@ This table expands Appendix A into explicit PR steps.
 | REGION         | Done (parse-only)                                               | Safe ignore first                             | Safe ignore      | N/A                                               |
 | TABLE (entity) | Done (parse-only)                                               | Safe ignore/placeholder                       | N/A              | Optional                                          |
 | SHAPE          | Done                                                            | Done (text fallback)                          | Done             | N/A                                               |
-| MLINE          | Done (parse-only)                                               | Safe ignore first                             | N/A              | N/A                                               |
+| MLINE          | Done                                                            | Done (axis segment)                           | N/A              | N/A                                               |
 
 ### B.4 Concrete PR checklist for missing tables
 
