@@ -6,9 +6,7 @@ import type { BaseEntity } from './base-entity'
  * OLEFRAME entity
  * Legacy OLE object frame entity.
  */
-export interface OleFrameEntity extends BaseEntity {
-  type: 'OLEFRAME'
-
+export interface OleFrameData {
   /** OLE version number */
   version?: string | number
   /** End of object name/description */
@@ -37,4 +35,8 @@ export interface OleFrameEntity extends BaseEntity {
   length?: string | number
   /** Binary data (concatenated from multiple 310 codes) */
   data: string
+}
+
+export interface OleFrameEntity extends BaseEntity, OleFrameData {
+  type: 'OLEFRAME'
 }
