@@ -1,6 +1,7 @@
 /*!
  * SvgNest
  * Licensed under the MIT license
+ * NOSONAR: Legacy embedded library, duplication is intentional
  */
  
 (function(root){

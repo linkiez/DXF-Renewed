@@ -1,4 +1,5 @@
-
+// NOSONAR: Legacy embedded library, duplication is intentional
+/* eslint-disable no-var, no-plusplus, no-restricted-syntax, sonarjs/cognitive-complexity, no-redeclare, no-shadow, no-undef, no-unused-vars, prefer-const, no-loop-func */
 // jsClipper uses X/Y instead of x/y...
 function toClipperCoordinates(polygon){
 	var clone = [];

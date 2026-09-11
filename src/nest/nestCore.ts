@@ -5,6 +5,7 @@
 // Pré-computa NFPs e roda o placement direto, contornando WebWorkers.
 // Suporta multi-bin: peças que não cabem vão para bins adicionais.
 
+import { randomInt } from 'node:crypto'
 import type { NestPart, NestPlacement, NestOptions } from './types'
 import { loadSvgNest } from './svgnest-loader'
 
@@ -13,8 +14,7 @@ import { loadSvgNest } from './svgnest-loader'
 function shuffleArray<T>(array: T[]): T[] {
   const result = array.slice(0)
   for (let i = result.length - 1; i > 0; i--) {
-    // eslint-disable-next-line security/detect-unsafe-regex
-    const j = Math.floor(Math.random() * (i + 1))
+    const j = randomInt(0, i + 1)
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return result
@@ -465,10 +465,8 @@ function runPlacementIteration(
   const iterParts = createIterationParts(iter, svgParts, parts)
 
   // Assign random rotations
-  // ponytail: Math.random() acceptable for GA; upgrade to crypto.getRandomValues if needed
-  // eslint-disable-next-line security/detect-unsafe-regex
   const iterRotations = iterParts.map(() => {
-    return rotationAngles[Math.floor(Math.random() * rotationAngles.length)]
+    return rotationAngles[randomInt(0, rotationAngles.length)]
   })
 
   iterParts.forEach((part, idx) => {

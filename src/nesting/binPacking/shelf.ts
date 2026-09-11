@@ -9,6 +9,7 @@ import type {
   Placement,
   BoundingBox,
 } from '../types'
+import { packMultiSheet } from './multiSheetPacker'
 
 interface ShelfItem {
   x: number
@@ -133,26 +134,7 @@ export function shelfPack(
   sheetPlacements: Placement[][]
   unplaced: NestableShape[]
 } {
-  const allPlacements: Placement[][] = []
-  let remaining = shapes
-
-  const maxIterations = maxSheets > 0 ? maxSheets : 100
-
-  for (let i = 0; i < maxIterations; i++) {
-    if (remaining.length === 0) break
-
-    const startCount = remaining.length
-    const result = packSingleSheet(remaining, sheetWidth, sheetHeight, margin, kerf)
-    allPlacements.push(result.placements)
-
-    remaining = result.unplaced
-
-    if (remaining.length === 0) break
-    if (remaining.length >= startCount) break
-  }
-
-  return {
-    sheetPlacements: allPlacements,
-    unplaced: remaining,
-  }
+  return packMultiSheet(shapes, maxSheets, (remaining) =>
+    packSingleSheet(remaining, sheetWidth, sheetHeight, margin, kerf),
+  )
 }

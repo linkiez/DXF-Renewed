@@ -1,6 +1,7 @@
 import type { DXFTuple, PartialPoint3D } from '../../types'
 
 import common from './common'
+import { parse3DPoint } from './entityHandlerUtils'
 
 const TYPE = 'IMAGE'
 
@@ -33,39 +34,18 @@ const process = (tuples: DXFTuple[]): ImageEntity => {
       const type = tuple[0]
       const value = tuple[1]
 
+      // Try 3D point parsing first
+      if (
+        parse3DPoint(type, value, entity, 'insertionPoint') ||
+        parse3DPoint(type, value, entity, 'uVector') ||
+        parse3DPoint(type, value, entity, 'vVector')
+      ) {
+        return entity
+      }
+
       switch (type) {
         case 90:
           entity.classVersion = value as number
-          break
-
-        case 10:
-          entity.insertionPoint.x = value as number
-          break
-        case 20:
-          entity.insertionPoint.y = value as number
-          break
-        case 30:
-          entity.insertionPoint.z = value as number
-          break
-
-        case 11:
-          entity.uVector.x = value as number
-          break
-        case 21:
-          entity.uVector.y = value as number
-          break
-        case 31:
-          entity.uVector.z = value as number
-          break
-
-        case 12:
-          entity.vVector.x = value as number
-          break
-        case 22:
-          entity.vVector.y = value as number
-          break
-        case 32:
-          entity.vVector.z = value as number
           break
 
         case 13:

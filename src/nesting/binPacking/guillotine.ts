@@ -6,6 +6,7 @@
  */
 
 import type { NestableShape, Placement, FreeRect, BoundingBox } from '../types'
+import { packMultiSheet } from './multiSheetPacker'
 
 interface ShapeInfo {
   shape: NestableShape
@@ -194,36 +195,12 @@ export function guillotinePack(
     rotation: 0,
   }))
 
-  const allPlacements: Placement[][] = []
-  let remaining = shapeInfos
-
-  const maxIterations = maxSheets > 0 ? maxSheets : 100
-
-  for (let i = 0; i < maxIterations; i++) {
-    if (remaining.length === 0) break
-
-    const startCount = remaining.length
-    const result = packSingleSheet(
-      remaining,
-      sheetWidth,
-      sheetHeight,
-      margin,
-      kerf,
-    )
-    allPlacements.push(result.placements)
-
-    // Update remaining BEFORE break checks
-    remaining = result.unplaced
-
-    if (remaining.length === 0) break
-    if (remaining.length >= startCount) {
-      // No progress on this sheet
-      break
-    }
-  }
+  const result = packMultiSheet(shapeInfos, maxSheets, (remaining) =>
+    packSingleSheet(remaining, sheetWidth, sheetHeight, margin, kerf),
+  )
 
   return {
-    sheetPlacements: allPlacements,
-    unplaced: remaining.map((s) => s.shape),
+    sheetPlacements: result.sheetPlacements,
+    unplaced: result.unplaced.map((s) => s.shape),
   }
 }

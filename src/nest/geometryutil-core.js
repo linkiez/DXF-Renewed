@@ -2,6 +2,7 @@
  * General purpose geometry functions for polygon/Bezier calculations
  * Copyright 2015 Jack Qiao
  * Licensed under the MIT license
+ * NOSONAR: Legacy embedded library, duplication is intentional
  */
 
 (function(root){

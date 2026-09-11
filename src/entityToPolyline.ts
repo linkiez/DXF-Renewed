@@ -166,33 +166,47 @@ export const interpolateBSpline = (
   return polyline
 }
 
-export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => {
-  // NOSONAR
+const parseFace = (
+  faceIndices: number[],
+): { indices: number[]; hiddens: boolean[] } | null => {
+  const indices: number[] = []
+  const hiddens: boolean[] = []
+
+  for (const i of faceIndices) {
+    if (i === 0) break
+    indices.push(i < 0 ? -i - 1 : i - 1)
+    hiddens.push(i < 0)
+  }
+
+  return [3, 4].includes(indices.length) ? { indices, hiddens } : null
+}
+
+const extractFacesAndVertices = (
+  entity: LocalPolylineEntity,
+): {
+  vertices: Array<{ x: number; y: number }>
+  faces: Array<{ indices: number[]; hiddens: boolean[] }>
+} => {
   const vertices: Array<{ x: number; y: number }> = []
   const faces: Array<{ indices: number[]; hiddens: boolean[] }> = []
 
   for (const v of entity.vertices) {
     if (v.faces) {
-      const face: { indices: number[]; hiddens: boolean[] } = {
-        indices: [],
-        hiddens: [],
-      }
-      for (const i of v.faces) {
-        if (i === 0) {
-          break
-        }
-        // Negative indices signify hidden edges
-        face.indices.push(i < 0 ? -i - 1 : i - 1)
-        face.hiddens.push(i < 0)
-      }
-      if ([3, 4].includes(face.indices.length)) faces.push(face)
+      const face = parseFace(v.faces)
+      if (face) faces.push(face)
     } else {
       vertices.push({ x: v.x, y: v.y })
     }
   }
 
-  // If a segment starts at the end of a previous line, continue it
+  return { vertices, faces }
+}
+
+const buildPolylines = (
+  faces: Array<{ indices: number[]; hiddens: boolean[] }>,
+): number[][] => {
   const polylines: number[][] = []
+
   const segment = (a: number, b: number): void => {
     for (const prev of polylines) {
       if (prev.slice(-1)[0] === a) {
@@ -205,16 +219,16 @@ export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => {
 
   for (const face of faces) {
     for (let beg = 0; beg < face.indices.length; beg++) {
-      if (face.hiddens[beg]) {
-        continue
-      }
+      if (face.hiddens[beg]) continue
       const end = (beg + 1) % face.indices.length
       segment(face.indices[beg], face.indices[end])
     }
   }
 
-  // Sometimes segments are not sequential, in that case
-  // we need to find if they can mend gaps between others
+  return polylines
+}
+
+const mergePolylines = (polylines: number[][]): void => {
   for (const a of polylines) {
     for (const b of polylines) {
       if (a !== b && a[0] === b.slice(-1)[0]) {
@@ -224,6 +238,13 @@ export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => {
       }
     }
   }
+}
+
+export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => {
+  // NOSONAR
+  const { vertices, faces } = extractFacesAndVertices(entity)
+  const polylines = buildPolylines(faces)
+  mergePolylines(polylines)
 
   return polylines
     .filter((l) => l.length)
