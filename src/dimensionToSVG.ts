@@ -478,22 +478,11 @@ function renderAngular3PointDimension(
   options?: ToSVGOptions,
   viewport?: DimensionViewport,
 ): BoundsAndElement {
-  const bbox = new Box2()
-  const elements: string[] = []
-  const markers: string[] = []
-
-  const { arrowSize, textHeight } = getScaledDimensionSizes(
+  const { bbox, elements, markers, arrowSize, textHeight, dimLineColor, extLineColor, textColor, dimLineWeight, extLineWeight } = createDimensionRenderState(
     dimStyle,
     options,
     viewport,
   )
-  const {
-    dimLineColor,
-    extLineColor,
-    textColor,
-    dimLineWeight,
-    extLineWeight,
-  } = getDimensionColors(dimStyle, options, viewport)
 
   const vertexX = entity.angleVertex?.x ?? 0
   const vertexY = entity.angleVertex?.y ?? 0
@@ -729,23 +718,11 @@ function renderAngularDimension(
   options?: ToSVGOptions,
   viewport?: DimensionViewport,
 ): BoundsAndElement {
-  const bbox = new Box2()
-  const elements: string[] = []
-  const markers: string[] = []
-
-  // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight } = getScaledDimensionSizes(
+  const { bbox, elements, markers, arrowSize, textHeight, dimLineColor, extLineColor, textColor, dimLineWeight, extLineWeight } = createDimensionRenderState(
     dimStyle,
     options,
     viewport,
   )
-  const {
-    dimLineColor,
-    extLineColor,
-    textColor,
-    dimLineWeight,
-    extLineWeight,
-  } = getDimensionColors(dimStyle, options, viewport)
 
   // Extract points
   const centerX = entity.start?.x ?? 0
