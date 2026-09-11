@@ -300,6 +300,21 @@ const appendRadialArrow = (
   expandBBoxForMarker(bbox, x2, y2, size)
 }
 
+const appendDimensionMarkers = (
+  markers: string[],
+  size: number,
+  color: string,
+  prefix: string,
+): [string, string] => {
+  const markerId1 = `dim-${prefix}-start-${Date.now()}`
+  const markerId2 = `dim-${prefix}-end-${Date.now()}`
+  markers.push(
+    createArrowMarker(markerId1, size, color, 'backward'),
+    createArrowMarker(markerId2, size, color, 'forward'),
+  )
+  return [markerId1, markerId2]
+}
+
 /**
  * Convert DXF color number to SVG color string
  */
@@ -620,13 +635,11 @@ function renderLinearDimension(
   bbox.expandByPoint({ x: textX, y: textY })
 
   // Create unique marker IDs for arrows
-  const markerId1 = `dim-arrow-start-${Date.now()}`
-  const markerId2 = `dim-arrow-end-${Date.now()}`
-
-  // Create arrow markers with dimension line color
-  markers.push(
-    createArrowMarker(markerId1, arrowSize, dimLineColor, 'backward'),
-    createArrowMarker(markerId2, arrowSize, dimLineColor, 'forward'),
+  const [markerId1, markerId2] = appendDimensionMarkers(
+    markers,
+    arrowSize,
+    dimLineColor,
+    'arrow',
   )
 
   // Draw extension lines
@@ -714,11 +727,11 @@ function renderAngularDimension(
   bbox.expandByPoint({ x: textX, y: textY })
 
   // Create arrow markers
-  const markerId1 = `dim-angular-arrow-start-${Date.now()}`
-  const markerId2 = `dim-angular-arrow-end-${Date.now()}`
-  markers.push(
-    createArrowMarker(markerId1, arrowSize, dimLineColor, 'backward'),
-    createArrowMarker(markerId2, arrowSize, dimLineColor, 'forward'),
+  const [markerId1, markerId2] = appendDimensionMarkers(
+    markers,
+    arrowSize,
+    dimLineColor,
+    'angular-arrow',
   )
 
   // Draw extension lines from center to definition points
