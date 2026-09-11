@@ -14,13 +14,17 @@ import transformBoundingBoxAndElement from './util/transformBoundingBoxAndElemen
 import type {
   ArcEntity,
   CircleEntity,
+  DgnUnderlayEntity,
   DimensionEntity,
+  DwfUnderlayEntity,
   EllipseEntity,
   Entity,
   HatchEntity,
+  ImageEntity,
   LeaderEntity,
   MTextEntity,
   ParsedDXF,
+  PdfUnderlayEntity,
   ShapeEntity,
   SplineEntity,
   TextEntity,
@@ -759,6 +763,92 @@ const shape = (entity: ShapeEntity): BoundsAndElement => {
 }
 
 /**
+ * Placeholder for IMAGE: draws the raster extent quad derived from the
+ * insertion point and the U/V single-pixel vectors.
+ * ponytail: no bitmap embedded and no clipping boundary; add <image href>
+ * plus a clipPath once IMAGEDEF fileName resolution reaches the renderer.
+ */
+const image = (entity: ImageEntity): BoundsAndElement | null => {
+  const insert = {
+    x: entity.insertionPoint?.x ?? 0,
+    y: entity.insertionPoint?.y ?? 0,
+  }
+  const spanX = entity.pixelSizeX || 0
+  const spanY = entity.pixelSizeY || 0
+
+  if (spanX === 0 && spanY === 0) return null
+
+  const u = {
+    x: (entity.uVector?.x ?? 0) * spanX,
+    y: (entity.uVector?.y ?? 0) * spanX,
+  }
+  const v = {
+    x: (entity.vVector?.x ?? 0) * spanY,
+    y: (entity.vVector?.y ?? 0) * spanY,
+  }
+
+  const p1 = { x: insert.x + u.x, y: insert.y + u.y }
+  const p2 = { x: insert.x + u.x + v.x, y: insert.y + u.y + v.y }
+  const p3 = { x: insert.x + v.x, y: insert.y + v.y }
+
+  const d = `M ${insert.x} ${insert.y} L ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y} Z`
+  const bbox = new Box2()
+    .expandByPoint(insert)
+    .expandByPoint(p1)
+    .expandByPoint(p2)
+    .expandByPoint(p3)
+
+  return transformBoundingBoxAndElement(
+    bbox,
+    `<path d="${d}" fill="none" stroke-dasharray="2 2" />`,
+    entity.transforms ?? [],
+  )
+}
+
+/**
+ * Placeholder for DWF/DGN/PDF UNDERLAY: draws a dashed unit-square quad
+ * scaled and rotated per the entity, anchored at its insertion point.
+ * ponytail: the real extent lives in the external file, which is not read;
+ * swap for definition extents once UNDERLAYDEFINITION carries them.
+ */
+const underlay = (
+  entity: DwfUnderlayEntity | DgnUnderlayEntity | PdfUnderlayEntity,
+): BoundsAndElement | null => {
+  const x = entity.insertionPoint?.x ?? 0
+  const y = entity.insertionPoint?.y ?? 0
+  const scaleX = entity.scale?.x ?? 1
+  const scaleY = entity.scale?.y ?? 1
+
+  if (scaleX === 0 || scaleY === 0) return null
+
+  const rotation = ((entity.rotation ?? 0) * Math.PI) / 180
+  const cos = Math.cos(rotation)
+  const sin = Math.sin(rotation)
+
+  const corner = (u: number, v: number) => ({
+    x: x + u * scaleX * cos - v * scaleY * sin,
+    y: y + u * scaleX * sin + v * scaleY * cos,
+  })
+
+  const p1 = corner(1, 0)
+  const p2 = corner(1, 1)
+  const p3 = corner(0, 1)
+
+  const d = `M ${x} ${y} L ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y} Z`
+  const bbox = new Box2()
+    .expandByPoint({ x, y })
+    .expandByPoint(p1)
+    .expandByPoint(p2)
+    .expandByPoint(p3)
+
+  return transformBoundingBoxAndElement(
+    bbox,
+    `<path d="${d}" fill="none" stroke-dasharray="4 2" />`,
+    entity.transforms ?? [],
+  )
+}
+
+/**
  * Create dimension visualization with DIMSTYLE support
  */
 const dimension = (
@@ -891,6 +981,16 @@ const entityToBoundsAndElement = (
     }
     case 'HATCH': {
       return hatch(entity as HatchEntity)
+    }
+    case 'IMAGE': {
+      return image(entity as ImageEntity)
+    }
+    case 'DWFUNDERLAY':
+    case 'DGNUNDERLAY':
+    case 'PDFUNDERLAY': {
+      return underlay(
+        entity as DwfUnderlayEntity | DgnUnderlayEntity | PdfUnderlayEntity,
+      )
     }
     default:
       logger.warn('entity type not supported in SVG rendering:', entity.type)

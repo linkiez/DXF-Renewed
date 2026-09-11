@@ -1,15 +1,15 @@
 import expect from 'expect'
 import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
-import { parseString } from '../../src'
+import { parseString, toSVG } from '../../src'
 describe('UNDERLAY', () => {
-  it('parses DWFUNDERLAY entity and UNDERLAYDEFINITION object', () => {
+  it('parses PDFUNDERLAY entity and UNDERLAYDEFINITION object', () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'underlay-basic.dxf'),
       'utf-8',
     )
     const parsed = parseString(contents)
-    expect(parsed.entities.length).toEqual(1)
+    expect(parsed.entities).toHaveLength(1)
     const entity = parsed.entities[0]
     expect(entity.type).toEqual('PDFUNDERLAY')
     expect(entity.handle).toBeDefined()
@@ -24,5 +24,16 @@ describe('UNDERLAY', () => {
     expect(def).toBeDefined()
     expect(def.fileName).toEqual('file.pdf')
     expect(def.underlayName).toEqual('U1')
+  })
+  it('renders as a dashed placeholder quad in SVG', () => {
+    const contents = fs.readFileSync(
+      getResourcePath(import.meta.url, 'underlay-basic.dxf'),
+      'utf-8',
+    )
+    const parsed = parseString(contents)
+    const svg = toSVG(parsed)
+    expect(svg).toContain('<path')
+    expect(svg).toContain('stroke-dasharray')
+    expect(svg).not.toContain('not supported in SVG rendering')
   })
 })

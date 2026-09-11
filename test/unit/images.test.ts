@@ -1,7 +1,7 @@
 import expect from 'expect'
 import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
-import { parseString } from '../../src'
+import { parseString, toSVG } from '../../src'
 describe('IMAGE', () => {
   it('can be parsed', () => {
     const contents = fs.readFileSync(
@@ -10,7 +10,7 @@ describe('IMAGE', () => {
     )
     const parsed = parseString(contents)
     expect(parsed.entities).toBeDefined()
-    expect(parsed.entities.length).toEqual(1)
+    expect(parsed.entities).toHaveLength(1)
     const image = parsed.entities[0]
     expect(image.type).toEqual('IMAGE')
     expect(image.handle).toBeDefined()
@@ -26,5 +26,16 @@ describe('IMAGE', () => {
     expect(String(image.imageDefHandle)).toMatch(/^[0-9A-F]+$/i)
     expect(image.imageDefReactorHandle).toBeDefined()
     expect(String(image.imageDefReactorHandle)).toMatch(/^[0-9A-F]+$/i)
+  })
+  it('renders as a dashed extent quad in SVG', () => {
+    const contents = fs.readFileSync(
+      getResourcePath(import.meta.url, 'image-basic.dxf'),
+      'utf-8',
+    )
+    const parsed = parseString(contents)
+    const svg = toSVG(parsed)
+    expect(svg).toContain('<path')
+    expect(svg).toContain('stroke-dasharray')
+    expect(svg).not.toContain('not supported in SVG rendering: IMAGE')
   })
 })

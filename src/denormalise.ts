@@ -9,6 +9,7 @@ import type {
     DimensionEntity,
     EllipseEntity,
     Entity,
+    ImageEntity,
     InsertEntity,
     LineEntity,
     MTextEntity,
@@ -89,6 +90,12 @@ function adjustDimensionForBlockBasePoint(entity: Entity, block: Block): void {
   dim.measureEnd.y -= block.y
 }
 
+function adjustImageForBlockBasePoint(entity: Entity, block: Block): void {
+  const image = entity as ImageEntity
+  image.insertionPoint.x -= block.x
+  image.insertionPoint.y -= block.y
+}
+
 const BLOCK_BASEPOINT_ADJUSTERS: Record<string, BlockBasePointAdjuster> = {
   LINE: adjustLineForBlockBasePoint,
   LWPOLYLINE: adjustPolylineForBlockBasePoint,
@@ -100,6 +107,7 @@ const BLOCK_BASEPOINT_ADJUSTERS: Record<string, BlockBasePointAdjuster> = {
   TEXT: adjustTextForBlockBasePoint,
   MTEXT: adjustMTextForBlockBasePoint,
   DIMENSION: adjustDimensionForBlockBasePoint,
+  IMAGE: adjustImageForBlockBasePoint,
 }
 
 function applyBlockBasePointAdjustment(entity: Entity, block: Block): void {
