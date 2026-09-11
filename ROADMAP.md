@@ -24,8 +24,8 @@ Last updated: 2026-09-10
 - M1 — DXF Format & Section-Level Compliance: ongoing (incremental hardening as fixtures demand).
 - M2 — TABLES Coverage (2D-Relevant): done (LAYER, LTYPE, STYLE, VPORT, DIMSTYLE plus APPID, BLOCK_RECORD, UCS, VIEW).
 - M3 — OBJECTS Coverage (2D-Relevant): done (LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions, TABLESTYLE, GROUP).
-- M4 — ENTITIES: Complete 2D Set: ongoing (POLYLINE/VERTEX/SEQEND sequencing hardened and covered by unit tests; HATCH solid-loop SVG rendering exists; remaining gaps are still centered on parse-only entities such as MLINE/REGION/TABLE entity and richer annotation/reference fidelity).
-- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; MLINE renders as an axis segment; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
+- M4 — ENTITIES: Complete 2D Set: ongoing (POLYLINE/VERTEX/SEQEND sequencing hardened and covered by unit tests; HATCH solid-loop SVG rendering exists; remaining gaps are still centered on parse-only entities such as MLEADER/REGION/TABLE entity and richer annotation/reference fidelity).
+- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; MLINE renders as an axis segment; OLEFRAME/OLE2FRAME render as dashed placeholder rectangles; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
 
 ## References
 
@@ -249,7 +249,7 @@ This section is intentionally short; it highlights gaps relevant to the migratio
 Entity parsers currently exist for (see `src/handlers/entities.ts` and `src/handlers/entity/*`):
 
 - Implemented: ARC, ATTDEF, ATTRIB, CIRCLE, DIMENSION, DGNUNDERLAY, DWFUNDERLAY, PDFUNDERLAY, ELLIPSE, HATCH, IMAGE, INSERT, LEADER, LINE, LWPOLYLINE, MLEADER, MLINE, MTEXT, OLE2FRAME, OLEFRAME, POINT, POLYLINE, RAY, REGION, SHAPE, SOLID, SPLINE, TABLE, TEXT, TOLERANCE, TRACE, WIPEOUT, XLINE, 3DFACE, VERTEX, VIEWPORT.
-- Missing (not exhaustive): none for the 2D set; remaining work is render parity for parse-only entities (MLEADER, REGION, TABLE entity, OLEFRAME).
+- Missing (not exhaustive): none for the 2D set; remaining work is render parity for parse-only entities (MLEADER, REGION, TABLE entity).
 
 ### Tables
 
@@ -346,7 +346,7 @@ The project has two rendering outputs:
 | SOLID       | Yes           | No                                              | No                               | No                               |
 | POINT       | Yes           | No                                              | No                               | No                               |
 | VIEWPORT    | Yes           | No                                              | No                               | No                               |
-| OLE2FRAME   | Yes           | No                                              | No                               | No                               |
+| OLE2FRAME   | Yes           | Yes (placeholder rectangle)                     | No                               | No                               |
 | 3DFACE      | Yes           | No                                              | No                               | No                               |
 
 **Key implication:** adding “complete 2D” is not only about parsing more entity types; it requires expanding rendering support in `src/toSVG.ts` and `src/entityToPolyline.ts` and ensuring `src/denormalise.ts` adjusts block-contained entities consistently.
@@ -546,7 +546,7 @@ Legend:
 
 Already parsed (handlers exist): LINE, LWPOLYLINE, POLYLINE, ARC, CIRCLE, ELLIPSE, SPLINE, TEXT, MTEXT, DIMENSION, INSERT, ATTDEF, ATTRIB, HATCH, SOLID, TRACE, POINT, VIEWPORT, OLE2FRAME, LEADER, RAY, XLINE, SHAPE, TOLERANCE, WIPEOUT.
 
-Also parsed (parse-only / safe ignore): MLEADER, MLINE, OLEFRAME, REGION, TABLE (entity).
+Also parsed (parse-only / safe ignore): MLEADER, REGION, TABLE (entity).
 
 The items below are the main gaps to reach “complete 2D” as defined in this plan.
 
@@ -562,7 +562,8 @@ The items below are the main gaps to reach “complete 2D” as defined in this 
 | WIPEOUT        | Yes           | Yes                                  | Yes                | No         | Implemented (outline-only; masking not yet implemented)                                                                                                                         |
 | RAY            | Yes           | Yes                                  | Yes                | No         | Implemented (finite fallback in polyline/SVG)                                                                                                                                   |
 | XLINE          | Yes           | Yes                                  | Yes                | No         | Implemented (finite fallback in polyline/SVG)                                                                                                                                   |
-| OLEFRAME       | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
+| OLEFRAME       | Yes           | Yes (placeholder rectangle)          | No                 | No         | Implemented (frame rectangle from parsed corner points; embedded OLE payload is not rendered)                                                                                   |
+| OLE2FRAME      | Yes           | Yes (placeholder rectangle)          | No                 | No         | Implemented (frame rectangle from parsed corner points; embedded OLE payload is not rendered)                                                                                   |
 | TRACE          | Yes           | Yes                                  | Yes                | No         | Implemented (filled SVG + closed polyline)                                                                                                                                      |
 | REGION         | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
 | TABLE (entity) | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
@@ -649,7 +650,8 @@ This table expands Appendix A into explicit PR steps.
 | WIPEOUT        | Done                                                            | Done (outline-only fallback)                  | Done             | Optional                                          |
 | RAY            | Done                                                            | Done                                          | Done             | Optional                                          |
 | XLINE          | Done                                                            | Done                                          | Done             | Optional                                          |
-| OLEFRAME       | Done                                                            | Placeholder or safe ignore                    | N/A              | Optional                                          |
+| OLEFRAME       | Done                                                            | Done (placeholder rectangle)                  | N/A              | Optional                                          |
+| OLE2FRAME      | Done                                                            | Done (placeholder rectangle)                  | N/A              | Optional                                          |
 | TRACE          | Done                                                            | Done                                          | Done             | Optional                                          |
 | REGION         | Done (parse-only)                                               | Safe ignore first                             | Safe ignore      | N/A                                               |
 | TABLE (entity) | Done (parse-only)                                               | Safe ignore/placeholder                       | N/A              | Optional                                          |
