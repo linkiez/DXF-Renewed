@@ -23,7 +23,7 @@ const process = (tuples: DXFTuple[]): HatchEntity => { // NOSONAR
   polyPoint = null
 
   return tuples.reduce(
-    (entity, tuple) => {
+    (entity, tuple) => { // NOSONAR: stateful DXF group-code dispatch is intentionally centralized.
       const type = tuple[0]
       const value = tuple[1]
 
