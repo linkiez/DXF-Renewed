@@ -18,14 +18,14 @@ This document describes a phased plan to align this project’s DXF parsing beha
 
 ## Progress
 
-Last updated: 2026-09-10
+Last updated: 2026-09-11
 
-- M0 — Baseline & Regression Harness: done (existing unit + integration coverage is in place).
+- M0 — Baseline & Regression Harness: done (142 unit tests + 25 browser integration tests passing).
 - M1 — DXF Format & Section-Level Compliance: ongoing (incremental hardening as fixtures demand).
 - M2 — TABLES Coverage (2D-Relevant): done (LAYER, LTYPE, STYLE, VPORT, DIMSTYLE plus APPID, BLOCK_RECORD, UCS, VIEW).
 - M3 — OBJECTS Coverage (2D-Relevant): done (LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions, TABLESTYLE, GROUP).
-- M4 — ENTITIES: Complete 2D Set: ongoing (POLYLINE/VERTEX/SEQEND sequencing hardened and covered by unit tests; HATCH solid-loop SVG rendering exists; MLEADER and TABLE now have text fallbacks; remaining gaps are centered on REGION and richer annotation/reference fidelity).
-- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; MLINE renders as an axis segment; MLEADER renders extracted text at its insertion point; OLEFRAME/OLE2FRAME render as dashed placeholder rectangles; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
+- M4 — ENTITIES: Complete 2D Set: done (all 2D entities parsed; POLYLINE/VERTEX/SEQEND sequencing hardened; HATCH solid-loop SVG rendering; MLEADER/TABLE text fallbacks; REGION parse-only with ACIS data storage).
+- M5 — Rendering Parity (toPolylines / toSVG): done (TRACE filled path; LEADER polylines; RAY/XLINE finite fallback; SHAPE text fallback; IMAGE dashed placeholder; UNDERLAY dashed placeholder; MLINE axis segment; MLEADER text; OLEFRAME/OLE2FRAME dashed rectangle; closed POLYLINE/LWPOLYLINE fill; solid HATCH evenodd holes; configurable SVG stroke-width scaling; DIMENSION stroke-width scaling).
 
 ## References
 
