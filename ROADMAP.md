@@ -24,8 +24,8 @@ Last updated: 2026-09-10
 - M1 — DXF Format & Section-Level Compliance: ongoing (incremental hardening as fixtures demand).
 - M2 — TABLES Coverage (2D-Relevant): done (LAYER, LTYPE, STYLE, VPORT, DIMSTYLE plus APPID, BLOCK_RECORD, UCS, VIEW).
 - M3 — OBJECTS Coverage (2D-Relevant): done (LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions, TABLESTYLE, GROUP).
-- M4 — ENTITIES: Complete 2D Set: ongoing (POLYLINE/VERTEX/SEQEND sequencing hardened and covered by unit tests; HATCH solid-loop SVG rendering exists; remaining gaps are still centered on parse-only entities such as MLEADER/REGION/TABLE entity and richer annotation/reference fidelity).
-- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; MLINE renders as an axis segment; OLEFRAME/OLE2FRAME render as dashed placeholder rectangles; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
+- M4 — ENTITIES: Complete 2D Set: ongoing (POLYLINE/VERTEX/SEQEND sequencing hardened and covered by unit tests; HATCH solid-loop SVG rendering exists; MLEADER now has a text fallback; remaining gaps are centered on REGION/TABLE entity and richer annotation/reference fidelity).
+- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; MLINE renders as an axis segment; MLEADER renders extracted text at its insertion point; OLEFRAME/OLE2FRAME render as dashed placeholder rectangles; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
 
 ## References
 
@@ -249,7 +249,7 @@ This section is intentionally short; it highlights gaps relevant to the migratio
 Entity parsers currently exist for (see `src/handlers/entities.ts` and `src/handlers/entity/*`):
 
 - Implemented: ARC, ATTDEF, ATTRIB, CIRCLE, DIMENSION, DGNUNDERLAY, DWFUNDERLAY, PDFUNDERLAY, ELLIPSE, HATCH, IMAGE, INSERT, LEADER, LINE, LWPOLYLINE, MLEADER, MLINE, MTEXT, OLE2FRAME, OLEFRAME, POINT, POLYLINE, RAY, REGION, SHAPE, SOLID, SPLINE, TABLE, TEXT, TOLERANCE, TRACE, WIPEOUT, XLINE, 3DFACE, VERTEX, VIEWPORT.
-- Missing (not exhaustive): none for the 2D set; remaining work is render parity for parse-only entities (MLEADER, REGION, TABLE entity).
+- Missing (not exhaustive): none for the 2D set; remaining work is render parity for parse-only entities (REGION, TABLE entity).
 
 ### Tables
 
@@ -546,7 +546,7 @@ Legend:
 
 Already parsed (handlers exist): LINE, LWPOLYLINE, POLYLINE, ARC, CIRCLE, ELLIPSE, SPLINE, TEXT, MTEXT, DIMENSION, INSERT, ATTDEF, ATTRIB, HATCH, SOLID, TRACE, POINT, VIEWPORT, OLE2FRAME, LEADER, RAY, XLINE, SHAPE, TOLERANCE, WIPEOUT.
 
-Also parsed (parse-only / safe ignore): MLEADER, REGION, TABLE (entity).
+Also parsed (parse-only / safe ignore): REGION, TABLE (entity).
 
 The items below are the main gaps to reach “complete 2D” as defined in this plan.
 
@@ -555,7 +555,7 @@ The items below are the main gaps to reach “complete 2D” as defined in this 
 | SEQEND         | Sentinel only (sequencing unit-tested) | N/A                                  | N/A                | N/A        | Implemented (sequencing hardened in `src/handlers/entities.ts` + edge-case unit tests; no dedicated handler needed)                                                              |
 | LEADER         | Yes           | Yes                                  | Yes                | No         | Implemented (minimal polyline support + SVG routing)                                                                                                                            |
 | HATCH          | Yes           | Yes (solid loops with evenodd holes) | No                 | No         | Implemented SVG rendering for solid boundary loops; patterned HATCH remains a future enhancement                                                                                |
-| MLEADER        | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
+| MLEADER        | Yes           | Yes (text fallback)                  | No                 | No         | Implemented minimal text rendering at insertion point; nested leader vertices and MTEXT formatting remain future work                                                             |
 | TOLERANCE      | Yes           | Yes                                  | No                 | No         | Implemented (SVG text fallback only)                                                                                                                                            |
 | IMAGE          | Yes           | Yes (placeholder extent quad)        | No                 | Yes        | Implemented (dashed quad derived from insertion point + U/V pixel vectors; bitmap embedding and clipping boundary remain future work)                                           |
 | UNDERLAY       | Yes           | Yes (placeholder unit-square quad)   | No                 | No         | Implemented (dashed quad scaled/rotated per entity; external file is not read and clipping boundary is not applied)                                                              |
@@ -643,7 +643,7 @@ This table expands Appendix A into explicit PR steps.
 | Entity         | PR 1 (Parse)                                                    | PR 2 (SVG)                                    | PR 3 (Polylines) | PR 4 (Block-safe)                                 |
 | -------------- | --------------------------------------------------------------- | --------------------------------------------- | ---------------- | ------------------------------------------------- |
 | LEADER         | Done                                                            | Done                                          | Done             | Optional                                          |
-| MLEADER        | Done (parse-only)                                               | Safe ignore or placeholder first              | N/A              | Later, after DICTIONARY/XRECORD/DIMASSOC coverage |
+| MLEADER        | Done                                                            | Done (text fallback)                          | N/A              | Optional                                          |
 | TOLERANCE      | Done                                                            | Done (text fallback)                          | N/A              | Optional                                          |
 | IMAGE          | Done                                                            | Done (placeholder extent quad)                | N/A              | Done                                              |
 | UNDERLAY       | Done                                                            | Done (placeholder unit-square quad)           | N/A              | Optional                                          |
