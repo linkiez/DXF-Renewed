@@ -315,6 +315,30 @@ const appendDimensionMarkers = (
   return [markerId1, markerId2]
 }
 
+const appendAngularDimensionText = (
+  bbox: Box2,
+  elements: string[],
+  text: {
+    x: number
+    y: number
+    height: number
+    color: string
+    content: string
+    startAngle: number
+    delta: number
+  },
+): void => {
+  const textRotation = ((text.startAngle + text.delta / 2) * 180) / Math.PI
+  appendDimensionText(bbox, elements, {
+    x: text.x,
+    y: text.y,
+    height: text.height,
+    color: text.color,
+    content: text.content,
+    rotation: textRotation,
+  })
+}
+
 /**
  * Convert DXF color number to SVG color string
  */
@@ -545,16 +569,14 @@ function renderAngular3PointDimension(
 
   const resolvedText = resolveDimensionText(entity)
   if (resolvedText) {
-    const midAngle = a1 + delta / 2
-    const textRotation = (midAngle * 180) / Math.PI
-
-    appendDimensionText(bbox, elements, {
+    appendAngularDimensionText(bbox, elements, {
       x: textX,
       y: textY,
       height: textHeight,
       color: textColor,
       content: resolvedText,
-      rotation: textRotation,
+      startAngle: a1,
+      delta,
     })
   }
 
@@ -759,16 +781,14 @@ function renderAngularDimension(
   // Add dimension text
   const resolvedText = resolveDimensionText(entity)
   if (resolvedText) {
-    const midAngle = (startAngle + endAngle) / 2
-    const textRotation = (midAngle * 180) / Math.PI
-
-    appendDimensionText(bbox, elements, {
+    appendAngularDimensionText(bbox, elements, {
       x: textX,
       y: textY,
       height: textHeight,
       color: textColor,
       content: resolvedText,
-      rotation: textRotation,
+      startAngle,
+      delta: endAngle - startAngle,
     })
   }
 
