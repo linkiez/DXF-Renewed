@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## 7.7.0 (2026-09-11)
+
+* docs(roadmap): MLINE axis-segment rendering ([fb1519a](https://github.com/linkiez/DXF-Renewed/commit/fb1519a))
+* docs(roadmap): OLEFRAME/OLE2FRAME placeholder rendering ([d251ca0](https://github.com/linkiez/DXF-Renewed/commit/d251ca0))
+* docs(roadmap): record MLEADER text fallback ([c9fe474](https://github.com/linkiez/DXF-Renewed/commit/c9fe474))
+* docs(roadmap): record TABLE text fallback ([1c39ad2](https://github.com/linkiez/DXF-Renewed/commit/1c39ad2))
+* docs(roadmap): sync M2/M3 progress, IMAGE/UNDERLAY placeholders, SEQEND coverage ([1a4b5f5](https://github.com/linkiez/DXF-Renewed/commit/1a4b5f5))
+* feat(objects): parse TABLESTYLE and GROUP objects ([8e55cb8](https://github.com/linkiez/DXF-Renewed/commit/8e55cb8))
+* feat(svg): render MLEADER text at insertion point ([c5b664f](https://github.com/linkiez/DXF-Renewed/commit/c5b664f))
+* feat(svg): render MLINE as an axis segment ([f3f6221](https://github.com/linkiez/DXF-Renewed/commit/f3f6221))
+* feat(svg): render OLEFRAME/OLE2FRAME as placeholder rectangles ([65fd91d](https://github.com/linkiez/DXF-Renewed/commit/65fd91d))
+* feat(svg): render placeholder quads for IMAGE and UNDERLAY ([c9e725a](https://github.com/linkiez/DXF-Renewed/commit/c9e725a))
+* feat(svg): render TABLE cell text ([9843368](https://github.com/linkiez/DXF-Renewed/commit/9843368))
+* test(polylines): cover POLYLINE/VERTEX/SEQEND sequencing edge cases ([f9f8021](https://github.com/linkiez/DXF-Renewed/commit/f9f8021))
+* style(svg): apply prettier formatting to closed polygon helpers ([d8e1165](https://github.com/linkiez/DXF-Renewed/commit/d8e1165))
+
 ## 7.6.0 (2026-08-19)
 
 * feat(svg): add closed polygon stroke color and rotating fill/stroke palettes ([ebf7d04](https://github.com/linkiez/DXF-Renewed/commit/ebf7d04))
