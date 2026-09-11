@@ -6,26 +6,16 @@ import { nestParts } from './nestCore'
 import { calculateMetrics, formatMetricsSummary } from './metrics'
 import { generateNestSVG, generateNestDXF } from './output'
 
-import type { ParsedDXF } from '../types'
 import type {
-  NestPart,
-  NestPlacement,
   NestOptions,
   NestResult,
-  NestMetrics,
 } from './types'
-import { DEFAULT_NEST_OPTIONS, NEST_PRESETS, COMMON_BIN_SIZES } from './types'
+import { DEFAULT_NEST_OPTIONS, NEST_PRESETS } from './types'
 
 // Re-export types
-export type {
-  NestPart,
-  NestPlacement,
-  NestOptions,
-  NestResult,
-  NestMetrics,
-  ExtractPartsOptions,
-}
-export { DEFAULT_NEST_OPTIONS, NEST_PRESETS, COMMON_BIN_SIZES }
+export type { NestPart, NestPlacement, NestOptions, NestResult, NestMetrics } from './types'
+export type { ExtractPartsOptions } from './extractParts'
+export { DEFAULT_NEST_OPTIONS, NEST_PRESETS, COMMON_BIN_SIZES } from './types'
 
 /**
  * Main nesting API — parse a DXF, extract parts, nest them, and return results.

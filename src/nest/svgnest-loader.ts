@@ -20,7 +20,7 @@ let _svgNest: any = null
 // ─── Polyfills ──────────────────────────────────────────────────────────
 
 function injectPolyfills(): void {
-  if (typeof (globalThis as any).navigator === 'undefined') {
+  if ((globalThis as any).navigator === undefined) {
     try {
       ;(globalThis as any).navigator = { userAgent: 'Node.js', appName: 'Node' }
     } catch {
@@ -32,7 +32,7 @@ function injectPolyfills(): void {
     }
   }
 
-  if (typeof (globalThis as any).window === 'undefined') {
+  if ((globalThis as any).window === undefined) {
     try {
       ;(globalThis as any).window = globalThis
     } catch {
@@ -44,7 +44,7 @@ function injectPolyfills(): void {
     }
   }
 
-  if (typeof (globalThis as any).self === 'undefined') {
+  if ((globalThis as any).self === undefined) {
     try {
       ;(globalThis as any).self = globalThis
     } catch {
@@ -56,7 +56,7 @@ function injectPolyfills(): void {
     }
   }
 
-  if (typeof (globalThis as any).document === 'undefined') {
+  if ((globalThis as any).document === undefined) {
     ;(globalThis as any).document = {
       createElement: () => null,
       createElementNS: () => null,
@@ -70,7 +70,7 @@ function injectPolyfills(): void {
   // O svgparser-core.js faz:
   //   for(var i=0; i<svg.childNodes.length; i++) { if(child.tagName == 'svg') ... }
   //   depois itera sobre svgRoot.childNodes procurando paths
-  if (typeof (globalThis as any).DOMParser === 'undefined') {
+  if ((globalThis as any).DOMParser === undefined) {
     ;(globalThis as any).DOMParser = class {
       parseFromString(str: string, _mimeType: string) {
         // Extrai paths do SVG

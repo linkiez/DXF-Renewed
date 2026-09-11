@@ -6,9 +6,8 @@ import applyTransforms from '../applyTransforms'
 import colors from '../util/colors'
 
 import type { ParsedDXF } from '../types'
-import type { Entity } from '../types'
 import type { NestPart } from './types'
-import { polygonArea, getBBox, simplifyPolygon, centroid } from './geometry'
+import { polygonArea, getBBox, simplifyPolygon } from './geometry'
 
 /**
  * Options for extracting parts from a DXF.
@@ -171,9 +170,6 @@ export function extractParts(
  */
 export function detectHoles(parts: NestPart[]): NestPart[] {
   return parts.map((part) => {
-    const outerArea = part.area
-    const outerCentroid = centroid(part.vertices)
-
     // For now, holes are detected from separate polylines on the same layer
     // that are inside this part's contour
     return { ...part }

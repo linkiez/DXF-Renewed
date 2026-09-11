@@ -153,7 +153,7 @@ export function offsetPolygon(
     // Edge vector
     const dx = next[0] - curr[0]
     const dy = next[1] - curr[1]
-    const len = Math.sqrt(dx * dx + dy * dy)
+    const len = Math.hypot(dx, dy)
 
     if (len < 0.0001) {
       result.push(curr)
