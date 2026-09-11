@@ -127,6 +127,15 @@ const getScaledDimensionSizes = (
   }
 }
 
+const getDimensionRenderContext = (
+  dimStyle: DimStyleTable | undefined,
+  options: ToSVGOptions | undefined,
+  viewport: DimensionViewport | undefined,
+) => ({
+  ...getScaledDimensionSizes(dimStyle, options, viewport),
+  ...getDimensionColors(dimStyle, options, viewport),
+})
+
 const formatDimensionValue = (
   value: number,
   decimals: number = DEFAULT_DIMENSION_DECIMALS,
@@ -772,12 +781,7 @@ function renderDiameterDimension(
   const markers: string[] = []
 
   // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight } = getScaledDimensionSizes(
-    dimStyle,
-    options,
-    viewport,
-  )
-  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(
+  const { arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = getDimensionRenderContext(
     dimStyle,
     options,
     viewport,
@@ -843,12 +847,7 @@ function renderRadialDimension(
   const markers: string[] = []
 
   // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight } = getScaledDimensionSizes(
-    dimStyle,
-    options,
-    viewport,
-  )
-  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(
+  const { arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = getDimensionRenderContext(
     dimStyle,
     options,
     viewport,
@@ -913,8 +912,7 @@ function renderOrdinateDimension(
   const elements: string[] = []
 
   // Get dimension style properties (optionally auto-scaled)
-  const { textHeight } = getScaledDimensionSizes(dimStyle, options, viewport)
-  const { dimLineColor, textColor, dimLineWeight } = getDimensionColors(
+  const { textHeight, dimLineColor, textColor, dimLineWeight } = getDimensionRenderContext(
     dimStyle,
     options,
     viewport,
