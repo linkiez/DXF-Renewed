@@ -145,13 +145,17 @@ const formatDimensionValue = (
   return rounded.toFixed(decimals)
 }
 
+const getDimensionMeasurementPoints = (entity: DimensionEntity) => ({
+  x1: entity.measureStart?.x ?? 0,
+  y1: entity.measureStart?.y ?? 0,
+  x2: entity.measureEnd?.x ?? 0,
+  y2: entity.measureEnd?.y ?? 0,
+})
+
 const computeRadiusFallback = (entity: DimensionEntity): number => {
   const cx = entity.start?.x ?? 0
   const cy = entity.start?.y ?? 0
-  const x1 = entity.measureStart?.x ?? 0
-  const y1 = entity.measureStart?.y ?? 0
-  const x2 = entity.measureEnd?.x ?? 0
-  const y2 = entity.measureEnd?.y ?? 0
+  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
 
   const r1 = Math.hypot(x1 - cx, y1 - cy)
   const r2 = Math.hypot(x2 - cx, y2 - cy)
@@ -185,10 +189,7 @@ const computeAngularDelta = (
 }
 
 const computeDimensionMeasurement = (entity: DimensionEntity): string => {
-  const x1 = entity.measureStart?.x ?? 0
-  const y1 = entity.measureStart?.y ?? 0
-  const x2 = entity.measureEnd?.x ?? 0
-  const y2 = entity.measureEnd?.y ?? 0
+  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
 
   switch (entity.dimensionType) {
     case 0:
@@ -429,10 +430,7 @@ function renderAngular3PointDimension(
 
   const vertexX = entity.angleVertex?.x ?? 0
   const vertexY = entity.angleVertex?.y ?? 0
-  const x1 = entity.measureStart?.x ?? 0
-  const y1 = entity.measureStart?.y ?? 0
-  const x2 = entity.measureEnd?.x ?? 0
-  const y2 = entity.measureEnd?.y ?? 0
+  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
 
   // DXF reference: point (10,20,30) specifies the dimension line arc location.
   // In practice, ezdxf may also provide (16,26,36); prefer arcPoint only if it
@@ -689,10 +687,7 @@ function renderAngularDimension(
   // Extract points
   const centerX = entity.start?.x ?? 0
   const centerY = entity.start?.y ?? 0
-  const x1 = entity.measureStart?.x ?? 0
-  const y1 = entity.measureStart?.y ?? 0
-  const x2 = entity.measureEnd?.x ?? 0
-  const y2 = entity.measureEnd?.y ?? 0
+  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
   const textX = entity.textMidpoint?.x ?? centerX
   const textY = entity.textMidpoint?.y ?? centerY
 
@@ -774,10 +769,7 @@ function renderDiameterDimension(
   )
 
   // Extract geometry
-  const x1 = entity.measureStart?.x ?? 0
-  const y1 = entity.measureStart?.y ?? 0
-  const x2 = entity.measureEnd?.x ?? 0
-  const y2 = entity.measureEnd?.y ?? 0
+  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
   const textX = entity.textMidpoint?.x ?? (x1 + x2) / 2
   const textY = entity.textMidpoint?.y ?? (y1 + y2) / 2
 
@@ -840,10 +832,7 @@ function renderRadialDimension(
   )
 
   // Extract geometry
-  const x1 = entity.measureStart?.x ?? 0
-  const y1 = entity.measureStart?.y ?? 0
-  const x2 = entity.measureEnd?.x ?? 0
-  const y2 = entity.measureEnd?.y ?? 0
+  const { x1, y1, x2, y2 } = getDimensionMeasurementPoints(entity)
   const textX = entity.textMidpoint?.x ?? (x1 + x2) / 2
   const textY = entity.textMidpoint?.y ?? (y1 + y2) / 2
 
