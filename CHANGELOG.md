@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.7.1 (2026-09-11)</small>
+
+* refactor(types): share OLE frame data contract ([50509ad](https://github.com/linkiez/DXF-Renewed/commit/50509ad))
+* fix(quality): reduce simple duplication diagnostics ([63e81e7](https://github.com/linkiez/DXF-Renewed/commit/63e81e7))
+* fix(quality): resolve actionable static diagnostics ([6be298c](https://github.com/linkiez/DXF-Renewed/commit/6be298c))
+* fix(quality): resolve remaining simple diagnostics ([e3c90c3](https://github.com/linkiez/DXF-Renewed/commit/e3c90c3))
+
 ## 7.7.0 (2026-09-11)
 
 * docs(roadmap): MLINE axis-segment rendering ([fb1519a](https://github.com/linkiez/DXF-Renewed/commit/fb1519a))
