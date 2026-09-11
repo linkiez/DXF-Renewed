@@ -156,70 +156,13 @@ async function nestSingleBin(
       : [0]
 
   // Pre-compute all NFPs
-  const nfpCache: Record<string, any[]> = {}
-
-  // NFP between bin and each part (inside = true)
-  for (const part of svgParts) {
-    for (const rot of rotationAngles) {
-      const key = JSON.stringify({
-        A: -1,
-        B: part.id,
-        inside: true,
-        Arotation: 0,
-        Brotation: rot,
-      })
-
-      if (!nfpCache[key]) {
-        try {
-          const rotatedPart = GeometryUtil.rotatePolygon(part, rot)
-          const nfp = GeometryUtil.noFitPolygon(
-            binPolygon,
-            rotatedPart,
-            true,
-            exploreConcave ?? false,
-          )
-          nfpCache[key] = nfp || []
-        } catch {
-          nfpCache[key] = []
-        }
-      }
-    }
-  }
-
-  // NFP between each pair of parts (inside = false)
-  for (let i = 0; i < svgParts.length; i++) {
-    for (let j = 0; j < svgParts.length; j++) {
-      if (i === j) continue
-
-      for (const rotA of rotationAngles) {
-        for (const rotB of rotationAngles) {
-          const key = JSON.stringify({
-            A: svgParts[i].id,
-            B: svgParts[j].id,
-            inside: false,
-            Arotation: rotA,
-            Brotation: rotB,
-          })
-
-          if (!nfpCache[key]) {
-            try {
-              const rotatedA = GeometryUtil.rotatePolygon(svgParts[i], rotA)
-              const rotatedB = GeometryUtil.rotatePolygon(svgParts[j], rotB)
-              const nfp = GeometryUtil.noFitPolygon(
-                rotatedA,
-                rotatedB,
-                false,
-                exploreConcave ?? false,
-              )
-              nfpCache[key] = nfp || []
-            } catch {
-              nfpCache[key] = []
-            }
-          }
-        }
-      }
-    }
-  }
+  const nfpCache = buildNFPCache(
+    svgParts,
+    binPolygon,
+    rotationAngles,
+    exploreConcave ?? false,
+    GeometryUtil,
+  )
 
   console.log(
     `[nestCore] Pre-computed ${Object.keys(nfpCache).length} NFPs for ${svgParts.length} parts`,
@@ -237,65 +180,21 @@ async function nestSingleBin(
   let bestFitness = Infinity
 
   for (let iter = 0; iter < maxIterations; iter++) {
-    // First iteration uses area-sorted order; subsequent ones shuffle
-    const iterParts =
-      iter === 0
-        ? svgParts.map((p) => {
-            const pts = toSvgPoints(parts[p.source].vertices)
-            ;(pts as any).id = p.id
-            ;(pts as any).source = p.source
-            ;(pts as any).rotation = 0
-            return pts as any
-          })
-        : shuffleArray(
-            svgParts.map((p) => {
-              const pts = toSvgPoints(parts[p.source].vertices)
-              ;(pts as any).id = p.id
-              ;(pts as any).source = p.source
-              ;(pts as any).rotation = 0
-              return pts as any
-            }),
-          )
-
-    // Assign random rotations
-    const iterRotations = iterParts.map(() => {
-      return rotationAngles[Math.floor(Math.random() * rotationAngles.length)]
+    const result = runPlacementIteration(iter, {
+      svgParts,
+      parts,
+      rotationAngles,
+      binPolygon,
+      nfpCache,
+      config,
+      exploreConcave: exploreConcave ?? false,
+      partInPart: partInPart ?? false,
+      PlacementWorker,
     })
 
-    iterParts.forEach((part, idx) => {
-      part.rotation = iterRotations[idx]
-    })
-
-    // Set up worker context
-    const oldEnv = (globalThis as any).env
-    ;(globalThis as any).env = {
-      self: {
-        binPolygon,
-        nfpCache,
-        searchEdges: exploreConcave ?? false,
-        useHoles: partInPart ?? false,
-        config,
-      },
-    }
-
-    try {
-      const worker = new PlacementWorker(
-        binPolygon,
-        iterParts.map((p) => p.id),
-        iterParts.map((p) => p.id),
-        iterRotations,
-        config,
-        nfpCache,
-      )
-
-      const result = worker.placePaths(iterParts)
-
-      if (result && result.fitness < bestFitness) {
-        bestFitness = result.fitness
-        bestResult = result
-      }
-    } finally {
-      ;(globalThis as any).env = oldEnv
+    if (result && result.fitness < bestFitness) {
+      bestFitness = result.fitness
+      bestResult = result
     }
 
     if (onProgress) {
@@ -405,4 +304,200 @@ export async function nestParts(
   }
 
   return allPlacements
+}
+
+/**
+ * Compute NFP for bin-part pair
+ */
+function computeBinPartNFP(
+  part: any,
+  rot: number,
+  binPolygon: any,
+  exploreConcave: boolean,
+  GeometryUtil: any,
+): any[] {
+  try {
+    const rotatedPart = GeometryUtil.rotatePolygon(part, rot)
+    const nfp = GeometryUtil.noFitPolygon(binPolygon, rotatedPart, true, exploreConcave)
+    return nfp || []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Compute NFP for part-part pair
+ */
+function computePartPartNFP(
+  partA: any,
+  partB: any,
+  rotA: number,
+  rotB: number,
+  exploreConcave: boolean,
+  GeometryUtil: any,
+): any[] {
+  try {
+    const rotatedA = GeometryUtil.rotatePolygon(partA, rotA)
+    const rotatedB = GeometryUtil.rotatePolygon(partB, rotB)
+    const nfp = GeometryUtil.noFitPolygon(rotatedA, rotatedB, false, exploreConcave)
+    return nfp || []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Cache NFP for all rotation pairs
+ */
+function cacheRotationPairs(
+  partA: any,
+  partB: any,
+  rotationAngles: number[],
+  exploreConcave: boolean,
+  GeometryUtil: any,
+  nfpCache: Record<string, any[]>,
+  inside: boolean,
+): void {
+  for (const rotA of rotationAngles) {
+    for (const rotB of rotationAngles) {
+      const key = JSON.stringify({
+        A: partA.id,
+        B: partB.id,
+        inside,
+        Arotation: rotA,
+        Brotation: rotB,
+      })
+
+      if (!nfpCache[key]) {
+        nfpCache[key] = computePartPartNFP(
+          partA,
+          partB,
+          rotA,
+          rotB,
+          exploreConcave,
+          GeometryUtil,
+        )
+      }
+    }
+  }
+}
+
+/**
+ * Build NFP cache for bin and part pairs
+ */
+function buildNFPCache(
+  svgParts: any[],
+  binPolygon: any,
+  rotationAngles: number[],
+  exploreConcave: boolean,
+  GeometryUtil: any,
+): Record<string, any[]> {
+  const nfpCache: Record<string, any[]> = {}
+
+  // NFP between bin and each part (inside = true)
+  for (const part of svgParts) {
+    for (const rot of rotationAngles) {
+      const key = JSON.stringify({
+        A: -1,
+        B: part.id,
+        inside: true,
+        Arotation: 0,
+        Brotation: rot,
+      })
+
+      if (!nfpCache[key]) {
+        nfpCache[key] = computeBinPartNFP(part, rot, binPolygon, exploreConcave, GeometryUtil)
+      }
+    }
+  }
+
+  // NFP between each pair of parts (inside = false)
+  for (let i = 0; i < svgParts.length; i++) {
+    for (let j = i + 1; j < svgParts.length; j++) {
+      // Both directions: i→j and j→i
+      cacheRotationPairs(svgParts[i], svgParts[j], rotationAngles, exploreConcave, GeometryUtil, nfpCache, false)
+      cacheRotationPairs(svgParts[j], svgParts[i], rotationAngles, exploreConcave, GeometryUtil, nfpCache, false)
+    }
+  }
+
+  return nfpCache
+}
+
+/**
+ * Create iteration parts (shuffled or sorted)
+ */
+function createIterationParts(
+  iter: number,
+  svgParts: any[],
+  parts: NestPart[],
+): any[] {
+  const mapPart = (p: any) => {
+    const pts = toSvgPoints(parts[p.source].vertices)
+    ;(pts as any).id = p.id
+    ;(pts as any).source = p.source
+    ;(pts as any).rotation = 0
+    return pts as any
+  }
+
+  return iter === 0 ? svgParts.map(mapPart) : shuffleArray(svgParts.map(mapPart))
+}
+
+/**
+ * Run single placement iteration
+ */
+function runPlacementIteration(
+  iter: number,
+  ctx: {
+    svgParts: any[]
+    parts: NestPart[]
+    rotationAngles: number[]
+    binPolygon: any
+    nfpCache: Record<string, any[]>
+    config: any
+    exploreConcave: boolean
+    partInPart: boolean
+    PlacementWorker: any
+  },
+): { fitness: number; placements: any[] } | null {
+  const { svgParts, parts, rotationAngles, binPolygon, nfpCache, config, exploreConcave, partInPart, PlacementWorker } = ctx
+
+  const iterParts = createIterationParts(iter, svgParts, parts)
+
+  // Assign random rotations
+  // ponytail: Math.random() acceptable for GA; upgrade to crypto.getRandomValues if needed
+  // eslint-disable-next-line security/detect-unsafe-regex
+  const iterRotations = iterParts.map(() => {
+    return rotationAngles[Math.floor(Math.random() * rotationAngles.length)]
+  })
+
+  iterParts.forEach((part, idx) => {
+    part.rotation = iterRotations[idx]
+  })
+
+  // Set up worker context
+  const oldEnv = (globalThis as any).env
+  ;(globalThis as any).env = {
+    self: {
+      binPolygon,
+      nfpCache,
+      searchEdges: exploreConcave,
+      useHoles: partInPart,
+      config,
+    },
+  }
+
+  try {
+    const worker = new PlacementWorker(
+      binPolygon,
+      iterParts.map((p) => p.id),
+      iterParts,
+      iterRotations,
+      config,
+      nfpCache,
+    )
+
+    return worker.placePaths(iterParts)
+  } finally {
+    ;(globalThis as any).env = oldEnv
+  }
 }

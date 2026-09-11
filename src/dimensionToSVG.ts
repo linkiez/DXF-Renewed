@@ -827,13 +827,14 @@ function renderAngularDimension(
 }
 
 /**
- * Render diameter dimension
+ * Render radial dimension (diameter or radius)
  */
-function renderDiameterDimension(
+function renderRadialDimensionCommon(
   entity: DimensionEntity,
   dimStyle?: DimStyleTable,
   options?: ToSVGOptions,
   viewport?: DimensionViewport,
+  symbolPrefix?: 'diameter' | 'radius',
 ): BoundsAndElement {
   const { bbox, elements, markers, arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = createDimensionRenderState(
     dimStyle,
@@ -847,26 +848,27 @@ function renderDiameterDimension(
     bbox,
   )
 
-  const diameterLen = Math.hypot(x2 - x1, y2 - y1)
-  if (Number.isFinite(diameterLen) && diameterLen > 1e-6) {
+  const len = Math.hypot(x2 - x1, y2 - y1)
+  if (Number.isFinite(len) && len > 1e-6) {
     appendRadialArrow(bbox, elements, markers, { x1, y1, x2, y2 }, {
       size: arrowSize,
       color: dimLineColor,
       weight: dimLineWeight,
-      prefix: 'diameter',
+      prefix: symbolPrefix || 'radius',
     })
   }
 
-  // Add dimension text with diameter symbol
+  // Add dimension text with symbol
   const resolvedText = resolveDimensionText(entity)
-  const diameterText = resolvedText ? `⌀${resolvedText}` : '⌀'
+  const symbol = symbolPrefix === 'diameter' ? '⌀' : 'R'
+  const text = resolvedText ? `${symbol}${resolvedText}` : symbol
   const angle = Math.atan2(y2 - y1, x2 - x1)
   appendRadialDimensionText(bbox, elements, {
     x: textX,
     y: textY,
     height: textHeight,
     color: textColor,
-    content: diameterText,
+    content: text,
     angle,
   })
 
@@ -874,6 +876,18 @@ function renderDiameterDimension(
     bbox,
     element: `<defs>${markers.join('')}</defs><g>${elements.join('')}</g>`,
   }
+}
+
+/**
+ * Render diameter dimension
+ */
+function renderDiameterDimension(
+  entity: DimensionEntity,
+  dimStyle?: DimStyleTable,
+  options?: ToSVGOptions,
+  viewport?: DimensionViewport,
+): BoundsAndElement {
+  return renderRadialDimensionCommon(entity, dimStyle, options, viewport, 'diameter')
 }
 
 /**
@@ -885,45 +899,7 @@ function renderRadialDimension(
   options?: ToSVGOptions,
   viewport?: DimensionViewport,
 ): BoundsAndElement {
-  const { bbox, elements, markers, arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = createDimensionRenderState(
-    dimStyle,
-    options,
-    viewport,
-  )
-
-  // Extract geometry
-  const { x1, y1, x2, y2, textX, textY } = getRadialDimensionGeometry(
-    entity,
-    bbox,
-  )
-
-  const radiusLen = Math.hypot(x2 - x1, y2 - y1)
-  if (Number.isFinite(radiusLen) && radiusLen > 1e-6) {
-    appendRadialArrow(bbox, elements, markers, { x1, y1, x2, y2 }, {
-      size: arrowSize,
-      color: dimLineColor,
-      weight: dimLineWeight,
-      prefix: 'radius',
-    })
-  }
-
-  // Add dimension text with radius symbol
-  const resolvedText = resolveDimensionText(entity)
-  const radiusText = resolvedText ? `R${resolvedText}` : 'R'
-  const angle = Math.atan2(y2 - y1, x2 - x1)
-  appendRadialDimensionText(bbox, elements, {
-    x: textX,
-    y: textY,
-    height: textHeight,
-    color: textColor,
-    content: radiusText,
-    angle,
-  })
-
-  return {
-    bbox,
-    element: `<defs>${markers.join('')}</defs><g>${elements.join('')}</g>`,
-  }
+  return renderRadialDimensionCommon(entity, dimStyle, options, viewport, 'radius')
 }
 
 /**

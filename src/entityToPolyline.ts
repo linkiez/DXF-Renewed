@@ -230,236 +230,227 @@ export const polyfaceOutline = (entity: LocalPolylineEntity): Point[][] => {
     .map((l) => l.map((i) => vertices[i]).map((v) => [v.x, v.y]))
 }
 
+const normalize2 = (
+  x: number,
+  y: number,
+): { x: number; y: number } | null => {
+  const len = Math.hypot(x, y)
+  if (len === 0) return null
+  return { x: x / len, y: y / len }
+}
+
+const INFINITE_LINE_LENGTH = 1000
+
+const handleLine = (entity: any): Point[] => [
+  [entity.start.x, entity.start.y],
+  [entity.end.x, entity.end.y],
+]
+
+const handleLeader = (entity: any): Point[] => {
+  if (entity.vertices.length >= 2) {
+    return entity.vertices.map((v: any) => [v.x, v.y])
+  }
+  logger.warn('LEADER entity with insufficient vertices')
+  return []
+}
+
+const handleRay = (entity: any): Point[] => {
+  const dir = normalize2(entity.direction.x, entity.direction.y)
+  if (dir === null) {
+    logger.warn('RAY entity with zero direction vector')
+    return []
+  }
+  return [
+    [entity.start.x, entity.start.y],
+    [
+      entity.start.x + dir.x * INFINITE_LINE_LENGTH,
+      entity.start.y + dir.y * INFINITE_LINE_LENGTH,
+    ],
+  ]
+}
+
+const handleXLine = (entity: any): Point[] => {
+  const dir = normalize2(entity.direction.x, entity.direction.y)
+  if (dir === null) {
+    logger.warn('XLINE entity with zero direction vector')
+    return []
+  }
+  return [
+    [
+      entity.basePoint.x - dir.x * INFINITE_LINE_LENGTH,
+      entity.basePoint.y - dir.y * INFINITE_LINE_LENGTH,
+    ],
+    [
+      entity.basePoint.x + dir.x * INFINITE_LINE_LENGTH,
+      entity.basePoint.y + dir.y * INFINITE_LINE_LENGTH,
+    ],
+  ]
+}
+
+const handleShape = (entity: any): Point[] => {
+  const x = entity.insertionPoint?.x ?? 0
+  const y = entity.insertionPoint?.y ?? 0
+  const size = entity.size ?? 0
+  const scaleX = entity.relativeXScale ?? 1
+  const length = size * scaleX
+  return [
+    [x, y],
+    [x + length, y],
+  ]
+}
+
+const handleWipeout = (entity: any): Point[] => {
+  const verts = entity.clipBoundaryVertices
+  if (!verts || verts.length < 2) {
+    logger.warn('WIPEOUT entity with missing clip boundary vertices')
+    return []
+  }
+  const insX = entity.insertionPoint?.x ?? 0
+  const insY = entity.insertionPoint?.y ?? 0
+  const ux = entity.uVector?.x ?? 1
+  const uy = entity.uVector?.y ?? 0
+  const vx = entity.vVector?.x ?? 0
+  const vy = entity.vVector?.y ?? 1
+
+  const polyline = verts.map((p: any) => [
+    insX + ux * p.x + vx * p.y,
+    insY + uy * p.x + vy * p.y,
+  ])
+
+  if (polyline.length > 0) {
+    const first = polyline[0]
+    const last = polyline.slice(-1)[0]
+    if (first[0] !== last[0] || first[1] !== last[1]) {
+      polyline.push(first)
+    }
+  }
+  return polyline
+}
+
+const handlePolyline = (entity: any): Point[] => {
+  const polyline: Point[] = []
+  if (entity.polyfaceMesh) {
+    polyline.push(...polyfaceOutline(entity)[0])
+  } else if (entity.polygonMesh) {
+    // Do not attempt to render polygon meshes
+  } else if (entity.vertices.length) {
+    const vertices = entity.closed
+      ? entity.vertices.concat(entity.vertices[0])
+      : entity.vertices
+
+    for (let i = 0, il = vertices.length; i < il - 1; ++i) {
+      const from: Point = [vertices[i].x, vertices[i].y]
+      const to: Point = [vertices[i + 1].x, vertices[i + 1].y]
+      polyline.push(from)
+      if (vertices[i].bulge) {
+        polyline.push(...createArcForLWPolyine(from, to, vertices[i].bulge!))
+      }
+      if (i === il - 2) {
+        polyline.push(to)
+      }
+    }
+  } else {
+    logger.warn('Polyline entity with no vertices')
+  }
+  return polyline
+}
+
+const flipIfExtrusion = (polyline: Point[], extrusionZ?: number): Point[] =>
+  extrusionZ === -1 ? polyline.map((p) => [-p[0], p[1]]) : polyline
+
+const handleCircle = (entity: any): Point[] => {
+  const polyline = interpolateEllipse(
+    entity.x,
+    entity.y,
+    entity.r,
+    entity.r,
+    0,
+    Math.PI * 2,
+  )
+  return flipIfExtrusion(polyline, entity.extrusionZ)
+}
+
+const handleEllipse = (entity: any): Point[] => {
+  const rx = Math.hypot(entity.majorX, entity.majorY)
+  const ry = entity.axisRatio * rx
+  const majorAxisRotation = -Math.atan2(-entity.majorY, entity.majorX)
+  const polyline = interpolateEllipse(
+    entity.x,
+    entity.y,
+    rx,
+    ry,
+    entity.startAngle,
+    entity.endAngle,
+    majorAxisRotation,
+  )
+  return flipIfExtrusion(polyline, entity.extrusionZ)
+}
+
+const handleArc = (entity: any): Point[] => {
+  const polyline = interpolateEllipse(
+    entity.x,
+    entity.y,
+    entity.r,
+    entity.r,
+    entity.startAngle,
+    entity.endAngle,
+  )
+  return flipIfExtrusion(polyline, entity.extrusionZ)
+}
+
+const handleSpline = (entity: any, options?: EntityToPolylineOptions): Point[] =>
+  interpolateBSpline(
+    entity.controlPoints,
+    entity.degree,
+    entity.knots,
+    options?.interpolationsPerSplineSegment,
+    entity.weights,
+  )
+
+const handleSolid = (entity: any): Point[] => {
+  const corners = entity.corners ?? entity.points
+  if (corners && corners.length >= 4) {
+    return [
+      [corners[0].x, corners[0].y],
+      [corners[1].x, corners[1].y],
+      [corners[2].x, corners[2].y],
+      [corners[3].x, corners[3].y],
+      [corners[0].x, corners[0].y],
+    ]
+  }
+  return []
+}
+
 /**
  * Convert a parsed DXF entity to a polyline. These can be used to render the
  * the DXF in SVG, Canvas, WebGL etc., without depending on native support
  * of primitive objects (ellispe, spline etc.)
  */
-export default function entityToPolyline( // NOSONAR
+export default function entityToPolyline(
   entity: Entity,
   options?: EntityToPolylineOptions,
 ): Point[] {
-  options = options || {}
-  let polyline: Point[] | undefined
-
-  const INFINITE_LINE_LENGTH = 1000
-
-  const normalize2 = (
-    x: number,
-    y: number,
-  ): { x: number; y: number } | null => {
-    const len = Math.hypot(x, y)
-    if (len === 0) return null
-    return { x: x / len, y: y / len }
+  const handlers: Record<string, (e: any, o?: EntityToPolylineOptions) => Point[]> = {
+    LINE: handleLine,
+    LEADER: handleLeader,
+    RAY: handleRay,
+    XLINE: handleXLine,
+    SHAPE: handleShape,
+    WIPEOUT: handleWipeout,
+    LWPOLYLINE: handlePolyline,
+    POLYLINE: handlePolyline,
+    CIRCLE: handleCircle,
+    ELLIPSE: handleEllipse,
+    ARC: handleArc,
+    SPLINE: (e) => handleSpline(e, options),
+    SOLID: handleSolid,
+    TRACE: handleSolid,
   }
 
-  if (entity.type === 'LINE') {
-    polyline = [
-      [entity.start.x, entity.start.y],
-      [entity.end.x, entity.end.y],
-    ]
-  }
-
-  if (entity.type === 'LEADER') {
-    if (entity.vertices.length >= 2) {
-      polyline = entity.vertices.map((v) => [v.x, v.y])
-    } else {
-      logger.warn('LEADER entity with insufficient vertices')
-      polyline = []
-    }
-  }
-
-  if (entity.type === 'RAY') {
-    const dir = normalize2(entity.direction.x, entity.direction.y)
-    if (dir === null) {
-      logger.warn('RAY entity with zero direction vector')
-      polyline = []
-    } else {
-      polyline = [
-        [entity.start.x, entity.start.y],
-        [
-          entity.start.x + dir.x * INFINITE_LINE_LENGTH,
-          entity.start.y + dir.y * INFINITE_LINE_LENGTH,
-        ],
-      ]
-    }
-  }
-
-  if (entity.type === 'XLINE') {
-    const dir = normalize2(entity.direction.x, entity.direction.y)
-    if (dir === null) {
-      logger.warn('XLINE entity with zero direction vector')
-      polyline = []
-    } else {
-      polyline = [
-        [
-          entity.basePoint.x - dir.x * INFINITE_LINE_LENGTH,
-          entity.basePoint.y - dir.y * INFINITE_LINE_LENGTH,
-        ],
-        [
-          entity.basePoint.x + dir.x * INFINITE_LINE_LENGTH,
-          entity.basePoint.y + dir.y * INFINITE_LINE_LENGTH,
-        ],
-      ]
-    }
-  }
-
-  if (entity.type === 'SHAPE') {
-    const x = entity.insertionPoint?.x ?? 0
-    const y = entity.insertionPoint?.y ?? 0
-    const size = entity.size ?? 0
-    const scaleX = entity.relativeXScale ?? 1
-    const length = size * scaleX
-    polyline = [
-      [x, y],
-      [x + length, y],
-    ]
-  }
-
-  if (entity.type === 'WIPEOUT') {
-    const verts = entity.clipBoundaryVertices
-    if (!verts || verts.length < 2) {
-      logger.warn('WIPEOUT entity with missing clip boundary vertices')
-      polyline = []
-    } else {
-      const insX = entity.insertionPoint?.x ?? 0
-      const insY = entity.insertionPoint?.y ?? 0
-
-      const ux = entity.uVector?.x ?? 1
-      const uy = entity.uVector?.y ?? 0
-
-      const vx = entity.vVector?.x ?? 0
-      const vy = entity.vVector?.y ?? 1
-
-      polyline = verts.map((p) => [
-        insX + ux * p.x + vx * p.y,
-        insY + uy * p.x + vy * p.y,
-      ])
-
-      if (polyline.length > 0) {
-        const first = polyline[0]
-        const last = polyline.slice(-1)[0]
-        if (first[0] !== last[0] || first[1] !== last[1]) {
-          polyline.push(first)
-        }
-      }
-    }
-  }
-
-  if (entity.type === 'LWPOLYLINE' || entity.type === 'POLYLINE') {
-    polyline = []
-    if (entity.polyfaceMesh) {
-      // Only return the first polyline because we can't return many
-      polyline.push(...polyfaceOutline(entity)[0])
-    } else if (entity.polygonMesh) {
-      // Do not attempt to render polygon meshes
-    } else if (entity.vertices.length) {
-      const vertices = entity.closed
-        ? entity.vertices.concat(entity.vertices[0])
-        : entity.vertices
-
-      for (let i = 0, il = vertices.length; i < il - 1; ++i) {
-        const from: Point = [vertices[i].x, vertices[i].y]
-        const to: Point = [vertices[i + 1].x, vertices[i + 1].y]
-        polyline.push(from)
-        if (vertices[i].bulge) {
-          polyline = polyline.concat(
-            createArcForLWPolyine(from, to, vertices[i].bulge!),
-          )
-        }
-        // The last iteration of the for loop
-        if (i === il - 2) {
-          polyline.push(to)
-        }
-      }
-    } else {
-      logger.warn('Polyline entity with no vertices')
-    }
-  }
-
-  if (entity.type === 'CIRCLE') {
-    polyline = interpolateEllipse(
-      entity.x,
-      entity.y,
-      entity.r,
-      entity.r,
-      0,
-      Math.PI * 2,
-    )
-    if (entity.extrusionZ === -1) {
-      polyline = polyline.map(function (p): Point {
-        return [-p[0], p[1]]
-      })
-    }
-  }
-
-  if (entity.type === 'ELLIPSE') {
-    const rx = Math.hypot(entity.majorX, entity.majorY)
-    const ry = entity.axisRatio * rx
-    const majorAxisRotation = -Math.atan2(-entity.majorY, entity.majorX)
-    polyline = interpolateEllipse(
-      entity.x,
-      entity.y,
-      rx,
-      ry,
-      entity.startAngle,
-      entity.endAngle,
-      majorAxisRotation,
-    )
-    if (entity.extrusionZ === -1) {
-      polyline = polyline.map(function (p): Point {
-        return [-p[0], p[1]]
-      })
-    }
-  }
-
-  if (entity.type === 'ARC') {
-    // Why on earth DXF has degree start & end angles for arc,
-    // and radian start & end angles for ellipses is a mystery
-    polyline = interpolateEllipse(
-      entity.x,
-      entity.y,
-      entity.r,
-      entity.r,
-      entity.startAngle,
-      entity.endAngle,
-    )
-
-    // I kid you not, ARCs and ELLIPSEs handle this differently,
-    // as evidenced by how AutoCAD actually renders these entities
-    if (entity.extrusionZ === -1) {
-      polyline = polyline.map(function (p): Point {
-        return [-p[0], p[1]]
-      })
-    }
-  }
-
-  if (entity.type === 'SPLINE') {
-    polyline = interpolateBSpline(
-      entity.controlPoints,
-      entity.degree,
-      entity.knots,
-      options.interpolationsPerSplineSegment,
-      entity.weights,
-    )
-  }
-
-  if (entity.type === 'SOLID' || entity.type === 'TRACE') {
-    const corners = entity.corners ?? entity.points
-    if (corners && corners.length >= 4) {
-      polyline = [
-        [corners[0].x, corners[0].y],
-        [corners[1].x, corners[1].y],
-        [corners[2].x, corners[2].y],
-        [corners[3].x, corners[3].y],
-        [corners[0].x, corners[0].y],
-      ]
-    }
-  }
-
-  if (!polyline) {
+  const handler = handlers[entity.type]
+  if (!handler) {
     logger.warn('unsupported entity for converting to polyline:', entity.type)
     return []
   }
-  return polyline
+  return handler(entity, options)
 }
