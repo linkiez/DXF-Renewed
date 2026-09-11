@@ -4,29 +4,7 @@ import common from './common'
 import { assign as assignMTEXT } from './mtext'
 import { assign as assignTEXT } from './text'
 
-
 const TYPE = 'ATTDEF'
-
-const process = (tuples: DXFTuple[]): any => {
-  return tuples.reduce(
-    (entity, tuple) => {
-      const type = tuple[0]
-      const value = tuple[1]
-
-      assign(entity, type, value)
-
-      return entity
-    },
-    {
-      type: TYPE,
-      subclassMarker: 'AcDbText',
-      thickness: 0,
-      scaleX: 1,
-      mtext: {},
-      text: {},
-    },
-  )
-}
 
 export const assign = (entity: any, type: number, value: string | number): void => { // NOSONAR: DXF subclass/group-code dispatch is intentionally centralized.
   switch (type) {
@@ -281,4 +259,35 @@ export const assign = (entity: any, type: number, value: string | number): void 
   }
 }
 
-export default { TYPE, process, assign }
+/**
+ * Create entity processor for TEXT-like entities (ATTDEF, ATTRIB)
+ */
+export const createTextEntityProcessor = (
+  entityType: string,
+  assignFn: (entity: any, type: number, value: string | number) => void,
+) => {
+  return (tuples: DXFTuple[]): any => {
+    return tuples.reduce(
+      (entity, tuple) => {
+        const type = tuple[0]
+        const value = tuple[1]
+
+        assignFn(entity, type, value)
+
+        return entity
+      },
+      {
+        type: entityType,
+        subclassMarker: 'AcDbText',
+        thickness: 0,
+        scaleX: 1,
+        mtext: {},
+        text: {},
+      },
+    )
+  }
+}
+
+const process = (tuples: DXFTuple[]): any => createTextEntityProcessor(TYPE, assign)(tuples)
+
+export default { TYPE, process }

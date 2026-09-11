@@ -1,29 +1,10 @@
 import type { DXFTuple } from '../../types/dxf'
+import type { Entity } from '../../types/entity'
 
-import { assign } from './attdef'
+import { assign, createTextEntityProcessor } from './attdef'
 
 const TYPE = 'ATTRIB'
 
-
-const process = (tuples: DXFTuple[]): any => {
-  return tuples.reduce(
-    (entity, tuple) => {
-      const type = tuple[0]
-      const value = tuple[1]
-
-      assign(entity, type, value)
-
-      return entity
-    },
-    {
-      type: TYPE,
-      subclassMarker: 'AcDbText',
-      thickness: 0,
-      scaleX: 1,
-      mtext: {},
-      text: {},
-    },
-  )
-}
+const process = (tuples: DXFTuple[]): Entity => createTextEntityProcessor(TYPE, assign)(tuples)
 
 export default { TYPE, process }
