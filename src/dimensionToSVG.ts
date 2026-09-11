@@ -136,6 +136,17 @@ const getDimensionRenderContext = (
   ...getDimensionColors(dimStyle, options, viewport),
 })
 
+const createDimensionRenderState = (
+  dimStyle: DimStyleTable | undefined,
+  options: ToSVGOptions | undefined,
+  viewport: DimensionViewport | undefined,
+) => ({
+  bbox: new Box2(),
+  elements: [] as string[],
+  markers: [] as string[],
+  ...getDimensionRenderContext(dimStyle, options, viewport),
+})
+
 const formatDimensionValue = (
   value: number,
   decimals: number = DEFAULT_DIMENSION_DECIMALS,
@@ -807,12 +818,7 @@ function renderDiameterDimension(
   options?: ToSVGOptions,
   viewport?: DimensionViewport,
 ): BoundsAndElement {
-  const bbox = new Box2()
-  const elements: string[] = []
-  const markers: string[] = []
-
-  // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = getDimensionRenderContext(
+  const { bbox, elements, markers, arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = createDimensionRenderState(
     dimStyle,
     options,
     viewport,
@@ -864,12 +870,7 @@ function renderRadialDimension(
   options?: ToSVGOptions,
   viewport?: DimensionViewport,
 ): BoundsAndElement {
-  const bbox = new Box2()
-  const elements: string[] = []
-  const markers: string[] = []
-
-  // Get dimension style properties (optionally auto-scaled)
-  const { arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = getDimensionRenderContext(
+  const { bbox, elements, markers, arrowSize, textHeight, dimLineColor, textColor, dimLineWeight } = createDimensionRenderState(
     dimStyle,
     options,
     viewport,
