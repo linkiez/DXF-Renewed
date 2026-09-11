@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.7.3 (2026-09-11)</small>
+
+* refactor(handlers): share UNDERLAY parsing ([2e130fc](https://github.com/linkiez/DXF-Renewed/commit/2e130fc))
+
 ## <small>7.7.2 (2026-09-11)</small>
 
 * fix(handlers): remove duplicate named exports ([81566b8](https://github.com/linkiez/DXF-Renewed/commit/81566b8))
