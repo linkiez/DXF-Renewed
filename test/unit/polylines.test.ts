@@ -139,4 +139,94 @@ EOF
     expect(entities.length).toEqual(1)
     expect(entities[0].type).toEqual('LINE')
   })
+  it('ignores an orphan SEQEND', () => {
+    const dxf = `0
+SECTION
+2
+ENTITIES
+0
+SEQEND
+0
+LINE
+10
+1
+20
+1
+11
+2
+21
+2
+0
+ENDSEC
+0
+EOF
+`
+    const entities = parseString(dxf).entities
+    expect(entities).toHaveLength(1)
+    expect(entities[0].type).toEqual('LINE')
+  })
+  it('flushes a POLYLINE left open at end of ENTITIES section', () => {
+    const dxf = `0
+SECTION
+2
+ENTITIES
+0
+POLYLINE
+8
+DXF
+0
+VERTEX
+10
+0
+20
+0
+0
+ENDSEC
+0
+EOF
+`
+    const entities = parseString(dxf).entities
+    expect(entities).toHaveLength(1)
+    expect(entities[0].type).toEqual('POLYLINE')
+    expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
+  })
+  it('flushes a previous POLYLINE when a new POLYLINE starts', () => {
+    const dxf = `0
+SECTION
+2
+ENTITIES
+0
+POLYLINE
+8
+DXF
+0
+VERTEX
+10
+0
+20
+0
+0
+POLYLINE
+8
+DXF
+0
+VERTEX
+10
+5
+20
+5
+0
+SEQEND
+0
+ENDSEC
+0
+EOF
+`
+    const entities = parseString(dxf).entities
+    expect(entities).toHaveLength(2)
+    expect(entities[0].type).toEqual('POLYLINE')
+    expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
+    expect(entities[1].type).toEqual('POLYLINE')
+    expect(entities[1].vertices).toEqual([{ x: 5, y: 5 }])
+  })
 })
