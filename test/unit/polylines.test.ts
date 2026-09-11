@@ -9,7 +9,7 @@ const dxfContents = fs.readFileSync(
 describe('POLYLINE', () => {
   it('can be parsed', () => {
     const entities = parseString(dxfContents).entities
-    expect(entities.length).toEqual(2)
+    expect(entities).toHaveLength(2)
     expect(entities[0]).toEqual({
       closed: true,
       handle: '6F',
@@ -60,7 +60,7 @@ ENDSEC
 EOF
 `
     const entities = parseString(dxf).entities
-    expect(entities.length).toEqual(2)
+    expect(entities).toHaveLength(2)
     expect(entities[0].type).toEqual('POLYLINE')
     expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
     expect(entities[1].type).toEqual('LINE')
@@ -104,7 +104,7 @@ ENDSEC
 EOF
 `
     const entities = parseString(dxf).entities
-    expect(entities.length).toEqual(2)
+    expect(entities).toHaveLength(2)
     expect(entities[0].type).toEqual('POLYLINE')
     expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
     expect(entities[1].type).toEqual('LINE')
@@ -136,7 +136,7 @@ ENDSEC
 EOF
 `
     const entities = parseString(dxf).entities
-    expect(entities.length).toEqual(1)
+    expect(entities).toHaveLength(1)
     expect(entities[0].type).toEqual('LINE')
   })
   it('ignores an orphan SEQEND', () => {

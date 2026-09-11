@@ -144,7 +144,7 @@ export const interpolateBSpline = (
   const domain: Point = [knots[degree], knots[knots.length - 1 - degree]]
 
   for (let k = degree + 1; k < knots.length - degree; ++k) {
-    if (segmentTs[segmentTs.length - 1] !== knots[k]) {
+    if (segmentTs.slice(-1)[0] !== knots[k]) {
       segmentTs.push(knots[k])
     }
   }
@@ -338,7 +338,7 @@ export default function entityToPolyline( // NOSONAR
 
       if (polyline.length > 0) {
         const first = polyline[0]
-        const last = polyline[polyline.length - 1]
+        const last = polyline.slice(-1)[0]
         if (first[0] !== last[0] || first[1] !== last[1]) {
           polyline.push(first)
         }

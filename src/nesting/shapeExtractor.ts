@@ -104,7 +104,7 @@ function extractCircleVertices(
 ): Point2D[] | null {
   const circle = entity as CircleEntity
   if (circle.r === undefined || circle.r <= 0) return null
-  if (!isFinite(circle.r)) return null
+  if (!Number.isFinite(circle.r)) return null
 
   return circleToPolygon(circle.x, circle.y, circle.r, segments)
 }
@@ -117,9 +117,7 @@ function extractEllipseVertices(
   const ellipse = entity as EllipseEntity
   if (!ellipse.majorX || !ellipse.majorY || !ellipse.axisRatio) return null
 
-  const radiusX = Math.sqrt(
-    ellipse.majorX * ellipse.majorX + ellipse.majorY * ellipse.majorY,
-  )
+  const radiusX = Math.hypot(ellipse.majorX, ellipse.majorY)
   const radiusY = radiusX * ellipse.axisRatio
 
   if (radiusX <= 0 || radiusY <= 0) return null
@@ -342,10 +340,7 @@ function detectHoles(shapes: NestableShape[]): {
       }
     }
 
-    if (holes.length > 0) {
-      const netArea = shape.area - holes.reduce((sum, h) => sum + h.area, 0)
-      void netArea
-    } else {
+    if (holes.length === 0) {
       outerShapes.push(shape)
     }
   }

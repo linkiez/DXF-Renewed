@@ -78,12 +78,12 @@ export const process = (tuples: DXFTuple[]): LeaderEntity => {
           entity.vertices.push({ x: value as number, y: 0, z: 0 })
           break
         case 20: {
-          const current = entity.vertices[entity.vertices.length - 1]
+          const current = entity.vertices.slice(-1)[0]
           if (current) current.y = value as number
           break
         }
         case 30: {
-          const current = entity.vertices[entity.vertices.length - 1]
+          const current = entity.vertices.slice(-1)[0]
           if (current) current.z = value as number
           break
         }

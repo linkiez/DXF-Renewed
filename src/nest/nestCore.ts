@@ -307,9 +307,8 @@ async function nestSingleBin(
   const placements: NestPlacement[] = []
   const placedIds = new Set<number>()
 
-  if (bestResult && bestResult.placements) {
-    for (const binPlacements of bestResult.placements) {
-      for (const placement of binPlacements) {
+  for (const binPlacements of bestResult?.placements ?? []) {
+    for (const placement of binPlacements) {
         const sourceIdx = placement.id
         const originalPart = parts[sourceIdx]
 
@@ -334,7 +333,6 @@ async function nestSingleBin(
           placedVertices,
           color: originalPart.color,
         })
-      }
     }
   }
 
