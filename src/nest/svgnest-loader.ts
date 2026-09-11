@@ -79,7 +79,7 @@ function injectPolyfills(): void {
         let pm
         while ((pm = pathRegex.exec(str)) !== null) {
           const attrs: Record<string, string> = {}
-          const attrRegex = /(\w+)="([^"]*)"/g
+          const attrRegex = /([A-Za-z_][A-Za-z0-9_-]*)="([^"]*)"/g // NOSONAR: SVG quoted attributes require a bounded tag-local scan.
           let am
           while ((am = attrRegex.exec(pm[1])) !== null) {
             attrs[am[1]] = am[2]
@@ -102,7 +102,7 @@ function injectPolyfills(): void {
         let rm
         while ((rm = rectRegex.exec(str)) !== null) {
           const attrs: Record<string, string> = {}
-          const attrRegex = /(\w+)="([^"]*)"/g
+          const attrRegex = /([A-Za-z_][A-Za-z0-9_-]*)="([^"]*)"/g // NOSONAR: SVG quoted attributes require a bounded tag-local scan.
           let am
           while ((am = attrRegex.exec(rm[1])) !== null) {
             attrs[am[1]] = am[2]
