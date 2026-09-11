@@ -22,6 +22,7 @@ import type {
   HatchEntity,
   ImageEntity,
   LeaderEntity,
+  MLineEntity,
   MTextEntity,
   ParsedDXF,
   PdfUnderlayEntity,
@@ -444,6 +445,32 @@ const leader = (entity: LeaderEntity): BoundsAndElement | null => {
   return transformBoundingBoxAndElement(
     bbox0,
     `<path d="${d}" />`,
+    entity.transforms ?? [],
+  )
+}
+
+/**
+ * Minimal MLINE render: draws the axis segment between the parsed start point
+ * and the last parsed vertex.
+ * ponytail: MLINE group 11/21/31 repeats per vertex and the parser overwrites
+ * on each repeat, so a multi-segment MLINE collapses to a chord. Upgrade:
+ * retain the vertex list plus group 12/22/32 segment directions, then emit a
+ * per-vertex parallel-offset path driven by the MLINESTYLE element profile.
+ */
+const mline = (entity: MLineEntity): BoundsAndElement | null => {
+  const start = entity.startPoint
+  const end = entity.endPoint
+
+  if (start?.x === undefined || start?.y === undefined) return null
+  if (end?.x === undefined || end?.y === undefined) return null
+
+  const bbox = new Box2()
+    .expandByPoint({ x: start.x, y: start.y })
+    .expandByPoint({ x: end.x, y: end.y })
+
+  return transformBoundingBoxAndElement(
+    bbox,
+    `<path d="M${start.x},${start.y}L${end.x},${end.y}" />`,
     entity.transforms ?? [],
   )
 }
@@ -972,6 +999,9 @@ const entityToBoundsAndElement = (
     }
     case 'LEADER': {
       return leader(entity as LeaderEntity)
+    }
+    case 'MLINE': {
+      return mline(entity as MLineEntity)
     }
     case 'TOLERANCE': {
       return tolerance(entity as ToleranceEntity)

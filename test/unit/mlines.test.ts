@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('MLINE', () => {
-  it('parses MLINE entity and safely ignores rendering', () => {
+  it('parses MLINE entity and renders an axis segment', () => {
     const dxfContent = `0
 SECTION
 2
@@ -43,7 +43,7 @@ ENDSEC
 0
 EOF`
     const parsed = parseString(dxfContent)
-    expect(parsed.entities.length).toEqual(1)
+    expect(parsed.entities).toHaveLength(1)
     const entity = parsed.entities[0]
     expect(entity.type).toEqual('MLINE')
     expect(entity.handle).toEqual('ML1')
@@ -53,9 +53,10 @@ EOF`
     expect(entity.vertexCount).toEqual(2)
     expect(entity.styleName).toEqual('MLSTYLE_NAME')
     const polylinesResult = toPolylines(parsed)
-    expect(polylinesResult.polylines.length).toEqual(1)
+    expect(polylinesResult.polylines).toHaveLength(1)
     expect(polylinesResult.polylines[0].vertices).toEqual([])
     const svg = toSVG(parsed)
-    expect(svg).toContain('<svg')
+    expect(svg).toContain('<path d="M1,2L11,22"')
+    expect(svg).not.toContain('not supported in SVG rendering')
   })
 })
