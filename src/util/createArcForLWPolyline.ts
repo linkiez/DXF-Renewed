@@ -1,5 +1,8 @@
 import { V2 } from 'vecks'
 
+const rotateQuarterTurn = (vector: V2): V2 =>
+  new V2(-vector.y, vector.x)
+
 type Point = [number, number]
 
 /**
@@ -46,17 +49,11 @@ export default function createArcForLWPolyline(
 
   let d: V2
   if (theta < Math.PI) {
-    const normDC = new V2(
-      normAB.x * Math.cos(Math.PI / 2) - normAB.y * Math.sin(Math.PI / 2),
-      normAB.y * Math.cos(Math.PI / 2) + normAB.x * Math.sin(Math.PI / 2),
-    )
+    const normDC = rotateQuarterTurn(normAB)
     // D is the center of the arc
     d = c.add(normDC.multiply(-lengthCD))
   } else {
-    const normCD = new V2(
-      normAB.x * Math.cos(Math.PI / 2) - normAB.y * Math.sin(Math.PI / 2),
-      normAB.y * Math.cos(Math.PI / 2) + normAB.x * Math.sin(Math.PI / 2),
-    )
+    const normCD = rotateQuarterTurn(normAB)
     // D is the center of the arc
     d = c.add(normCD.multiply(lengthCD))
   }
