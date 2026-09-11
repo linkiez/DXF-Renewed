@@ -2,9 +2,9 @@ import type { DXFTuple, OleFrameEntity } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'OLEFRAME'
+const TYPE = 'OLEFRAME'
 
-export const process = (tuples: DXFTuple[]): OleFrameEntity => {
+const process = (tuples: DXFTuple[]): OleFrameEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

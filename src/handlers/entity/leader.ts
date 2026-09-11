@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'LEADER'
+const TYPE = 'LEADER'
 
 interface LeaderEntity {
   type: typeof TYPE
@@ -35,7 +35,7 @@ function ensureVector3(
   return entity[key] as { x: number; y: number; z: number }
 }
 
-export const process = (tuples: DXFTuple[]): LeaderEntity => {
+const process = (tuples: DXFTuple[]): LeaderEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

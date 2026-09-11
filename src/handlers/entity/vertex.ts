@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types/dxf'
 
 import type { Vertex } from '../../types'
 
-export const TYPE = 'VERTEX'
+const TYPE = 'VERTEX'
 
 
 const ensureFaces = (entity: Vertex): void => {
@@ -12,7 +12,7 @@ const ensureFaces = (entity: Vertex): void => {
   if ('z' in entity && !entity.z) delete entity.z
 }
 
-export const process = (tuples: DXFTuple[]): Vertex => {
+const process = (tuples: DXFTuple[]): Vertex => {
   return tuples.reduce((entity, tuple) => {
     const type = tuple[0]
     const value = tuple[1]

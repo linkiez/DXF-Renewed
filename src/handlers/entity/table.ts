@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'TABLE'
+const TYPE = 'TABLE'
 
 interface TableEntity {
   type: typeof TYPE
@@ -14,7 +14,7 @@ interface TableEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): TableEntity => {
+const process = (tuples: DXFTuple[]): TableEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const code = tuple[0]

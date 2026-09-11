@@ -2,10 +2,10 @@ import type { DXFTuple } from '../../types/dxf'
 
 import { assign } from './attdef'
 
-export const TYPE = 'ATTRIB'
+const TYPE = 'ATTRIB'
 
 
-export const process = (tuples: DXFTuple[]): any => {
+const process = (tuples: DXFTuple[]): any => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

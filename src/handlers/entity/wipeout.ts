@@ -2,7 +2,7 @@ import type { DXFTuple, PartialPoint3D } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'WIPEOUT'
+const TYPE = 'WIPEOUT'
 
 interface WipeoutEntity {
   type: typeof TYPE
@@ -22,7 +22,7 @@ interface WipeoutEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): WipeoutEntity => {
+const process = (tuples: DXFTuple[]): WipeoutEntity => {
   let pendingBoundaryX: number | null = null
 
   return tuples.reduce(

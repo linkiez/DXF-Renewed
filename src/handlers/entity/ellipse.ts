@@ -4,10 +4,10 @@ import common from './common'
 
 import type { EllipseEntity } from '../../types'
 
-export const TYPE = 'ELLIPSE'
+const TYPE = 'ELLIPSE'
 
 
-export const process = (tuples: DXFTuple[]): EllipseEntity => {
+const process = (tuples: DXFTuple[]): EllipseEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

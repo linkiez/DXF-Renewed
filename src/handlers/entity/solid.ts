@@ -10,9 +10,9 @@ interface SolidEntity {
   thickness?: number
 }
 
-export const TYPE = 'SOLID'
+const TYPE = 'SOLID'
 
-export const process = (tuples: DXFTuple[]): SolidEntity => {
+const process = (tuples: DXFTuple[]): SolidEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

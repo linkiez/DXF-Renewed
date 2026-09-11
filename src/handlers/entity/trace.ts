@@ -9,9 +9,9 @@ interface TraceEntity {
   thickness?: number
 }
 
-export const TYPE = 'TRACE'
+const TYPE = 'TRACE'
 
-export const process = (tuples: DXFTuple[]): TraceEntity => {
+const process = (tuples: DXFTuple[]): TraceEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

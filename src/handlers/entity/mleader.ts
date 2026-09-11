@@ -2,7 +2,7 @@ import type { DXFTuple, MLeaderEntity as PublicMLeaderEntity } from '../../types
 
 import common from './common'
 
-export const TYPE = 'MLEADER'
+const TYPE = 'MLEADER'
 
 interface MLeaderEntity extends PublicMLeaderEntity {
   type: typeof TYPE
@@ -10,7 +10,7 @@ interface MLeaderEntity extends PublicMLeaderEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): MLeaderEntity => {
+const process = (tuples: DXFTuple[]): MLeaderEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const code = tuple[0]

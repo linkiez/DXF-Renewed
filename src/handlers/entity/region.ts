@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'REGION'
+const TYPE = 'REGION'
 
 interface RegionEntity {
   type: typeof TYPE
@@ -12,7 +12,7 @@ interface RegionEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): RegionEntity => {
+const process = (tuples: DXFTuple[]): RegionEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const code = tuple[0]

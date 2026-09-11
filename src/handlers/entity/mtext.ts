@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types/dxf'
 
 import common from './common'
 
-export const TYPE = 'MTEXT'
+const TYPE = 'MTEXT'
 
 
 interface SimpleCodes {
@@ -110,7 +110,7 @@ const simpleCodes: SimpleCodes = {
   50: 'columnHeights',
 }
 
-export const process = (tuples: DXFTuple[]): MTextEntity => {
+const process = (tuples: DXFTuple[]): MTextEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

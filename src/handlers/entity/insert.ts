@@ -4,10 +4,10 @@ import common from './common'
 
 import type { InsertEntity } from '../../types'
 
-export const TYPE = 'INSERT'
+const TYPE = 'INSERT'
 
 
-export const process = (tuples: DXFTuple[]): InsertEntity => {
+const process = (tuples: DXFTuple[]): InsertEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

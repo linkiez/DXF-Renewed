@@ -2,9 +2,9 @@ import type { DXFTuple, ViewportEntity } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'VIEWPORT'
+const TYPE = 'VIEWPORT'
 
-export const process = (tuples: DXFTuple[]): ViewportEntity => {
+const process = (tuples: DXFTuple[]): ViewportEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

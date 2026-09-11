@@ -4,14 +4,14 @@ import common from './common'
 
 import type { Point3D, PolylineEntity } from '../../types'
 
-export const TYPE = 'LWPOLYLINE'
+const TYPE = 'LWPOLYLINE'
 
 
 interface PolylineVertex extends Point3D {
   bulge?: number
 }
 
-export const process = (tuples: DXFTuple[]): PolylineEntity => {
+const process = (tuples: DXFTuple[]): PolylineEntity => {
   let vertex: PolylineVertex | undefined
   return tuples.reduce(
     (entity, tuple) => {

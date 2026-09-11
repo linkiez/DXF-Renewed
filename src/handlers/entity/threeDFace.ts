@@ -9,9 +9,9 @@ interface ThreeDFaceEntity {
   vertices: Point3D[]
 }
 
-export const TYPE = '3DFACE'
+const TYPE = '3DFACE'
 
-export const process = (tuples: DXFTuple[]): ThreeDFaceEntity => {
+const process = (tuples: DXFTuple[]): ThreeDFaceEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

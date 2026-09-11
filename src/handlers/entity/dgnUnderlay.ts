@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'DGNUNDERLAY'
+const TYPE = 'DGNUNDERLAY'
 
 interface UnderlayEntity {
   type: typeof TYPE
@@ -20,7 +20,7 @@ interface UnderlayEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): UnderlayEntity => {
+const process = (tuples: DXFTuple[]): UnderlayEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

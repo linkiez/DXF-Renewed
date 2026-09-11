@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types/dxf'
 
 import common from './common'
 
-export const TYPE = 'SPLINE'
+const TYPE = 'SPLINE'
 
 
 interface ControlPoint {
@@ -28,7 +28,7 @@ interface SplineEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): SplineEntity => {
+const process = (tuples: DXFTuple[]): SplineEntity => {
   let controlPoint: ControlPoint
   return tuples.reduce(
     (entity, tuple) => {

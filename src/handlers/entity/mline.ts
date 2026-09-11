@@ -2,7 +2,7 @@ import type { DXFTuple, PartialPoint3D } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'MLINE'
+const TYPE = 'MLINE'
 
 interface MLineEntity {
   type: typeof TYPE
@@ -21,7 +21,7 @@ function ensurePoint3(entity: MLineEntity, key: 'startPoint' | 'endPoint'): Part
   return entity[key]
 }
 
-export const process = (tuples: DXFTuple[]): MLineEntity => {
+const process = (tuples: DXFTuple[]): MLineEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const code = tuple[0]

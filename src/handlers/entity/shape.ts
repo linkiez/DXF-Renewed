@@ -2,7 +2,7 @@ import type { DXFTuple, PartialPoint3D } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'SHAPE'
+const TYPE = 'SHAPE'
 
 interface ShapeEntity {
   type: typeof TYPE
@@ -18,7 +18,7 @@ interface ShapeEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): ShapeEntity => {
+const process = (tuples: DXFTuple[]): ShapeEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

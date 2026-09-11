@@ -2,7 +2,7 @@ import type { DXFTuple, HatchEntity, HatchLoop, HatchSeed } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'HATCH'
+const TYPE = 'HATCH'
 
 let status: 'IDLE' | 'POLYLINE' | 'SEED' | 'ENT' | 'SPLINE' = 'IDLE'
 let drawEntity: any = {}
@@ -12,7 +12,7 @@ let seed: HatchSeed | null = null
 let loop: HatchLoop = { references: [], entities: [] }
 let polyPoint: any = null
 
-export const process = (tuples: DXFTuple[]): HatchEntity => {
+const process = (tuples: DXFTuple[]): HatchEntity => {
   status = 'IDLE'
   drawEntity = {}
   drawType = 0

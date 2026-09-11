@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types/dxf'
 
 import common from './common'
 
-export const TYPE = 'POINT'
+const TYPE = 'POINT'
 
 
 interface PointEntity {
@@ -14,7 +14,7 @@ interface PointEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): PointEntity => {
+const process = (tuples: DXFTuple[]): PointEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

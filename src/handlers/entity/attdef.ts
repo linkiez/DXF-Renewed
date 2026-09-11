@@ -5,9 +5,9 @@ import { assign as assignMTEXT } from './mtext'
 import { assign as assignTEXT } from './text'
 
 
-export const TYPE = 'ATTDEF'
+const TYPE = 'ATTDEF'
 
-export const process = (tuples: DXFTuple[]): any => {
+const process = (tuples: DXFTuple[]): any => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]

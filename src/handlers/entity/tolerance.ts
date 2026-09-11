@@ -2,7 +2,7 @@ import type { DXFTuple } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'TOLERANCE'
+const TYPE = 'TOLERANCE'
 
 interface ToleranceEntity {
   type: typeof TYPE
@@ -23,7 +23,7 @@ function ensureVector3(
   return entity[key] as { x: number; y: number; z: number }
 }
 
-export const process = (tuples: DXFTuple[]): ToleranceEntity => {
+const process = (tuples: DXFTuple[]): ToleranceEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const code = tuple[0]

@@ -2,7 +2,7 @@ import type { DXFTuple, PartialPoint3D } from '../../types'
 
 import common from './common'
 
-export const TYPE = 'XLINE'
+const TYPE = 'XLINE'
 
 interface XLineEntity {
   type: typeof TYPE
@@ -11,7 +11,7 @@ interface XLineEntity {
   [key: string]: unknown
 }
 
-export const process = (tuples: DXFTuple[]): XLineEntity => {
+const process = (tuples: DXFTuple[]): XLineEntity => {
   return tuples.reduce(
     (entity, tuple) => {
       const type = tuple[0]
