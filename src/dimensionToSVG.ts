@@ -268,6 +268,25 @@ const expandBBoxForText = (
   bbox.expandByPoint({ x: x + textWidth / 2, y: y + height })
 }
 
+const appendDimensionText = (
+  bbox: Box2,
+  elements: string[],
+  text: {
+    x: number
+    y: number
+    height: number
+    color: string
+    content: string
+    rotation: number
+  },
+): void => {
+  const { x, y, height, color, content, rotation } = text
+  expandBBoxForText(bbox, x, y, height, content)
+  elements.push(
+    `<text x="${x}" y="${y}" font-size="${height}" fill="${color}" stroke="none" text-anchor="middle" transform="rotate(${-rotation} ${x} ${y}) scale(1,-1) translate(0 ${-2 * y})">${escapeXmlText(content)}</text>`,
+  )
+}
+
 /**
  * Convert DXF color number to SVG color string
  */
@@ -504,11 +523,14 @@ function renderAngular3PointDimension(
     const midAngle = a1 + delta / 2
     const textRotation = (midAngle * 180) / Math.PI
 
-    expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
-
-    elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
-    )
+    appendDimensionText(bbox, elements, {
+      x: textX,
+      y: textY,
+      height: textHeight,
+      color: textColor,
+      content: resolvedText,
+      rotation: textRotation,
+    })
   }
 
   return {
@@ -626,10 +648,14 @@ function renderLinearDimension(
   const resolvedText = resolveDimensionText(entity)
   if (resolvedText) {
     const textRotation = (angle * 180) / Math.PI
-    expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
-    elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
-    )
+    appendDimensionText(bbox, elements, {
+      x: textX,
+      y: textY,
+      height: textHeight,
+      color: textColor,
+      content: resolvedText,
+      rotation: textRotation,
+    })
   }
 
   return {
@@ -716,11 +742,14 @@ function renderAngularDimension(
     const midAngle = (startAngle + endAngle) / 2
     const textRotation = (midAngle * 180) / Math.PI
 
-    expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
-
-    elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
-    )
+    appendDimensionText(bbox, elements, {
+      x: textX,
+      y: textY,
+      height: textHeight,
+      color: textColor,
+      content: resolvedText,
+      rotation: textRotation,
+    })
   }
 
   return {
@@ -914,11 +943,14 @@ function renderOrdinateDimension(
     const angle = Math.atan2(y2 - y1, x2 - x1)
     const textRotation = (angle * 180) / Math.PI
 
-    expandBBoxForText(bbox, textX, textY, textHeight, resolvedText)
-
-    elements.push(
-      `<text x="${textX}" y="${textY}" font-size="${textHeight}" fill="${textColor}" stroke="none" text-anchor="middle" transform="rotate(${-textRotation} ${textX} ${textY}) scale(1,-1) translate(0 ${-2 * textY})">${escapeXmlText(resolvedText)}</text>`,
-    )
+    appendDimensionText(bbox, elements, {
+      x: textX,
+      y: textY,
+      height: textHeight,
+      color: textColor,
+      content: resolvedText,
+      rotation: textRotation,
+    })
   }
 
   return {
