@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.7.2 (2026-09-11)</small>
+
+* fix(handlers): remove duplicate named exports ([81566b8](https://github.com/linkiez/DXF-Renewed/commit/81566b8))
+* fix(hatch): reduce redundant parser blocks ([c9c1679](https://github.com/linkiez/DXF-Renewed/commit/c9c1679))
+
 ## <small>7.7.1 (2026-09-11)</small>
 
 * refactor(types): share OLE frame data contract ([50509ad](https://github.com/linkiez/DXF-Renewed/commit/50509ad))
