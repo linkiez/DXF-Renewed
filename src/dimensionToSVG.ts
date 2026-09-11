@@ -166,35 +166,21 @@ const computeLinearDistance = (
   y2: number,
 ): number => Math.hypot(x2 - x1, y2 - y1)
 
-const computeAngularDegreesMinimal = (
+const computeAngularDelta = (
   cx: number,
   cy: number,
   x1: number,
   y1: number,
   x2: number,
   y2: number,
-): number => {
-  const a1 = Math.atan2(y1 - cy, x1 - cx)
-  const a2 = Math.atan2(y2 - cy, x2 - cx)
-  let delta = Math.abs(a2 - a1)
-  while (delta > Math.PI * 2) delta -= Math.PI * 2
-  if (delta > Math.PI) delta = Math.PI * 2 - delta
-  return (delta * 180) / Math.PI
-}
-
-const computeAngularDegreesCCW = (
-  cx: number,
-  cy: number,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
+  shortest: boolean,
 ): number => {
   const a1 = Math.atan2(y1 - cy, x1 - cx)
   const a2 = Math.atan2(y2 - cy, x2 - cx)
   let delta = a2 - a1
   while (delta < 0) delta += Math.PI * 2
   while (delta >= Math.PI * 2) delta -= Math.PI * 2
+  if (shortest && delta > Math.PI) delta = Math.PI * 2 - delta
   return (delta * 180) / Math.PI
 }
 
@@ -226,14 +212,14 @@ const computeDimensionMeasurement = (entity: DimensionEntity): string => {
     case 2: {
       const cx = entity.start?.x ?? 0
       const cy = entity.start?.y ?? 0
-      const degrees = computeAngularDegreesMinimal(cx, cy, x1, y1, x2, y2)
+      const degrees = computeAngularDelta(cx, cy, x1, y1, x2, y2, true)
       const formatted = formatDimensionValue(degrees)
       return formatted ? `${formatted}°` : ''
     }
     case 5: {
       const cx = entity.angleVertex?.x ?? 0
       const cy = entity.angleVertex?.y ?? 0
-      const degrees = computeAngularDegreesCCW(cx, cy, x1, y1, x2, y2)
+      const degrees = computeAngularDelta(cx, cy, x1, y1, x2, y2, false)
       const formatted = formatDimensionValue(degrees)
       return formatted ? `${formatted}°` : ''
     }
