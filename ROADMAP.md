@@ -18,14 +18,14 @@ This document describes a phased plan to align this project’s DXF parsing beha
 
 ## Progress
 
-Last updated: 2026-08-16
+Last updated: 2026-09-10
 
 - M0 — Baseline & Regression Harness: done (existing unit + integration coverage is in place).
 - M1 — DXF Format & Section-Level Compliance: ongoing (incremental hardening as fixtures demand).
-- M2 — TABLES Coverage (2D-Relevant): in progress (added minimal parsing for APPID, BLOCK_RECORD, UCS, VIEW).
-- M3 — OBJECTS Coverage (2D-Relevant): in progress (DICTIONARY/XRECORD/IMAGEDEF/UNDERLAY definitions exist; added minimal DIMASSOC parsing).
-- M4 — ENTITIES: Complete 2D Set: ongoing (HATCH solid-loop SVG rendering now exists; remaining gaps are still centered on parse-only entities such as MLINE/REGION/TABLE entity and richer annotation/reference fidelity).
-- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
+- M2 — TABLES Coverage (2D-Relevant): done (LAYER, LTYPE, STYLE, VPORT, DIMSTYLE plus APPID, BLOCK_RECORD, UCS, VIEW).
+- M3 — OBJECTS Coverage (2D-Relevant): done (LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions, TABLESTYLE, GROUP).
+- M4 — ENTITIES: Complete 2D Set: ongoing (POLYLINE/VERTEX/SEQEND sequencing hardened and covered by unit tests; HATCH solid-loop SVG rendering exists; remaining gaps are still centered on parse-only entities such as MLINE/REGION/TABLE entity and richer annotation/reference fidelity).
+- M5 — Rendering Parity (toPolylines / toSVG): ongoing (TRACE renders in SVG as a filled path; LEADER converts to polylines; RAY/XLINE render via finite polyline fallback; SHAPE renders as text fallback; IMAGE renders as a dashed placeholder extent quad and is block-basepoint aware; DWF/DGN/PDF UNDERLAY render as dashed placeholder unit-square quads; closed POLYLINE/LWPOLYLINE fills, solid HATCH evenodd holes, and configurable SVG stroke-width scaling are now covered by unit and browser tests).
 
 ## References
 
@@ -248,22 +248,22 @@ This section is intentionally short; it highlights gaps relevant to the migratio
 
 Entity parsers currently exist for (see `src/handlers/entities.ts` and `src/handlers/entity/*`):
 
-- Implemented: ARC, ATTDEF, ATTRIB, CIRCLE, DIMENSION, ELLIPSE, HATCH, INSERT, LEADER, LINE, LWPOLYLINE, MTEXT, OLE2FRAME, POINT, POLYLINE, RAY, SHAPE, SOLID, SPLINE, TEXT, TOLERANCE, TRACE, WIPEOUT, XLINE, 3DFACE, VERTEX, VIEWPORT.
-- Missing (not exhaustive): SEQEND handling robustness.
+- Implemented: ARC, ATTDEF, ATTRIB, CIRCLE, DIMENSION, DGNUNDERLAY, DWFUNDERLAY, PDFUNDERLAY, ELLIPSE, HATCH, IMAGE, INSERT, LEADER, LINE, LWPOLYLINE, MLEADER, MLINE, MTEXT, OLE2FRAME, OLEFRAME, POINT, POLYLINE, RAY, REGION, SHAPE, SOLID, SPLINE, TABLE, TEXT, TOLERANCE, TRACE, WIPEOUT, XLINE, 3DFACE, VERTEX, VIEWPORT.
+- Missing (not exhaustive): none for the 2D set; remaining work is render parity for parse-only entities (MLEADER, MLINE, REGION, TABLE entity, OLEFRAME).
 
 ### Tables
 
 `src/handlers/tables.ts` parses:
 
-- Implemented: LAYER, LTYPE, STYLE, VPORT, DIMSTYLE.
-- Missing from Autodesk TOC: APPID, BLOCK_RECORD, UCS, VIEW.
+- Implemented: LAYER, LTYPE, STYLE, VPORT, DIMSTYLE, APPID, BLOCK_RECORD, UCS, VIEW.
+- Missing from Autodesk TOC: none of the 2D-relevant set.
 
 ### Objects
 
 `src/handlers/objects.ts` currently parses:
 
-- Implemented: LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions.
-- Missing from Autodesk TOC subset above: TABLESTYLE, GROUP, etc.
+- Implemented: LAYOUT (partial), DICTIONARY, XRECORD, DIMASSOC, FIELD, IMAGEDEF (+ reactor), UNDERLAY definitions, TABLESTYLE, GROUP.
+- Missing from Autodesk TOC subset above: none of the 2D-relevant set.
 
 ## Project Analysis (Code-Backed)
 
@@ -333,7 +333,7 @@ The project has two rendering outputs:
 | LWPOLYLINE  | Yes           | Yes                                             | Yes                              | Yes                              |
 | POLYLINE    | Yes           | Yes                                             | Yes                              | Yes                              |
 | VERTEX      | Yes           | N/A                                             | N/A                              | N/A                              |
-| SEQEND      | Sentinel only | N/A                                             | N/A                              | N/A                              |
+| SEQEND      | Sentinel only (sequencing unit-tested) | N/A                                             | N/A                              | N/A                              |
 | ARC         | Yes           | Yes                                             | Yes                              | Yes                              |
 | CIRCLE      | Yes           | Yes                                             | Yes                              | Yes                              |
 | ELLIPSE     | Yes           | Yes                                             | Yes                              | Yes                              |
@@ -465,7 +465,7 @@ There is already substantial fixture coverage in `test/resources/*.dxf` and unit
 
 **PR-sized breakdown (recommended order):**
 
-- PR 4.1: Make `SEQEND` handling robust (ensure it terminates a polyline even if the `SEQEND` group is otherwise unsupported).
+- ✅ PR 4.1: `SEQEND` terminates a running `POLYLINE` even when the `SEQEND` group is otherwise unsupported (covered by unit tests in `test/unit/polylines.test.ts`).
 - PR 4.2: Add the first new 2D entity end-to-end: type + handler + at least one fixture/test + minimal rendering support.
 - PR 4.3+: Continue entity additions in small vertical slices (one entity or one closely-related group per PR).
 
@@ -552,13 +552,13 @@ The items below are the main gaps to reach “complete 2D” as defined in this 
 
 | Entity         | Parse         | Render (SVG)                         | Render (Polylines) | Block-safe | Minimal implementation checklist                                                                                                                                                |
 | -------------- | ------------- | ------------------------------------ | ------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SEQEND         | Sentinel only | N/A                                  | N/A                | N/A        | Add `src/handlers/entity/seqend.ts` (optional) or harden sequencing in `src/handlers/entities.ts` + add fixture that stresses POLYLINE/VERTEX/SEQEND ordering                   |
+| SEQEND         | Sentinel only (sequencing unit-tested) | N/A                                  | N/A                | N/A        | Implemented (sequencing hardened in `src/handlers/entities.ts` + edge-case unit tests; no dedicated handler needed)                                                              |
 | LEADER         | Yes           | Yes                                  | Yes                | No         | Implemented (minimal polyline support + SVG routing)                                                                                                                            |
 | HATCH          | Yes           | Yes (solid loops with evenodd holes) | No                 | No         | Implemented SVG rendering for solid boundary loops; patterned HATCH remains a future enhancement                                                                                |
 | MLEADER        | Yes           | No                                   | No                 | No         | Implemented parse-only + safe ignore in rendering                                                                                                                               |
 | TOLERANCE      | Yes           | Yes                                  | No                 | No         | Implemented (SVG text fallback only)                                                                                                                                            |
-| IMAGE          | Yes           | No                                   | No                 | No         | Add `src/types/image-entity.ts`; add `src/handlers/entity/image.ts`; add OBJECTS: IMAGEDEF/IMAGEDEF_REACTOR; render as placeholder rect or ignore safely                        |
-| UNDERLAY       | Yes           | No                                   | No                 | No         | Add `src/types/underlay-entity.ts`; add `src/handlers/entity/dwfUnderlay.ts` + `src/handlers/entity/dgnUnderlay.ts`; add OBJECTS: UNDERLAYDEFINITION; render placeholder/ignore |
+| IMAGE          | Yes           | Yes (placeholder extent quad)        | No                 | Yes        | Implemented (dashed quad derived from insertion point + U/V pixel vectors; bitmap embedding and clipping boundary remain future work)                                           |
+| UNDERLAY       | Yes           | Yes (placeholder unit-square quad)   | No                 | No         | Implemented (dashed quad scaled/rotated per entity; external file is not read and clipping boundary is not applied)                                                              |
 | WIPEOUT        | Yes           | Yes                                  | Yes                | No         | Implemented (outline-only; masking not yet implemented)                                                                                                                         |
 | RAY            | Yes           | Yes                                  | Yes                | No         | Implemented (finite fallback in polyline/SVG)                                                                                                                                   |
 | XLINE          | Yes           | Yes                                  | Yes                | No         | Implemented (finite fallback in polyline/SVG)                                                                                                                                   |
@@ -588,8 +588,8 @@ The items below are the main gaps to reach “complete 2D” as defined in this 
 | IMAGEDEF / IMAGEDEF_REACTOR | Implemented    | `src/handlers/objects.ts`                               | Parse enough to resolve IMAGE entity references; do not crash if external files missing            |
 | UNDERLAYDEFINITION          | Implemented    | `src/handlers/objects.ts`                               | Parse enough to resolve DWFUNDERLAY/DGNUNDERLAY references; do not crash if external files missing |
 | FIELD                       | Implemented    | `src/handlers/objects.ts`                               | Implemented minimal parse; preserves raw tuples for downstream consumers                           |
-| TABLESTYLE                  | Missing        | `src/handlers/objects.ts`                               | Parse style basics; used later for TABLE entity rendering                                          |
-| GROUP                       | Missing        | `src/handlers/objects.ts`                               | Parse group membership; safe ignore if not used                                                    |
+| TABLESTYLE                  | Implemented    | `src/handlers/objects.ts`                               | Implemented minimal parse (name + raw tuples); underlies future TABLE entity rendering             |
+| GROUP                       | Implemented    | `src/handlers/objects.ts`                               | Implemented minimal parse (description + member entity handles)                                     |
 
 ## Appendix B — PR Sequencing (Executable Roadmap)
 
@@ -606,7 +606,7 @@ This appendix provides an explicit sequence of PRs. The intent is to keep each P
 
 - **Stabilize existing behavior**: ✅ PR B1.1 (POLYLINE/VERTEX/SEQEND sequencing), ✅ PR B1.2 (block basepoint for TEXT/MTEXT/DIMENSION).
 - **Unblock references and metadata**: ✅ PR B1.3 (OBJECTS dispatch + DICTIONARY), ✅ PR B1.4 (XRECORD).
-- **Enable images/underlays**: ✅ PR B1.5 (IMAGEDEF / IMAGEDEF_REACTOR), ✅ PR B1.6 (IMAGE entity), ✅ PR B1.7 (UNDERLAY defs + UNDERLAY entity).
+- **Enable images/underlays**: ✅ PR B1.5 (IMAGEDEF / IMAGEDEF_REACTOR), ✅ PR B1.6 (IMAGE entity), ✅ PR B1.7 (UNDERLAY defs + UNDERLAY entity), ✅ IMAGE SVG placeholder extent quad + block-basepoint handling.
 - **Add remaining common 2D annotation**: ✅ PR B1.8 (LEADER), ✅ PR B1.9 (TOLERANCE), ✅ PR B1.10 (DIMASSOC), ✅ PR B1.11 (MLEADER).
 
 ### B.2 PR templates by feature type
@@ -644,8 +644,8 @@ This table expands Appendix A into explicit PR steps.
 | LEADER         | Done                                                            | Done                                          | Done             | Optional                                          |
 | MLEADER        | Done (parse-only)                                               | Safe ignore or placeholder first              | N/A              | Later, after DICTIONARY/XRECORD/DIMASSOC coverage |
 | TOLERANCE      | Done                                                            | Done (text fallback)                          | N/A              | Optional                                          |
-| IMAGE          | Add IMAGEDEF(+reactor) objects, then IMAGE entity parse + tests | Placeholder rect/image element or safe ignore | N/A              | Update `denormalise` for block-contained images   |
-| UNDERLAY       | Add underlay defs objects, then UNDERLAY entity parse + tests   | Placeholder                                   | N/A              | Optional                                          |
+| IMAGE          | Done                                                            | Done (placeholder extent quad)                | N/A              | Done                                              |
+| UNDERLAY       | Done                                                            | Done (placeholder unit-square quad)           | N/A              | Optional                                          |
 | WIPEOUT        | Done                                                            | Done (outline-only fallback)                  | Done             | Optional                                          |
 | RAY            | Done                                                            | Done                                          | Done             | Optional                                          |
 | XLINE          | Done                                                            | Done                                          | Done             | Optional                                          |
@@ -670,5 +670,5 @@ This table expands Appendix A into explicit PR steps.
 - PR: Add DIMASSOC support + tests.
 - PR: Add IMAGEDEF / IMAGEDEF_REACTOR support + tests.
 - ✅ PR: Add FIELD support + tests.
-- PR: Add TABLESTYLE support + tests.
-- PR: Add GROUP support + tests.
+- ✅ PR: Add TABLESTYLE support + tests.
+- ✅ PR: Add GROUP support + tests.
