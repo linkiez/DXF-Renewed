@@ -1,7 +1,9 @@
-const http = require('node:http')
-const { createReadStream, existsSync, statSync } = require('node:fs')
-const { extname, join, normalize, resolve } = require('node:path')
+import http from 'node:http'
+import { createReadStream, existsSync, statSync } from 'node:fs'
+import { dirname, extname, join, normalize, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
 const projectRoot = resolve(__dirname, '..')
 const port = Number(process.env.PORT || 4173)
 

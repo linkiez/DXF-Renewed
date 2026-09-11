@@ -12,7 +12,6 @@ export default [
       'node_modules/**/*',
       'src/nest/**/*',
       '*.config.js',
-      '*.config.cjs',
       'build.mjs',
       'examples/**/*',
     ],
@@ -23,32 +22,6 @@ export default [
 
   // TypeScript configuration
   ...tseslint.configs.recommended,
-
-  // CommonJS files configuration
-  {
-    files: ['**/*.cjs'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      sourceType: 'commonjs',
-      globals: {
-        // Node.js globals
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        exports: 'readonly',
-        global: 'readonly',
-        globalThis: 'readonly',
-        URL: 'readonly',
-      },
-    },
-    rules: {
-      '@typescript-eslint/no-require-imports': 'off',
-    },
-  },
 
   // Custom rules for JS/TS modules
   {

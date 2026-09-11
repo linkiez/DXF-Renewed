@@ -3,24 +3,24 @@
  * Reduces duplication across maxrects, guillotine, shelf algorithms
  */
 
-import type { NestableShape, Placement } from '../types'
+import type { Placement } from '../types'
 
-export interface SingleSheetResult {
+export interface SingleSheetResult<T> {
   placements: Placement[]
-  unplaced: NestableShape[]
+  unplaced: T[]
 }
 
 /**
  * Pack shapes across multiple sheets using provided single-sheet packer
  * ponytail: extracted common loop from maxrects/guillotine/shelf, upgrade when adding new bin-packing algorithm
  */
-export function packMultiSheet(
-  shapes: NestableShape[],
+export function packMultiSheet<T>(
+  shapes: T[],
   maxSheets: number,
-  packSingleSheet: (shapes: NestableShape[]) => SingleSheetResult,
+  packSingleSheet: (shapes: T[]) => SingleSheetResult<T>,
 ): {
   sheetPlacements: Placement[][]
-  unplaced: NestableShape[]
+  unplaced: T[]
 } {
   const allPlacements: Placement[][] = []
   let remaining = shapes

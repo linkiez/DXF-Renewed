@@ -1,5 +1,6 @@
-/** @type {import('@playwright/test').PlaywrightTestConfig} */
-const config = {
+import type { PlaywrightTestConfig } from '@playwright/test'
+
+const config: PlaywrightTestConfig = {
   testDir: 'test/integration-browser',
   timeout: 30_000,
   expect: {
@@ -9,7 +10,7 @@ const config = {
     baseURL: 'http://localhost:4173',
   },
   webServer: {
-    command: 'yarn dist && node tools/browser_test_server.cjs',
+    command: 'yarn dist && node tools/browser_test_server.js',
     port: 4173,
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
@@ -17,4 +18,4 @@ const config = {
   },
 }
 
-module.exports = config
+export default config

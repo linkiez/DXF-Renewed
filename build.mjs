@@ -40,7 +40,7 @@ async function getEntryPoints(dir) {
         continue
       }
 
-      if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.js'))) {
+      if (entry.isFile() && /\.(ts|js|cjs)$/.test(entry.name)) {
         entries.push(fullPath)
       }
     }
@@ -52,11 +52,8 @@ async function getEntryPoints(dir) {
 async function build() {
   await emitTypeDeclarations()
 
-  const entryPoints = await getEntryPoints('src')
-
-  // Build ESM version
   await esbuild.build({
-    entryPoints,
+    entryPoints: await getEntryPoints('src'),
     outdir: 'lib',
     platform: 'node',
     format: 'esm',
@@ -66,24 +63,7 @@ async function build() {
     logLevel: 'info',
   })
 
-  // Build CommonJS version for backwards compatibility
-  await esbuild.build({
-    entryPoints,
-    outdir: 'lib',
-    platform: 'node',
-    format: 'cjs',
-    target: 'es2020',
-    sourcemap: true,
-    outExtension: { '.js': '.cjs' },
-    // CJS output does not support import.meta; this prevents warnings for code
-    // that uses import.meta.url only as an ESM fallback.
-    define: {
-      'import.meta.url': '__filename',
-    },
-    logLevel: 'info',
-  })
-
-  console.log('✓ Build completed successfully (ESM + CJS)')
+  console.log('✓ Build completed successfully (ESM only)')
 }
 
 try {

@@ -1,13 +1,13 @@
 // svgnest-loader.ts — Carrega os módulos do SVGnest incorporados
 //
 // Arquivos (código fonte incorporado, SEM dependência externa):
-//   clipper-core.js        — ClipperLib 6.1.3a (Boost License)
+//   clipper-core.cjs       — ClipperLib 6.1.3a (Boost License)
 //   geometryutil-core.js   — GeometryUtil (MIT)
 //   svgparser-core.js      — SvgParser (MIT)
 //   svgnest-core.js        — SvgNest (MIT)
 
 import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import path from 'node:path'
 
 const require = createRequire(import.meta.url)
@@ -144,7 +144,8 @@ async function loadClipper(): Promise<any> {
   if (_clipperLib) return _clipperLib
   injectPolyfills()
 
-  _clipperLib = require(path.join(__dirname, 'clipper-core.js'))
+  // UMD file: keeps its module.exports branch, so load through require
+  _clipperLib = require(path.join(__dirname, 'clipper-core.cjs'))
 
   if (!_clipperLib?.Clipper) {
     throw new Error('[svgnest-loader] ClipperLib não carregou')
@@ -158,7 +159,8 @@ async function loadGeometryUtil(): Promise<any> {
   if (_geometryUtil) return _geometryUtil
   await loadClipper()
 
-  require(path.join(__dirname, 'geometryutil-core.js'))
+  // Global-only IIFE: import for side effects, then read the global it sets
+  await import(pathToFileURL(path.join(__dirname, 'geometryutil-core.js')).href)
   _geometryUtil = (globalThis as any).GeometryUtil
 
   if (!_geometryUtil) {
@@ -172,10 +174,10 @@ async function loadSvgNest(): Promise<any> {
   await loadClipper()
   await loadGeometryUtil()
 
-  require(path.join(__dirname, 'matrix-core.js'))
-  require(path.join(__dirname, 'svgparser-core.js'))
-  require(path.join(__dirname, 'svgnest-core.js'))
-  require(path.join(__dirname, 'placementworker-core.js'))
+  await import(pathToFileURL(path.join(__dirname, 'matrix-core.js')).href)
+  await import(pathToFileURL(path.join(__dirname, 'svgparser-core.js')).href)
+  await import(pathToFileURL(path.join(__dirname, 'svgnest-core.js')).href)
+  await import(pathToFileURL(path.join(__dirname, 'placementworker-core.js')).href)
   _svgNest = (globalThis as any).SvgNest
 
   if (!_svgNest) {
