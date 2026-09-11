@@ -1,19 +1,13 @@
 // MTEXT entity type
 
-import type { BaseEntity } from './base-entity'
+import type { TextContentEntity } from './text-content-entity'
 
-export interface MTextEntity extends BaseEntity {
+export interface MTextEntity extends TextContentEntity {
   type: 'MTEXT'
-  string: string
-  x?: number
-  y?: number
-  z?: number
   nominalTextHeight?: number
-  textHeight?: number
   refRectangleWidth?: number
   attachmentPoint?: number
   drawingDirection?: number
-  styleName?: string
   xAxisX?: number
   xAxisY?: number
   xAxisZ?: number

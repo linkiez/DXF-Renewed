@@ -1,22 +1,16 @@
 // TEXT entity type
 
-import type { BaseEntity } from './base-entity'
+import type { TextContentEntity } from './text-content-entity'
 
-export interface TextEntity extends BaseEntity {
+export interface TextEntity extends TextContentEntity {
   type: 'TEXT'
-  string: string
-  x?: number
-  y?: number
-  z?: number
   x2?: number
   y2?: number
   z2?: number
   thickness?: number
-  textHeight?: number
   relScaleX?: number
   rotation?: number
   obliqueAngle?: number
-  styleName?: string
   mirror?: number
   hAlign?: number
   vAlign?: number
