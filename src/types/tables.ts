@@ -2,6 +2,7 @@
 
 import type { Point2D, Point3D } from './common'
 import type { DXFTuple } from './dxf'
+import type { ViewportPoint2D, ViewportPoint3D } from './viewport-fields'
 
 /**
  * Partial point for parsing (all coordinates optional)
@@ -204,21 +205,21 @@ export interface VPortInternal {
   /** Standard flags (bit-coded) */
   flags?: string | number
   /** Lower-left corner coordinates */
-  lowerLeft: { x?: number; y?: number }
+  lowerLeft: ViewportPoint2D
   /** Upper-right corner coordinates */
-  upperRight: { x?: number; y?: number }
+  upperRight: ViewportPoint2D
   /** Center point coordinates */
-  center: { x?: number; y?: number }
+  center: ViewportPoint2D
   /** Snap settings */
   snap?: Record<string, unknown>
   /** Snap spacing */
-  snapSpacing: { x?: number; y?: number }
+  snapSpacing: ViewportPoint2D
   /** Grid spacing */
-  gridSpacing: { x?: number; y?: number }
+  gridSpacing: ViewportPoint2D
   /** View direction from target */
-  direction: { x?: number; y?: number; z?: number }
+  direction: ViewportPoint3D
   /** View target point */
-  target: { x?: number; y?: number; z?: number }
+  target: ViewportPoint3D
   /** View height */
   height?: number
   /** Snap rotation angle */

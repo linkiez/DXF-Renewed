@@ -34,6 +34,7 @@ export * from './tolerance-entity'
 export * from './trace-entity'
 export * from './underlay-entity'
 export * from './viewport-entity'
+export * from './viewport-fields'
 export * from './wipeout-entity'
 export * from './xline-entity'
 

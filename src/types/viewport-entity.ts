@@ -1,6 +1,7 @@
 // Viewport entity type
 
 import type { BaseEntity } from './base-entity'
+import type { ViewportPoint2D, ViewportPoint3D } from './viewport-fields'
 
 /**
  * Viewport entity
@@ -41,41 +42,17 @@ export interface ViewportEntity extends BaseEntity {
   /** Render mode */
   render?: string | number
   /** Center point in WCS */
-  center?: {
-    x?: number
-    y?: number
-    z?: number
-  }
+  center?: ViewportPoint3D
   /** Center point in DCS */
-  centerDCS?: {
-    x?: number
-    y?: number
-  }
+  centerDCS?: ViewportPoint2D
   /** Snap base point */
-  snap?: {
-    x?: number
-    y?: number
-  }
+  snap?: ViewportPoint2D
   /** Snap spacing */
-  snapSpacing?: {
-    x?: number
-    y?: number
-  }
+  snapSpacing?: ViewportPoint2D
   /** Grid spacing */
-  gridSpacing?: {
-    x?: number
-    y?: number
-  }
+  gridSpacing?: ViewportPoint2D
   /** View direction from target */
-  direction?: {
-    x?: number
-    y?: number
-    z?: number
-  }
+  direction?: ViewportPoint3D
   /** View target point */
-  target?: {
-    x?: number
-    y?: number
-    z?: number
-  }
+  target?: ViewportPoint3D
 }
