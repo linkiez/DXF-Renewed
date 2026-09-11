@@ -28,7 +28,7 @@ const process = (tuples: DXFTuple[]): any => {
   )
 }
 
-export const assign = (entity: any, type: number, value: string | number): void => {
+export const assign = (entity: any, type: number, value: string | number): void => { // NOSONAR: DXF subclass/group-code dispatch is intentionally centralized.
   switch (type) {
     case 100: {
       entity.subclassMarker = value
