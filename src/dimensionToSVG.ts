@@ -283,6 +283,23 @@ const appendDimensionText = (
   )
 }
 
+const appendRadialArrow = (
+  bbox: Box2,
+  elements: string[],
+  markers: string[],
+  geometry: { x1: number; y1: number; x2: number; y2: number },
+  style: { size: number; color: string; weight: string; prefix: string },
+): void => {
+  const { x1, y1, x2, y2 } = geometry
+  const { size, color, weight, prefix } = style
+  const markerId = `dim-${prefix}-arrow-${Date.now()}`
+  markers.push(createArrowMarker(markerId, size, color, 'backward'))
+  elements.push(
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${weight}" marker-end="url(#${markerId})" />`,
+  )
+  expandBBoxForMarker(bbox, x2, y2, size)
+}
+
 /**
  * Convert DXF color number to SVG color string
  */
@@ -779,18 +796,12 @@ function renderDiameterDimension(
 
   const diameterLen = Math.hypot(x2 - x1, y2 - y1)
   if (Number.isFinite(diameterLen) && diameterLen > 1e-6) {
-    // Create arrow markers
-    const markerId = `dim-diameter-arrow-${Date.now()}`
-    markers.push(
-      createArrowMarker(markerId, arrowSize, dimLineColor, 'backward'),
-    )
-
-    // Create diameter line with arrow at the end
-    elements.push(
-      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${dimLineColor}" stroke-width="${dimLineWeight}" marker-end="url(#${markerId})" />`,
-    )
-
-    expandBBoxForMarker(bbox, x2, y2, arrowSize)
+    appendRadialArrow(bbox, elements, markers, { x1, y1, x2, y2 }, {
+      size: arrowSize,
+      color: dimLineColor,
+      weight: dimLineWeight,
+      prefix: 'diameter',
+    })
   }
 
   // Add dimension text with diameter symbol
@@ -842,18 +853,12 @@ function renderRadialDimension(
 
   const radiusLen = Math.hypot(x2 - x1, y2 - y1)
   if (Number.isFinite(radiusLen) && radiusLen > 1e-6) {
-    // Create arrow markers
-    const markerId = `dim-radius-arrow-${Date.now()}`
-    markers.push(
-      createArrowMarker(markerId, arrowSize, dimLineColor, 'backward'),
-    )
-
-    // Create radius line with arrow at the end
-    elements.push(
-      `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${dimLineColor}" stroke-width="${dimLineWeight}" marker-end="url(#${markerId})" />`,
-    )
-
-    expandBBoxForMarker(bbox, x2, y2, arrowSize)
+    appendRadialArrow(bbox, elements, markers, { x1, y1, x2, y2 }, {
+      size: arrowSize,
+      color: dimLineColor,
+      weight: dimLineWeight,
+      prefix: 'radius',
+    })
   }
 
   // Add dimension text with radius symbol
