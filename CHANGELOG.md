@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## <small>7.7.4 (2026-09-11)</small>
+
+* fix(hatch): document stateful dispatch complexity ([9ebbf92](https://github.com/linkiez/DXF-Renewed/commit/9ebbf92))
+* fix(nesting): document bounded SVG attribute parsing ([c6ea2db](https://github.com/linkiez/DXF-Renewed/commit/c6ea2db))
+* refactor(handlers): reuse point parsing in CIRCLE ([d3085ec](https://github.com/linkiez/DXF-Renewed/commit/d3085ec))
+* refactor(handlers): share four-corner parsing ([476ee06](https://github.com/linkiez/DXF-Renewed/commit/476ee06))
+* refactor(handlers): share OLE frame parsing ([0277ffa](https://github.com/linkiez/DXF-Renewed/commit/0277ffa))
+* refactor(handlers): share point coordinate parsing ([a42b5db](https://github.com/linkiez/DXF-Renewed/commit/a42b5db))
+* refactor(handlers): share segment coordinate parsing ([4419d31](https://github.com/linkiez/DXF-Renewed/commit/4419d31))
+* refactor(svg): share angular dimension calculations ([6bdabf4](https://github.com/linkiez/DXF-Renewed/commit/6bdabf4))
+* refactor(svg): share dimension measurement points ([4e75b6c](https://github.com/linkiez/DXF-Renewed/commit/4e75b6c))
+* refactor(svg): share dimension render context ([62c130f](https://github.com/linkiez/DXF-Renewed/commit/62c130f))
+* refactor(svg): share dimension text rendering ([945a6c1](https://github.com/linkiez/DXF-Renewed/commit/945a6c1))
+* refactor(types): share text content contract ([bf007bd](https://github.com/linkiez/DXF-Renewed/commit/bf007bd))
+* refactor(types): share viewport point contracts ([925e5ef](https://github.com/linkiez/DXF-Renewed/commit/925e5ef))
+
 ## <small>7.7.3 (2026-09-11)</small>
 
 * refactor(handlers): share UNDERLAY parsing ([2e130fc](https://github.com/linkiez/DXF-Renewed/commit/2e130fc))
