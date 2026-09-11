@@ -310,6 +310,21 @@ function createShape(
  * Detect holes (inner contours) by checking if a shape's centroid
  * is inside another shape. If so, the inner shape is a hole.
  */
+/**
+ * Check if shape is a hole inside another shape
+ */
+function isHoleInShape(
+  hole: NestableShape,
+  container: NestableShape,
+): boolean {
+  // Check if hole's centroid is inside container
+  if (!pointInPolygon(hole.centroid, container.vertices)) {
+    return false
+  }
+  // Check that hole is significantly smaller (not overlapping)
+  return hole.area < container.area * 0.9
+}
+
 function detectHoles(shapes: NestableShape[]): {
   outerShapes: NestableShape[]
   compoundShapes: CompoundShape[]
@@ -329,14 +344,10 @@ function detectHoles(shapes: NestableShape[]): {
     for (const other of sorted) {
       if (other.id === shape.id || usedAsHole.has(other.id)) continue
 
-      // Check if other's centroid is inside this shape
-      if (pointInPolygon(other.centroid, shape.vertices)) {
-        // Check that other is smaller (it's a hole, not overlapping)
-        if (other.area < shape.area * 0.9) {
-          other.isHole = true
-          holes.push(other)
-          usedAsHole.add(other.id)
-        }
+      if (isHoleInShape(other, shape)) {
+        other.isHole = true
+        holes.push(other)
+        usedAsHole.add(other.id)
       }
     }
 
