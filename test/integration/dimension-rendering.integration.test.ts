@@ -1,9 +1,7 @@
-import expectModule from 'expect'
+import { expect } from 'expect'
 import fs from 'node:fs'
 import { parseString, toSVG } from '../../src'
 import { getResourcePath } from '../unit/test-helpers.ts'
-
-const expect = expectModule.expect || expectModule.default
 
 describe('SVG integration: DIMENSION', () => {
   it('renders vertical DIMENSION with markers and text', () => {
