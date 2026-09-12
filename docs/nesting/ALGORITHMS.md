@@ -210,3 +210,22 @@ a strategy rather than read directly.
 | Determinism | two runs, same seed → identical serialized result |
 | Optimizer safety | no accepted move increases overlap count |
 | Common-line rollback | forced bad geometry must roll back, never emit |
+
+## Part preparation (feature 001-part-preparation)
+
+`prepareParts(dxf, options)` classifies closed contours into cuttable parts. Pipeline:
+`units → extract → repair → simplify → classify → offset`.
+
+- **units** — canonical mm; absent unit ⇒ mm, declared `mm` ⇒ mm, any other declared unit ⇒
+  rejection `UNSUPPORTED_UNIT`.
+- **extract** — `denormalise → entityToPolyline → applyTransforms`; records `SourceRef` and a
+  `closed` flag for both closed and open contours.
+- **repair** — close gaps `<= tolerance` (`GAP_CLOSED`), normalize winding to CCW
+  (`ORIENTATION_REPAIRED`); real self-intersections are never repaired (`SELF_INTERSECTION`).
+- **simplify** — delegates to `simplifyPolygon`; duplicate/coincident points removed, ring
+  re-closed, max deviation `<= tolerance`.
+- **classify** — even-odd containment depth on an interior sample point (never the raw centroid):
+  depth 0 ⇒ `outer`, odd ⇒ `hole`, even `>= 2` ⇒ `island`; unlimited depth, never flattened.
+- **offset** — `cutWidthAllowance` is the total kerf, applied as `cutWidthAllowance / 2` **away
+  from material**: outer outward, hole/island inward (sign convention resolved by picking the
+  candidate that moves the boundary in the intended direction, see `[VERIFY]` in `offset.ts`).
