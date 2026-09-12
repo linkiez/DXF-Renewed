@@ -165,3 +165,12 @@ Setup + Foundational → US1 (MVP) → Polish. There is no US2/US3 in this spec;
 - Tests are written first and must fail before implementation.
 - Reuse existing primitives (`polygonUtils`, `src/nest/geometry`, `clipper-core.cjs`); add no runtime dependency.
 - Never modify `src/nest/**` or `src/nesting/shapeExtractor.ts` in this feature.
+
+## Phase 5: Convergence
+
+- [ ] T027 Guard inward cut-width offset against self-intersection and collapse; fall back to the original ring when the shrunk area <= EPS per FR-005 (partial)
+- [ ] T028 Make part `id` unique per occurrence (not per block definition) in `src/nesting/pro/partPrep/index.ts` per data-model.md Part.id (partial)
+- [ ] T029 Emit `OPEN_BOUNDARY` for inherently open primitives (LINE/ARC/SPLINE/RAY/XLINE, elliptical arc) instead of folding them into `GAP_CLOSED`/`GAP_TOO_LARGE` per FR-006 (partial)
+- [ ] T030 Make `samplePoint` orientation-safe for CW rings in `src/nesting/pro/partPrep/classify.ts` per FR-002 (partial)
+- [ ] T031 Document the O(n^2) ceiling of `hasSelfIntersection` with its upgrade path per plan: performance (partial)
+- [ ] T032 Justify or remove the `sonar-project.properties` addition; it is outside the feature scope (unrequested)
