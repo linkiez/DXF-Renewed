@@ -108,7 +108,7 @@ describe('nesting/collision', () => {
         ],
         0
       )
-      expect(collisions.length).toBe(0)
+      expect(collisions).toHaveLength(0)
     })
 
     it('should return collisions for overlapping placements', () => {
@@ -121,7 +121,7 @@ describe('nesting/collision', () => {
         ],
         0
       )
-      expect(collisions.length).toBe(1)
+      expect(collisions).toHaveLength(1)
       expect(collisions[0]).toEqual(['a', 'b'])
     })
   })

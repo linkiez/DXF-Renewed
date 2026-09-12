@@ -51,7 +51,7 @@ describe('nesting/config', () => {
         stockSheet: { width: 1000, height: 500 },
       })
       expect(Array.isArray(opts.stockSheet)).toBe(true)
-      expect(opts.stockSheet.length).toBe(1)
+      expect(opts.stockSheet).toHaveLength(1)
     })
 
     it('should keep stockSheet array as-is', () => {
@@ -60,7 +60,7 @@ describe('nesting/config', () => {
         { width: 1500, height: 1000 },
       ]
       const opts = validateNestingOptions({ stockSheet: sheets })
-      expect(opts.stockSheet.length).toBe(2)
+      expect(opts.stockSheet).toHaveLength(2)
     })
 
     it('should throw on negative sheet dimensions', () => {

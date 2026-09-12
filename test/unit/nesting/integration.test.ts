@@ -141,7 +141,7 @@ EOF
         stockSheet: { width: 300, height: 300 },
       })
 
-      expect(result.placements.length).toBe(0)
+      expect(result.placements).toHaveLength(0)
       expect(result.utilization).toBe(0)
     })
   })

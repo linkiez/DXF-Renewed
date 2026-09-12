@@ -46,8 +46,8 @@ describe('nesting/binPacking', () => {
       const result = guillotinePack(shapes, 100, 100, 5, 2, 1)
 
       expect(result.sheetPlacements.length).toBeGreaterThan(0)
-      expect(result.sheetPlacements[0].length).toBe(3)
-      expect(result.unplaced.length).toBe(0)
+      expect(result.sheetPlacements[0]).toHaveLength(3)
+      expect(result.unplaced).toHaveLength(0)
     })
 
     it('should leave shapes unplaced when they do not fit', () => {
@@ -57,7 +57,7 @@ describe('nesting/binPacking', () => {
 
       const result = guillotinePack(shapes, 100, 100, 5, 2, 1)
 
-      expect(result.unplaced.length).toBe(1)
+      expect(result.unplaced).toHaveLength(1)
     })
 
     it('should use multiple sheets when needed', () => {
@@ -90,8 +90,8 @@ describe('nesting/binPacking', () => {
       const result = maxRectsPack(shapes, 100, 100, 5, 2, 1)
 
       expect(result.sheetPlacements.length).toBeGreaterThan(0)
-      expect(result.sheetPlacements[0].length).toBe(3)
-      expect(result.unplaced.length).toBe(0)
+      expect(result.sheetPlacements[0]).toHaveLength(3)
+      expect(result.unplaced).toHaveLength(0)
     })
 
     it('should leave shapes unplaced when they do not fit', () => {
@@ -101,7 +101,7 @@ describe('nesting/binPacking', () => {
 
       const result = maxRectsPack(shapes, 100, 100, 5, 2, 1)
 
-      expect(result.unplaced.length).toBe(1)
+      expect(result.unplaced).toHaveLength(1)
     })
 
     it('should use multiple sheets when needed', () => {
@@ -133,8 +133,8 @@ describe('nesting/binPacking', () => {
       const result = shelfPack(shapes, 100, 100, 5, 2, 1)
 
       expect(result.sheetPlacements.length).toBeGreaterThan(0)
-      expect(result.sheetPlacements[0].length).toBe(3)
-      expect(result.unplaced.length).toBe(0)
+      expect(result.sheetPlacements[0]).toHaveLength(3)
+      expect(result.unplaced).toHaveLength(0)
     })
 
     it('should leave shapes unplaced when they do not fit', () => {
@@ -144,7 +144,7 @@ describe('nesting/binPacking', () => {
 
       const result = shelfPack(shapes, 100, 100, 5, 2, 1)
 
-      expect(result.unplaced.length).toBe(1)
+      expect(result.unplaced).toHaveLength(1)
     })
 
     it('should use multiple sheets when needed', () => {

@@ -71,7 +71,7 @@ describe('nest/nestCore', () => {
       exploreConcave: false,
     })
 
-    expect(placements.length).toBe(0)
+    expect(placements).toHaveLength(0)
   })
 
   it('reports progress via callback', async () => {

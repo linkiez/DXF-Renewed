@@ -5,12 +5,12 @@ import {
 } from '../../src/util/toPiecewiseBezier'
 describe('Spline conversion to piecewise bezier', () => {
   it('checks that the spline is pinned', () => {
-    expect(
+    expect(() =>
       checkPinned(
         4,
         [0, 0, 0, 0, 0.2, 0.4, 0.6000000000000001, 0.8, 1, 1, 1, 1],
       ),
-    )
+    ).not.toThrow()
     expect(() => {
       checkPinned(4, [0, 0, 0, 0.2, 0.4, 0.6000000000000001, 0.8, 1, 1, 1, 1])
     }).toThrow(

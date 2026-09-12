@@ -114,7 +114,7 @@ describe('nesting/polygonUtils', () => {
         { x: 0, y: 1 },
       ]
       const rotated = rotatePolygon(square, { x: 0.5, y: 0.5 }, 90)
-      expect(rotated.length).toBe(4)
+      expect(rotated).toHaveLength(4)
     })
   })
 
@@ -335,7 +335,7 @@ describe('nesting/polygonUtils', () => {
       ]
       const hull = computeConvexHull(points)
       // Hull should exclude interior point
-      expect(hull.length).toBe(4)
+      expect(hull).toHaveLength(4)
     })
 
     it('should return same points if already convex', () => {
@@ -346,7 +346,7 @@ describe('nesting/polygonUtils', () => {
         { x: 0, y: 1 },
       ]
       const hull = computeConvexHull(square)
-      expect(hull.length).toBe(4)
+      expect(hull).toHaveLength(4)
     })
   })
 
@@ -446,7 +446,7 @@ describe('nesting/polygonUtils', () => {
       ]
       const closed = ensureClosed(open)
       expect(isClosed(closed)).toBe(true)
-      expect(closed.length).toBe(5)
+      expect(closed).toHaveLength(5)
     })
 
     it('should leave closed polygon unchanged', () => {
@@ -458,7 +458,7 @@ describe('nesting/polygonUtils', () => {
         { x: 0, y: 0 },
       ]
       const result = ensureClosed(closed)
-      expect(result.length).toBe(5)
+      expect(result).toHaveLength(5)
     })
   })
 
@@ -469,7 +469,7 @@ describe('nesting/polygonUtils', () => {
   describe('circleToPolygon', () => {
     it('should approximate a circle', () => {
       const polygon = circleToPolygon(0, 0, 10, 36)
-      expect(polygon.length).toBe(37) // 36 segments + closing vertex
+      expect(polygon).toHaveLength(37) // 36 segments + closing vertex
       expect(isClosed(polygon)).toBe(true)
 
       // Area should be close to π * r²
@@ -482,7 +482,7 @@ describe('nesting/polygonUtils', () => {
   describe('ellipseToPolygon', () => {
     it('should approximate an ellipse', () => {
       const polygon = ellipseToPolygon(0, 0, 10, 5, 0, 36)
-      expect(polygon.length).toBe(37)
+      expect(polygon).toHaveLength(37)
       expect(isClosed(polygon)).toBe(true)
 
       // Area should be close to π * a * b
@@ -493,7 +493,7 @@ describe('nesting/polygonUtils', () => {
 
     it('should handle rotated ellipse', () => {
       const polygon = ellipseToPolygon(0, 0, 10, 5, 45, 36)
-      expect(polygon.length).toBe(37)
+      expect(polygon).toHaveLength(37)
       expect(isClosed(polygon)).toBe(true)
     })
   })
@@ -501,7 +501,7 @@ describe('nesting/polygonUtils', () => {
   describe('arcToPolygon', () => {
     it('should approximate a 90° arc', () => {
       const polygon = arcToPolygon(0, 0, 10, 0, 90, 18)
-      expect(polygon.length).toBe(19) // 18 segments + 1
+      expect(polygon).toHaveLength(19) // 18 segments + 1
       // Arc should NOT be closed (it's an arc, not a full circle)
       expect(isClosed(polygon)).toBe(false)
     })

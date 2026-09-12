@@ -34,7 +34,7 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(1)
+      expect(result.shapes).toHaveLength(1)
       expect(result.shapes[0].area).toBeCloseTo(100)
       expect(result.shapes[0].layer).toBe('TEST')
     })
@@ -58,8 +58,8 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(0)
-      expect(result.skippedEntities.length).toBe(1)
+      expect(result.shapes).toHaveLength(0)
+      expect(result.skippedEntities).toHaveLength(1)
     })
 
     it('should extract circle as polygon', () => {
@@ -78,7 +78,7 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(1)
+      expect(result.shapes).toHaveLength(1)
       // Area ≈ π * r² = π * 100 ≈ 314.16
       expect(result.shapes[0].area).toBeCloseTo(Math.PI * 100, -1)
     })
@@ -102,7 +102,7 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(1)
+      expect(result.shapes).toHaveLength(1)
       expect(result.shapes[0].area).toBeCloseTo(100)
     })
 
@@ -125,7 +125,7 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(1)
+      expect(result.shapes).toHaveLength(1)
       expect(result.shapes[0].area).toBeCloseTo(300)
     })
 
@@ -142,8 +142,8 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(0)
-      expect(result.skippedEntities.length).toBe(1)
+      expect(result.shapes).toHaveLength(0)
+      expect(result.skippedEntities).toHaveLength(1)
     })
 
     it('should skip zero-area shapes', () => {
@@ -165,7 +165,7 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(0)
+      expect(result.shapes).toHaveLength(0)
     })
 
     it('should assign unique IDs to shapes', () => {
@@ -194,7 +194,7 @@ describe('nesting/shapeExtractor', () => {
         kerf: 2,
       })
 
-      expect(result.shapes.length).toBe(2)
+      expect(result.shapes).toHaveLength(2)
       expect(result.shapes[0].id).not.toBe(result.shapes[1].id)
     })
   })

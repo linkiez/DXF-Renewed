@@ -62,7 +62,7 @@ describe('nesting/geometryAnalysis', () => {
         createSquareShape(5),
       ]
       const analyzed = analyzeShapes(shapes)
-      expect(analyzed.length).toBe(3)
+      expect(analyzed).toHaveLength(3)
       for (const a of analyzed) {
         expect(a.bestRotation).toBeDefined()
         expect(a.enlargedBbox).toBeDefined()

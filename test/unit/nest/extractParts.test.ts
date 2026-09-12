@@ -40,12 +40,12 @@ describe('nest/extractParts', () => {
     it('respects minArea option', () => {
       const parts = extractParts(parsed, { minArea: 10000 })
       // All our rectangles are 50x50=2500, so none should pass
-      expect(parts.length).toBe(0)
+      expect(parts).toHaveLength(0)
     })
 
     it('respects skipTypes option', () => {
       const parts = extractParts(parsed, { skipTypes: ['LWPOLYLINE'] })
-      expect(parts.length).toBe(0)
+      expect(parts).toHaveLength(0)
     })
   })
 
