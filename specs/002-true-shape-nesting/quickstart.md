@@ -18,9 +18,9 @@ npm run lint
 ## Unit and integration
 
 ```sh
-npm run test:unit         # geometry, clearance and budget logic
-npm run test:integration  # end-to-end nesting over DXF fixtures
-npm run validate:fixtures # fixture set stays well-formed
+npm run test:unit               # geometry, clearance and budget logic
+npm run test:integration:node   # end-to-end nesting over DXF fixtures
+npm run validate:fixtures       # fixture set stays well-formed
 ```
 
 ## Scenario 1 — irregular parts fit without overlap (FR-001, FR-002, SC-001)
@@ -33,13 +33,16 @@ two instances are closer than the part clearance. `unplaced` is empty.
 
 Nest the same job twice with the same seed over multiple sheets and remnants. Verify the two
 results are identical, and that a layout with better total material use is preferred over a
-greedy per-part choice. Change only the seed and verify the run is still self-consistent.
+greedy per-part choice. Change only the seed and verify the run is still self-consistent. Include
+a remnant below the caller-supplied `remnantThreshold` and verify it never appears in `sheets`
+(FR-008).
 
 ## Scenario 3 — rotation and grain (FR-004)
 
-Nest a grain-locked part with a permitted list containing non-aligned angles. Verify only
-grain-aligned angles appear in `placements[].rotation`, and that the part's dimensions are never
-scaled to fit.
+Nest a grain-locked part with a `grainAngle` and a permitted list containing non-aligned angles.
+Verify only angles aligned to `grainAngle` modulo 180° appear in `placements[].rotation`, that the
+part's dimensions are never scaled to fit, and that a grain-locked part with no `grainAngle` comes
+back in `unplaced` with an explicit reason.
 
 ## Scenario 4 — non-fitting part reports a reason (scenario 3, FR-006)
 

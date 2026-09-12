@@ -30,6 +30,11 @@ export interface PartRequest {
   quantity: number
   /** Restrict rotation to the grain-aligned subset of allowedRotations. */
   grainLocked?: boolean
+  /**
+   * Declared grain direction in degrees. Required when `grainLocked` is true; a grain-locked
+   * part without it is reported as unplaced rather than placed at an arbitrary orientation.
+   */
+  grainAngle?: number
 }
 
 export interface NestRequest {
@@ -43,10 +48,15 @@ export interface NestRequest {
   /** Seed for the deterministic tie-break. */
   seed: number
   /**
+   * Minimum remnant bounding-box area, in squared input units. A `kind: 'remnant'` item below
+   * it is excluded before search (FR-008). Omitted means no threshold; no implicit default.
+   */
+  remnantThreshold?: number
+  /**
    * Optional overrides. `allowedRotations` defaults to DEFAULT_ALLOWED_ROTATIONS
    * ([0, 90, 180, 270]); `algorithm`/`sortBy` select the candidate generators.
    */
-  options?: Pick<NestingOptions, 'allowedRotations' | 'algorithm' | 'sortBy' | 'maxSheets'>
+  options?: Pick<NestingOptions, 'allowedRotations' | 'algorithm' | 'sortBy'>
 }
 
 /** A part that could not be placed, with the reason surfaced to the caller. */

@@ -33,7 +33,7 @@ integration tests: `test/integration/nesting/`. Legacy `src/nest/**` is reused b
 **Purpose**: Create the module layout and declare the contract from `plan.md` / `data-model.md`.
 
 - [ ] T001 Create the feature directory `src/nesting/trueShape/` and the test directory `test/integration/nesting/`
-- [ ] T002 [P] Extend the types in `src/nesting/types.ts` exactly as specified in `specs/002-true-shape-nesting/contracts/nesting-api.ts`: `StockItem` (`id`, `kind`, `holes?` added to `StockSheet`), `PartRequest`, `UnplacedPart`, `NestRequest`, `NestResponse`; no extra fields
+- [ ] T002 [P] Extend the types in `src/nesting/types.ts` exactly as specified in `specs/002-true-shape-nesting/contracts/nesting-api.ts`: `StockItem` (`id`, `kind`, `holes?` added to `StockSheet`), `PartRequest` (`grainAngle?`), `UnplacedPart`, `NestRequest` (`remnantThreshold?`), `NestResponse`; no extra fields
 - [ ] T003 [P] Add the job defaults to `src/nesting/config.ts`: `DEFAULT_EDGE_CLEARANCE`, `DEFAULT_PART_TO_PART_CLEARANCE` (see `DEFAULT_MARGIN` as the precedent for the edge value) and `DEFAULT_SEARCH_BUDGET_FACTOR`; reuse the existing `EPSILON` for all comparisons
 - [ ] T004 [P] Re-export the new public types and `nestTrueShape` wiring surface from `src/nesting/index.ts` (additive only — no existing export changes)
 
@@ -70,8 +70,8 @@ no two placements overlap, and non-fitting parts come back with quantity and rea
 
 > Write these first; they MUST fail before implementation.
 
-- [ ] T012 [US1] Write the failing contract test asserting the `nestTrueShape(request)` result shape (`placements`, `sheets`, `unplaced`, `utilization`, `budget`, `seed`, echoed clearances) in `test/unit/nesting/trueShapeContract.test.ts`
-- [ ] T013 [P] [US1] Write failing tests for the basic fit: irregular parts on one sheet, every placement in bounds at `edgeClearance`, zero overlap, `unplaced` empty (FR-001, FR-002, SC-001) in `test/unit/nesting/trueShapePlacement.test.ts`
+- [ ] T012 [US1] Write the failing contract test asserting the `nestTrueShape(request)` result shape (`placements`, `sheets`, `unplaced`, `utilization`, `budget`, `seed`, echoed clearances) and the quantity conservation invariant — placed plus unplaced equals requested per part (data-model invariant 3) — in `test/unit/nesting/trueShapeContract.test.ts`
+- [ ] T013 [P] [US1] Write failing tests for the basic fit: irregular parts and at least one rectangular part on one sheet, every placement in bounds at `edgeClearance`, zero overlap, `unplaced` empty (FR-001, FR-002, FR-003, SC-001) in `test/unit/nesting/trueShapePlacement.test.ts`
 - [ ] T014 [P] [US1] Write failing tests for global yield and tie-breaking: a layout yielding more total material wins over a smaller-accommodating-item greedy choice, and two equally yielding arrangements resolve in a stable deterministic order (FR-005) in `test/unit/nesting/trueShapeYield.test.ts`
 - [ ] T015 [P] [US1] Write failing tests for the deterministic budget: the budget is derived from input size, the same input plus the same seed produces identical placements across two runs, and changing only the seed still yields a self-consistent result (FR-005, FR-007) in `test/unit/nesting/trueShapeDeterminism.test.ts`
 - [ ] T016 [P] [US1] Write failing tests for unplaced reporting: a part larger than every stock item appears in `unplaced` with its requested quantity and a non-empty `reason`, and no exception is thrown (FR-006) in `test/unit/nesting/trueShapeUnplaced.test.ts`
@@ -83,7 +83,7 @@ no two placements overlap, and non-fitting parts come back with quantity and rea
 - [ ] T019 [US1] Implement `nestTrueShape(request)` in `src/nesting/trueShape/index.ts` orchestrating stock filter → candidates → search → result assembly, returning `NestResponse` with `utilization`, per-sheet use, waste and echoed clearances (FR-006)
 - [ ] T020 [US1] Wire the module into the barrel in `src/nesting/index.ts` (additive; no existing export modified)
 - [ ] T021 [US1] Write the integration test that runs a prepared-part set end to end through `nestTrueShape` in `test/integration/nesting/trueShape.test.ts` (SC-001)
-- [ ] T022 [US1] Add validation of caller input — negative clearances, empty stock, non-positive dimensions — returning explicit reasons rather than throwing (FR-006, constitution: silent failure forbidden)
+- [ ] T022 [US1] Add validation of caller input — negative clearances, empty stock, non-positive dimensions, a hole outside or intersecting its sheet boundary, and a grain-locked part without `grainAngle` — returning explicit reasons rather than throwing (FR-004, FR-006, constitution: silent failure forbidden)
 
 **Checkpoint**: User Story 1 is fully functional and testable independently.
 
@@ -97,8 +97,8 @@ no two placements overlap, and non-fitting parts come back with quantity and rea
 - [ ] T024 [P] Write the failing performance test: the 100-part / 5-sheet job returns a valid result or explicit reasons in under 2 seconds (SC-002) in `test/unit/nesting/trueShapePerformance.test.ts`
 - [ ] T025 [P] Write the failing yield test: placed part area divided by consumed stock area is at least 85% on that same fixture; a below-floor run is a calibration defect and the threshold does not move (SC-003)
 - [ ] T026 Calibrate `DEFAULT_SEARCH_BUDGET_FACTOR` until both T024 and T025 pass together without making the budget wall-clock dependent (FR-005, FR-007)
-- [ ] T027 [P] Write the rotation and grain end-to-end assertions: only caller-permitted, grain-aligned angles appear in `placements[].rotation`, and no placement dimensions are scaled (FR-004) in `test/unit/nesting/trueShapeRotationsE2E.test.ts`
-- [ ] T028 [P] Write the hole-hosting assertion: a smaller part placed inside a hole satisfies both the edge clearance to the hole contour and the part-to-part clearance to neighbouring instances (FR-001, FR-002, spec Edge Cases)
+- [ ] T027 [P] Write the rotation and grain end-to-end assertions: only caller-permitted, `grainAngle`-aligned angles appear in `placements[].rotation`, and no placement dimensions are scaled (FR-004) in `test/unit/nesting/trueShapeRotationsE2E.test.ts` — an E2E guard over T009/T010; a failure here and in T009/T010 is one defect
+- [ ] T028 [P] Write the hole-hosting assertion, limited to the combination not covered by T005–T008 and T013: a smaller part placed inside a hole satisfies both the edge clearance to the hole contour and the part-to-part clearance to neighbouring instances (FR-001, FR-002, spec Edge Cases)
 
 ---
 
@@ -108,6 +108,7 @@ no two placements overlap, and non-fitting parts come back with quantity and rea
 - [ ] T030 Run the constitution gates: `npm run type-check`, `npm run lint`, `npm run test:unit`, `npm run test:integration:node` — all must pass with no regression against the recorded baseline
 - [ ] T031 Validate every scenario in `specs/002-true-shape-nesting/quickstart.md`, including the modified-seed consistency check
 - [ ] T032 Document the new public entry point in the module header of `src/nesting/trueShape/index.ts` and in `src/nesting/index.ts`
+- [ ] T033 [P] Author the sibling `.doc.md` for every file created or changed under `src/` — `src/nesting/trueShape/{bounds,separation,rotations,candidates,search,index}.doc.md`, `src/nesting/types.doc.md`, `src/nesting/config.doc.md`, `src/nesting/index.doc.md` — each with the constitution-mandated sections: overview, responsibilities, inputs/outputs, main flow, errors, examples, dependencies (constitution §Documentation Discipline)
 
 ---
 

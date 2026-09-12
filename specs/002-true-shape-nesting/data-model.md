@@ -14,7 +14,8 @@ require. Extensions are marked **new**; nothing is renamed, so existing consumer
 | `holes?` | `NestableShape[]` | **new** — inner contours; FR-001 edge clearance applies to these |
 
 Validation: `width > 0`, `height > 0`; `id` unique per job; a hole must be strictly inside the
-sheet boundary; items below the caller threshold are excluded before search.
+sheet boundary. A `kind: 'remnant'` item whose bounding-box area is below the caller-supplied
+`remnantThreshold` is excluded before search (FR-008); no implicit default applies.
 
 ## Part Input (from feature 001 `PreparedPart`)
 
@@ -24,6 +25,7 @@ sheet boundary; items below the caller threshold are excluded before search.
 | geometry | `Point2D[]` outer + holes (`CompoundShape`) | existing |
 | `allowedRotations` | `number[]` | existing on `NestableShape`; default `DEFAULT_ALLOWED_ROTATIONS` |
 | `grainLocked?` | `boolean` | **new** — restricts rotation to grain-aligned subset (FR-004) |
+| `grainAngle?` | `number` | **new** — declared grain direction in degrees; required when `grainLocked` is true (FR-004) |
 | `quantity` | `number` | **new** — a part may be requested more than once (FR-006, scenario 3) |
 
 ## Placement (extends `Placement`)
@@ -56,6 +58,10 @@ Existing: `placements`, `compoundPlacements?`, `sheets`, `unplacedShapes`, `util
 **new**: `unplaced: UnplacedPart[]`, `edgeClearance: number`, `partToPartClearance: number`,
 `budget: { iterations: number }`, `seed: number`.
 
+`unplacedShapes` remains for legacy consumers that only count misses. `unplaced` is the reporting
+surface: it carries the requested quantity and an explicit reason per part. The two MUST agree in
+count — every element of `unplacedShapes` has a corresponding `unplaced` entry.
+
 ## Clearances
 
 | Field | Type | Notes |
@@ -70,6 +76,9 @@ Both absolute distances in the same unit as the input geometry.
 1. Every placement satisfies `edgeClearance` against the outer edge and every hole contour.
 2. Every pair of placed instances is separated by at least `partToPartClearance` (FR-002).
 3. Sum of placed quantities plus unplaced quantities equals requested quantity per part.
-4. `rotation ∈ allowedRotations`; no scaling transform exists in the placement path.
+4. `rotation ∈ allowedRotations`; for a grain-locked part `rotation` aligns with `grainAngle`
+   modulo 180°; no scaling transform exists in the placement path.
 5. Same input plus same seed produces identical placements (FR-007).
 6. Material use = placed part area / consumed stock area; on the benchmark fixture ≥ 85% (SC-003).
+7. A `kind: 'remnant'` item is absent from `sheets` when its bounding-box area is below
+   `remnantThreshold` (FR-008).
