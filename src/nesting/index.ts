@@ -158,3 +158,23 @@ export {
 // ─────────────────────────────────────────────
 
 export { NestingHelper } from './NestingHelper'
+
+// ─────────────────────────────────────────────
+// Part preparation (feature 001-part-preparation)
+// ─────────────────────────────────────────────
+
+export { prepareParts } from './pro/partPrep/index'
+export type {
+  BBox,
+  Boundary,
+  Classification,
+  IssueCode,
+  PrepareOptions,
+  PrepareResult,
+  PreparedPart,
+  PreparationIssue,
+  Repair,
+  SourceRef,
+  Unit,
+  Warning,
+} from './pro/types'
