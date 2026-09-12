@@ -25,6 +25,13 @@ export type {
 
   // Stock sheet types
   StockSheet,
+  StockItem,
+
+  // True-shape nesting request/result types
+  PartRequest,
+  NestRequest,
+  NestResponse,
+  UnplacedPart,
 
   // Nesting result types
   NestingResult,
@@ -59,6 +66,9 @@ export {
   DEFAULT_SORT_BY,
   DEFAULT_MAX_SHEETS,
   DEFAULT_CURVE_SEGMENTS,
+  DEFAULT_EDGE_CLEARANCE,
+  DEFAULT_PART_TO_PART_CLEARANCE,
+  DEFAULT_SEARCH_BUDGET_FACTOR,
   EPSILON,
   DEFAULT_STOCK_SHEET,
   DEFAULT_NESTING_OPTIONS,
@@ -178,3 +188,22 @@ export type {
   Unit,
   Warning,
 } from './pro/types'
+
+// ─────────────────────────────────────────────
+// True-shape nesting (feature 002-true-shape-nesting)
+// ─────────────────────────────────────────────
+
+export { nestTrueShape } from './trueShape/index'
+export {
+  isWithinBounds,
+  polygonDistance,
+  isSeparated,
+  isSeparatedFromAll,
+  candidateAnchors,
+  candidatePositions,
+  effectiveRotations,
+  resolveAllowedRotations,
+  materialUse,
+  searchBestArrangement,
+  SearchBudget,
+} from './trueShape/index'
