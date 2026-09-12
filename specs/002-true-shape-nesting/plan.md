@@ -27,19 +27,20 @@ dependency, no new geometry primitives.
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**BLOCKED — no ratified constitution.** `.specify/memory/constitution.md` is still the unfilled
-template: every principle is a placeholder (`[PRINCIPLE_1_NAME]`, `[PRINCIPLE_1_DESCRIPTION]`),
-and the footer reads `[CONSTITUTION_VERSION]` / `[RATIFICATION_DATE]`. No gates are defined, so
-this section cannot certify compliance and no PASS is claimed.
+Constitution ratified 2026-09-12 (v1.0.0). Evaluated against Principles I–V.
 
-| Gate | Status |
-|------|--------|
-| Principles defined | ABSENT — placeholders only |
-| Compliance evaluated | NOT EVALUABLE |
+| Principle | Status | Evidence |
+|-----------|--------|----------|
+| I. Library-First, Additive Public API | PASS | Single module under the existing `src/nesting/` tree, re-exported from the `src/index.ts` barrel; every change to `NestingOptions` / `NestingResult` is additive |
+| II. Reuse Before Rewrite | PASS | Reuses `types.ts`, `collision.ts`, `polygonUtils.ts`, `geometryAnalysis.ts`, `binPacking/*`; no new geometry, no new NFP (research D2) |
+| III. Test-First | PASS | `tasks.md` places failing tests before every implementation task; runner is the existing Mocha + `tsx` |
+| IV. Determinism and Reproducibility | PASS | Input-derived budget, never wall-clock (research D5/D6); seed + stable tie-break keys (FR-007) |
+| V. Strict TS, Zero New Runtime Deps | PASS | `tsc --noEmit` clean; no new entry in `dependencies` |
 
-Explicitly *not* violations, and observed anyway, because they follow from the spec itself:
-no new runtime dependency; reuse of existing geometry; tests before implementation.
-Resolve by running `/speckit.constitution` before `/speckit.tasks`.
+Re-evaluated after Phase 1 design: still PASS. The contract in `contracts/nesting-api.ts` adds no
+runtime dependency and widens `NestingOptions` without breaking existing callers. `Complexity
+Tracking` carries no unjustified deviation — the single extension (`StockSheet`/`Placement` fields)
+is recorded there with its rejected alternative.
 
 ## Project Structure
 

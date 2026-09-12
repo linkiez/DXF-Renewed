@@ -1,50 +1,121 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# DXF-Renewed Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Library-First, Additive Public API
+Every feature ships as a self-contained module under `src/`, re-exported from the `src/index.ts`
+barrel. New capability is additive: existing exported signatures may not break. A feature that
+cannot be used without a new external service or repository is out of scope. Each module states
+its purpose in its header comment — no organizational-only modules.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Reuse Before Rewrite (NON-NEGOTIABLE)
+Already-tested code in the repository is reused before anything new is written:
+`src/nesting/types.ts`, `config.ts`, `polygonUtils.ts`, `collision.ts`, `geometryAnalysis.ts`,
+`binPacking/*`, and `src/nest/*`. New algorithms are permitted only where no existing code
+computes the required property, and the rationale must be recorded. Duplicating a function that
+already exists is a defect, not a style preference.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First (NON-NEGOTIABLE)
+Tests are written before implementation and MUST fail first (Red → Green → Refactor). Runner is
+Mocha + `tsx`: `npm run test:unit` for unit tests, `npm run test:integration:node` for node
+integration tests. A task is complete only when its tests pass and no previously passing test
+regresses. A bug fix starts with a test that reproduces the bug.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Determinism and Reproducibility
+Identical input plus identical seed MUST produce identical output at the level of placement
+decisions. Any bounded search MUST be bounded by a budget derived from the input, never by
+wall-clock time. Iteration and tie-breaking order MUST be stable and independent of object
+identity, hash-map ordering, or filesystem order. Non-deterministic output is a defect, not a
+tuning issue.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Strict TypeScript, Zero New Runtime Dependencies
+Code compiles under the existing `tsconfig.json` (`strict`, `noImplicitReturns`,
+`noFallthroughCasesInSwitch`, `moduleResolution: bundler`) and passes `npm run type-check`
+(`tsc --noEmit`). No new entry may be added to `dependencies` in `package.json`. No persistence,
+no network I/O, and no mutation of caller-supplied input objects.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Additional Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**Unit discipline**: geometry values carry no implicit unit. Where a unit exists it is explicit in
+the type or the options object. Mixed-unit arithmetic is forbidden.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**Precision**: floating-point comparisons use the repository epsilon (`EPSILON` in
+`src/nesting/config.ts`) rather than literal `0`; the same epsilon is used for collision, bounds
+and containment checks.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**Performance floors are acceptance criteria**: a time or yield threshold stated in a feature spec
+is a pass/fail gate, not an aspiration. Failing it fails the feature; the calibration is the defect
+to fix.
+
+**Silent failure is forbidden**: an item that cannot be processed is returned with an explicit,
+specific reason. Never drop input silently; never throw to signal an expected outcome.
+
+## Development Workflow & Quality Gates
+
+Before any commit, all of the following MUST pass:
+
+1. `npm run type-check` — zero errors
+2. `npm run lint` — zero errors
+3. `npm run test:unit` — zero failures, no regression against the recorded baseline
+4. Feature-specific acceptance thresholds (time, yield, precision) measured, not assumed
+
+A failing gate blocks the commit. A gate may not be skipped, disabled, or narrowed to make a change
+pass. Feature work is tracked in `specs/<###-feature>/` — `spec.md` → `plan.md` → `tasks.md` — and
+`tasks.md` checkboxes are updated only when the corresponding gate passes.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes conflicting local convention. Amendments require an explicit edit to
+this file, a recorded rationale in the same commit, and a version bump. Removing or weakening a
+principle requires a minor or major version bump; clarification-only edits are a patch.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+When a plan cannot satisfy a principle, the deviation MUST be documented in that plan's
+`Complexity Tracking` table with the rejected simpler alternative. An undocumented deviation is a
+blocking review finding, not a nitpick. Every implementation review verifies compliance with
+Principles I–V and records which gates were run.
+
+### Implement, Do Not Report
+
+When a request is to implement, fix, refactor, or add capability, the deliverable is the changed
+code, not a document about it. A report is acceptable only when explicitly requested (review,
+audit, analysis, explanation) or when confirming a destructive or irreversible action. Missing
+context is resolved with at most three short questions, then work proceeds.
+
+### Coding Conventions
+
+- Code identifiers, comments and JSDoc are English (`en_US`); user-facing strings and commit
+  descriptions are Brazilian Portuguese (`pt_BR`).
+- Public functions, methods, classes, interfaces and enums carry JSDoc (`@param`, `@returns`,
+  `@throws`, `@example` where it aids use). Trivial private helpers and test code need none.
+- No file may exceed 500 lines; split into focused helpers when it would.
+- `any`, `unknown` in the core domain, and `[key: string]: any` are forbidden. `unknown` is
+  permitted only at trust boundaries, then narrowed to a domain type. Prefer `Record<string, T>`
+  with a concrete `T`.
+- Never read, print, log or hard-code secrets, tokens or credentials. Access them indirectly
+  (`process.env`, a vault, CI injection) and flag any hard-coded secret on sight.
+
+### Documentation Discipline
+
+A change inside `src/` updates the sibling `*.doc.md` in the same commit. No other documentation
+(README, guides, summaries, changelogs) is created without an explicit request. `.doc.md` files are
+consolidated and timeless — no "news", "changes" or release-note sections. `.specify/` governance
+and `specs/<###-feature>/` feature records are exempt from this rule.
+
+### Commit Discipline
+
+Commits follow Conventional Commits: `<type>[scope]: <description>`, imperative, lowercase, no
+trailing period, description under 72 characters. Each commit is atomic — one logical change;
+tests travel with the change they validate. A breaking change requires `!` or a `BREAKING CHANGE:`
+footer **and** explicit user approval before committing, with the migration path in the body.
+`--no-verify` is never used.
+
+### Comment Discipline
+
+A code comment is justified only by a non-obvious architectural decision together with the
+alternative it rejected, an active blocker with its upgrade path, or a summary closing the parent
+issue. Narrative, decorative, changelog-style and restate-the-code comments are defects.
+Intentional simplifications are marked with a `ponytail:` comment naming the ceiling and the
+upgrade path. Feature work is tracked in `specs/<###-feature>/`; a `tasks.md` checkbox is flipped
+only when the corresponding gate passes.
+
+**Version**: 1.1.0 | **Ratified**: 2026-09-12 | **Last Amended**: 2026-09-12
