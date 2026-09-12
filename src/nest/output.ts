@@ -1,6 +1,6 @@
 // output.ts — Generates SVG output from nesting results
 
-import type { NestPart, NestPlacement, NestOptions } from './types'
+import type { NestPart, NestPlacement } from './types'
 
 /**
  * Generate an SVG visualization of nesting results.

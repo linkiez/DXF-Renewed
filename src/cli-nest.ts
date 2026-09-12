@@ -57,15 +57,15 @@ function parseArgs(argv: string[]): CliArgs {
       case '--iterations':
       case '-i':
         i++
-        args.iterations = parseInt(argv[i], 10)
+        args.iterations = Number.parseInt(argv[i], 10)
         break
       case '--rotations':
         i++
-        args.rotations = parseInt(argv[i], 10)
+        args.rotations = Number.parseInt(argv[i], 10)
         break
       case '--max-bins':
         i++
-        args.maxBins = parseInt(argv[i], 10)
+        args.maxBins = Number.parseInt(argv[i], 10)
         break
       default:
         if (!arg.startsWith('--') && !args.input) {
@@ -125,7 +125,7 @@ async function main() {
 
   if (args.bin) {
     const [w, h] = args.bin.split(',').map(Number)
-    if (isNaN(w) || isNaN(h)) {
+    if (Number.isNaN(w) || Number.isNaN(h)) {
       console.error('❌ Formato inválido para --bin. Use W,H (ex: 2000,4000)')
       process.exit(1)
     }

@@ -281,13 +281,7 @@ export function prepareParts(
       part.islands.reduce((sum, island) => sum + island.area, 0)
   }
 
-  parts.sort((a, b) =>
-    a.outer.source.handle < b.outer.source.handle
-      ? -1
-      : a.outer.source.handle > b.outer.source.handle
-        ? 1
-        : 0,
-  )
+  parts.sort((a, b) => a.outer.source.handle.localeCompare(b.outer.source.handle))
   issues.sort((a, b) => {
     if (a.source.handle !== b.source.handle) {
       return a.source.handle < b.source.handle ? -1 : 1

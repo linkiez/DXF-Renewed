@@ -163,8 +163,8 @@ export function parseSheetSize(input: string): StockSheet {
     )
   }
   return {
-    width: parseFloat(match[1]),
-    height: parseFloat(match[2]),
+    width: Number.parseFloat(match[1]),
+    height: Number.parseFloat(match[2]),
   }
 }
 
@@ -175,8 +175,8 @@ export function parseRotations(input: string): number[] {
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
     .map((s) => {
-      const n = parseFloat(s)
-      if (isNaN(n)) {
+      const n = Number.parseFloat(s)
+      if (Number.isNaN(n)) {
         throw new Error(`Invalid rotation angle: "${s}"`)
       }
       return n

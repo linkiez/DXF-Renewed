@@ -16,7 +16,7 @@ import { EPSILON } from './config'
 export function distance(a: Point2D, b: Point2D): number {
   const dx = b.x - a.x
   const dy = b.y - a.y
-  return Math.sqrt(dx * dx + dy * dy)
+  return Math.hypot(dx, dy)
 }
 
 /** Squared distance (avoids sqrt for comparisons) */

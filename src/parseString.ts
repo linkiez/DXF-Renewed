@@ -85,7 +85,7 @@ export default function parseString(string: string): ParsedDXF {
   const lines = string.split(/\r\n|\r|\n/g)
   const tuples = convertToTypesAndValues(lines)
   const sections = separateSections(tuples)
-  const result = sections.reduce(reduceSection, {
+  const result = sections.reduce<ParsedDXF>((acc, tuple) => reduceSection(acc, tuple), {
     // Start with empty defaults in the event of empty sections
     header: {},
     blocks: [],

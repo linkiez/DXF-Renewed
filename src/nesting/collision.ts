@@ -82,7 +82,7 @@ function projectionsOverlap(
 function edgeNormal(p1: Point2D, p2: Point2D): Point2D {
   const dx = p2.x - p1.x
   const dy = p2.y - p1.y
-  const length = Math.sqrt(dx * dx + dy * dy)
+  const length = Math.hypot(dx, dy)
   if (length < EPSILON) return { x: 1, y: 0 }
   return { x: -dy / length, y: dx / length }
 }
