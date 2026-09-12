@@ -1,4 +1,5 @@
 import type { BBox, Classification } from '../types'
+import { signedArea } from './repair'
 
 export function bboxOf(vertices: [number, number][]): BBox {
   let minX = Infinity
@@ -32,9 +33,10 @@ export function pointInRing(point: [number, number], vertices: [number, number][
 
 /**
  * Interior sample point near the ring boundary (not the raw centroid, which falls inside
- * nested children and would inflate the depth). Assumes CCW winding.
+ * nested children and would inflate the depth). Works for CCW and CW winding (FR-002).
  */
 export function samplePoint(vertices: [number, number][]): [number, number] {
+  const ccw = signedArea(vertices) > 0
   for (let i = 0; i < vertices.length - 1; i++) {
     const a = vertices[i]
     const b = vertices[i + 1]
@@ -43,10 +45,9 @@ export function samplePoint(vertices: [number, number][]): [number, number] {
     const len = Math.hypot(dx, dy)
     if (len < 1e-9) continue
     const nudge = Math.min(len, 1) * 1e-3
-    return [
-      (a[0] + b[0]) / 2 + (-dy / len) * nudge,
-      (a[1] + b[1]) / 2 + (dx / len) * nudge,
-    ]
+    const nx = ((ccw ? -dy : dy) / len) * nudge
+    const ny = ((ccw ? dx : -dx) / len) * nudge
+    return [(a[0] + b[0]) / 2 + nx, (a[1] + b[1]) / 2 + ny]
   }
   let cx = 0
   let cy = 0

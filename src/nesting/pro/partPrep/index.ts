@@ -36,6 +36,9 @@ const EPS = 1e-9
 
 const REQUEST_SOURCE: SourceRef = { handle: 'request', layer: '', entityType: '' }
 
+/** Primitives that are open by definition and cannot be gap-repaired (FR-006). */
+const OPEN_PRIMITIVES = new Set(['LINE', 'ARC', 'SPLINE', 'RAY', 'XLINE', 'ELLIPSE'])
+
 function ringArea(vertices: [number, number][]): number {
   let sum = 0
   for (let i = 0; i < vertices.length; i++) {
@@ -109,6 +112,15 @@ export function prepareParts(
     let ring = contour.vertices
 
     if (!contour.closed) {
+      if (OPEN_PRIMITIVES.has(contour.source.entityType)) {
+        issues.push({
+          code: 'OPEN_BOUNDARY',
+          severity: 'rejection',
+          source: contour.source,
+          detail: `${contour.source.entityType} is an open primitive`,
+        })
+        continue
+      }
       const result = closeGap(ring, tolerance, contour.source)
       if (result.gap > EPS && result.gap <= tolerance) {
         ring = result.vertices
@@ -215,7 +227,7 @@ export function prepareParts(
     partIndexByCandidate.set(index, parts.length)
     const outer = toBoundary(candidate, 0, 'outer')
     parts.push({
-      id: candidate.source.handle,
+      id: `${candidate.source.handle}#${index}`,
       outer,
       holes: [],
       islands: [],

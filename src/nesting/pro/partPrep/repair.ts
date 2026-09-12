@@ -81,7 +81,11 @@ function segmentsCross(
   )
 }
 
-/** Detect real self-intersections; adjacent segments sharing an endpoint are excluded (FR-010). */
+/**
+ * Detect real self-intersections; adjacent segments sharing an endpoint are excluded (FR-010).
+ * ponytail: O(n^2) over vertices. Fine for the current few-hundred-point rings; replace with a
+ * sweep-line / uniform-grid broad phase if contours grow into the thousands of vertices.
+ */
 export function hasSelfIntersection(vertices: [number, number][]): boolean {
   const ring = openRing(vertices)
   const n = ring.length
