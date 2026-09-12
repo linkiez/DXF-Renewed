@@ -131,6 +131,12 @@ export interface Placement {
 
   /** Transformed vertices */
   transformedVertices?: Point2D[]
+
+  /** Stock item this instance was placed on (true-shape nesting) */
+  sheetId?: string
+
+  /** 0-based index of this copy among the part's requested quantity */
+  instanceIndex?: number
 }
 
 /** Placement for a compound shape */
@@ -164,6 +170,77 @@ export interface StockSheet {
 
   /** Grain direction angle (for wood/composites) */
   grainAngle?: number
+
+  /** Stable identity used in results and tie-breaking (true-shape nesting) */
+  id?: string
+
+  /** Full sheet or offcut (true-shape nesting) */
+  kind?: 'sheet' | 'remnant'
+
+  /** Inner contours; edge clearance applies to these (true-shape nesting) */
+  holes?: NestableShape[]
+}
+
+/** A stock item the caller makes available for a job (true-shape nesting). */
+export interface StockItem extends StockSheet {
+  id: string
+  kind: 'sheet' | 'remnant'
+}
+
+/** One requested part, possibly in multiple copies (true-shape nesting). */
+export interface PartRequest {
+  shape: NestableShape
+  quantity: number
+  /** Restrict rotation to the grain-aligned subset of allowedRotations. */
+  grainLocked?: boolean
+  /**
+   * Declared grain direction in degrees. Required when `grainLocked` is true; a grain-locked
+   * part without it is reported as unplaced rather than placed at an arbitrary orientation.
+   */
+  grainAngle?: number
+}
+
+/** Request for a true-shape nesting job (true-shape nesting). */
+export interface NestRequest {
+  stock: StockItem[]
+  parts: PartRequest[]
+  edgeClearance: number
+  partToPartClearance: number
+  seed: number
+  /**
+   * Minimum remnant bounding-box area. Remnants below it are excluded before search (FR-008).
+   * Omitted means no threshold; no implicit default.
+   */
+  remnantThreshold?: number
+  options?: Pick<NestingOptions, 'allowedRotations' | 'algorithm' | 'sortBy'>
+}
+
+/** A part that could not be placed, with the reason surfaced to the caller. */
+export interface UnplacedPart {
+  shapeId: string
+  quantity: number
+  reason: string
+}
+
+/** Result of a true-shape nesting job (true-shape nesting). */
+export interface NestResponse
+  extends Pick<
+    NestingResult,
+    | 'placements'
+    | 'compoundPlacements'
+    | 'sheets'
+    | 'utilization'
+    | 'wasteArea'
+    | 'totalArea'
+  > {
+  unplaced: UnplacedPart[]
+  /** Deterministic budget actually consumed. */
+  budget: { iterations: number }
+  /** Seed echoed back for reproducibility. */
+  seed: number
+  /** Clearances echoed back so the result is self-describing. */
+  edgeClearance: number
+  partToPartClearance: number
 }
 
 // ─────────────────────────────────────────────

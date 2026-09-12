@@ -40,6 +40,17 @@ export const DEFAULT_MAX_SHEETS = 0
 /** Default curve approximation segments per 360° */
 export const DEFAULT_CURVE_SEGMENTS = 36
 
+/** Default clearance between a part instance and any stock boundary — the outer sheet edge
+ * and every hole contour — in mm (FR-001) */
+export const DEFAULT_EDGE_CLEARANCE = DEFAULT_MARGIN
+
+/** Default clearance between the boundaries of two placed part instances, in mm (FR-002) */
+export const DEFAULT_PART_TO_PART_CLEARANCE = DEFAULT_KERF
+
+/** Multiplier over the input-derived search size giving the deterministic node/iteration
+ * budget (FR-005, FR-007). Input-derived only — wall-clock time is never a term. */
+export const DEFAULT_SEARCH_BUDGET_FACTOR = 1000
+
 /** Tolerance for floating point comparisons */
 export const EPSILON = 1e-6
 
