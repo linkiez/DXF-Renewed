@@ -9,7 +9,11 @@
 
 import type { ExecutionBackend, ExecutionBackendReport } from '../types'
 import { probeGpu, requestGpuDevice } from './webgpu/device'
-import type { GpuDeviceResult, GpuProbeResult } from './webgpu/device'
+import type {
+  GpuComputeDeviceLike,
+  GpuDeviceResult,
+  GpuProbeResult,
+} from './webgpu/device'
 
 /** SC-004 acceleration gate: the accelerator must beat the baseline by this factor. */
 export const ACCELERATION_GAIN_FACTOR = 2
@@ -20,15 +24,16 @@ export interface BackendSelection {
   requested: boolean
   accelerated: boolean
   fallbackReason?: string
+  device?: GpuComputeDeviceLike
 }
 
 /**
- * Selects the backend. `acceleration: false` pins the CPU baseline without probing. When
- * acceleration is requested but no accelerated executor is wired into the search, the run stays on
- * the CPU baseline and records why (FR-004/FR-006/FR-007; silent failure forbidden).
+ * Selects the backend candidate. `acceleration: false` pins the CPU baseline without probing.
+ * When acceleration is requested, an available WebGPU capability is returned as a candidate;
+ * `nestTrueShape` performs dispatch, parity validation and the SC-004 gate before publishing it.
  *
- * ponytail: ceiling = presence-only probe; upgrade = dispatch `webgpu/score.ts` on the device and
- * only then return `{ backend: 'webgpu', accelerated: true }` once `meetsAccelerationGate` passes.
+ * ponytail: ceiling = synchronous selection cannot execute or benchmark the device; upgrade =
+ * use `selectBackendAsync` through `nestTrueShape` for the complete dispatch and gate.
  */
 export function selectBackend(
   acceleration: boolean | undefined,
@@ -38,21 +43,21 @@ export function selectBackend(
   if (!requested) {
     return { backend: 'cpu', requested: false, accelerated: false }
   }
-  return {
-    backend: 'cpu',
-    requested: true,
-    accelerated: false,
-    fallbackReason: probe.available
-      ? 'WebGPU adapter present but no accelerated executor is wired; CPU baseline used'
-      : (probe.reason ?? 'WebGPU unavailable'),
-  }
+  return probe.available
+    ? { backend: 'webgpu', requested: true, accelerated: true }
+    : {
+        backend: 'cpu',
+        requested: true,
+        accelerated: false,
+        fallbackReason: probe.reason ?? 'WebGPU unavailable',
+      }
 }
 
 /**
  * Async sibling of {@link selectBackend}: awaits real device acquisition instead of only probing
- * presence. A device is not sufficient to report `webgpu` — `accelerated` stays `false` until an
- * accelerated executor is wired and passes the SC-004 gate, so the run stays honest and CPU-falls
- * back with an explicit reason (FR-004/FR-006/FR-007).
+ * presence. It returns a compute-capable device candidate; the caller must still dispatch scoring,
+ * validate CPU parity and pass the SC-004 gate before publishing an accelerated report
+ * (FR-004/FR-006/FR-007).
  */
 export async function selectBackendAsync(
   acceleration: boolean | undefined,
@@ -63,14 +68,19 @@ export async function selectBackendAsync(
     return { backend: 'cpu', requested: false, accelerated: false }
   }
   const result = await requestDevice()
-  return {
-    backend: 'cpu',
-    requested: true,
-    accelerated: false,
-    fallbackReason: result.device
-      ? 'WebGPU device acquired but no accelerated executor is wired; CPU baseline used'
-      : (result.reason ?? 'WebGPU unavailable'),
-  }
+  return result.device
+    ? {
+        backend: 'webgpu',
+        requested: true,
+        accelerated: true,
+        device: result.device,
+      }
+    : {
+        backend: 'cpu',
+        requested: true,
+        accelerated: false,
+        fallbackReason: result.reason ?? 'WebGPU unavailable',
+      }
 }
 
 /** Builds the public report. Timings are measurement only — never a search budget (FR-007). */

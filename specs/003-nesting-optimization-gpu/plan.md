@@ -8,9 +8,10 @@
 
 Add two additive capabilities to the existing `nestTrueShape` pipeline: (1) a caller-weighted
 optimization objective over material use, travel, sheet count and remnant preference, and
-(2) optional WebGPU acceleration that is opt-out via an `acceleration` request field, falls back
-transparently to the CPU baseline, and returns an identical layout and metrics for the same seed.
-No existing exported signature changes; the CPU baseline remains the only required path.
+(2) optional WebGPU acceleration that is opt-out via an `acceleration` request field, dispatches
+fixed-point candidate scoring when available, falls back transparently to the CPU baseline, and
+returns an identical layout and metrics for the same seed. No existing exported signature changes;
+the CPU baseline remains the only required path.
 
 ## Technical Context
 
@@ -37,7 +38,7 @@ domain; no source file over 500 lines
 | I. Library-First, Additive Public API | PASS | New `src/nesting/optimization/` module with a purpose header; request/response fields are optional; re-exported from `src/nesting/index.ts` and `src/index.ts`. Existing signatures unchanged. |
 | II. Reuse Before Rewrite | PASS | Reuses `trueShape/{candidates,bounds,separation,search}`, `types.ts`, `config.ts`, `polygonUtils.ts`. No new geometry algorithm. |
 | III. Test-First | PASS | Red tests first under `test/unit/nesting/optimization/`; runner Mocha + `tsx`. |
-| IV. Determinism & Reproducibility | PASS | GPU only proposes candidate scores; the CPU keeps selection/tie-break authority and validates every placement. Weights use `EPSILON` comparisons; the budget is input-derived. Identical seed yields an identical layout on both backends. |
+| IV. Determinism & Reproducibility | PASS | GPU proposes fixed-point candidate scores; the CPU keeps selection/tie-break authority, validates every placement and compares accelerated output with the baseline. Weights use `EPSILON` comparisons; the budget is input-derived. Identical seed yields an identical layout on both backends. |
 | V. Strict TypeScript, Zero New Runtime Dependencies | PASS | No `dependencies` added; WebGPU typed by local structural interfaces; `npm run type-check` is a gate. The SC-004 performance floor is the acceptance gate. |
 
 No violations; **Complexity Tracking** is empty.
@@ -104,7 +105,7 @@ See [data-model.md](./data-model.md), [contracts/nesting-api.ts](./contracts/nes
 | I. Additive API | PASS — only optional fields added |
 | II. Reuse | PASS — no new geometry/search algorithm |
 | III. Test-First | PASS — tests precede wiring |
-| IV. Determinism | PASS — the CPU retains selection authority |
+| IV. Determinism | PASS — the CPU retains selection authority and validates accelerated parity |
 | V. Deps/TypeScript | PASS — no dependency added |
 
 ## Complexity Tracking

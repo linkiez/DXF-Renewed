@@ -392,5 +392,11 @@ export async function searchBestArrangementAsync(
   const scores = scorer
     ? await scorer.score(candidates.map((candidate) => candidate.metrics))
     : candidates.map((candidate) => scoreLayout(candidate.metrics, weights))
+  if (
+    scores.length !== candidates.length ||
+    scores.some((score) => !Number.isFinite(score))
+  ) {
+    throw new Error('Accelerated scorer returned invalid candidate scores')
+  }
   return { arrangement: pickBest(candidates, scores), iterations: budget.iterations }
 }

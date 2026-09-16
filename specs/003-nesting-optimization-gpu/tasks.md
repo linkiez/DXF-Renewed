@@ -183,12 +183,16 @@ task "scoring kernel in src/nesting/optimization/webgpu/score.ts"
 
 ## Phase 6: Convergence
 
-- [X] T024 Wire the fixed-point accelerator kernel (`proposeOrder`/`fixedPointScore` from `src/nesting/optimization/webgpu/score.ts`) into the `nestTrueShape`/`searchBestArrangement` path when `selectBackend` returns `webgpu`, so `accelerated: true` is only reported after real accelerated scoring; until wired, report `accelerated: false` with an explicit `fallbackReason` per FR-004/FR-007, SC-002/SC-004 (partial)
-- [X] T025 Implement FR-006 lost/slow/invalid fallback in `src/nesting/optimization/backend.ts`/`src/nesting/trueShape/index.ts`: apply `meetsAccelerationGate`/`ACCELERATION_GAIN_FACTOR` to abandon acceleration failing the >=2x SC-004 gate, set `fallbackReason`, and retry unfinished work on the CPU baseline without discarding completed placements per FR-006, T019 (partial)
+- [X] T024 Wire the fixed-point accelerator kernel (`proposeOrder`/`fixedPointScore` from `src/nesting/optimization/webgpu/score.ts`) into the `nestTrueShape`/`searchBestArrangement` path when `selectBackend` returns `webgpu`, so `accelerated: true` is only reported after real accelerated scoring; until dispatch succeeds, report `accelerated: false` with an explicit `fallbackReason` per FR-004/FR-007, SC-002/SC-004
+- [X] T025 Implement FR-006 lost/slow/invalid fallback in `src/nesting/optimization/backend.ts`/`src/nesting/trueShape/index.ts`: apply `meetsAccelerationGate`/`ACCELERATION_GAIN_FACTOR` to abandon acceleration failing the >=2x SC-004 gate, set `fallbackReason`, and retry the complete unfinished search on the CPU baseline without discarding the valid baseline result per FR-006, T019
 - [X] T026 Remove or justify the no-op `selectionObjective` helper in `src/nesting/optimization/backend.ts` (`selection.requested ? objective : objective` returns `objective` in both branches) per Constitution II / comment discipline (unrequested)
 
 ## Phase 7: Convergence
 
-- [ ] T027 Wire the WebGPU executor: extend `src/nesting/optimization/webgpu/device.ts` with device dispatch (`requestAdapter`/`requestDevice`/compute pipeline) and invoke `proposeOrder`/`fixedPointScore` from `webgpu/score.ts` in the `nestTrueShape`/`searchBestArrangement` path when the backend is `webgpu`, keeping CPU re-validation of every placement per FR-004, FR-005, SC-002, T024 (missing)
-- [ ] T028 Enforce the SC-004 >= 2x gate in `src/nesting/trueShape/index.ts`: after accelerated scoring compare `meetsAccelerationGate`/`ACCELERATION_GAIN_FACTOR` against the CPU baseline, and on failure set `fallbackReason`, revert `backend` to `cpu`, and finish remaining work on the baseline without discarding completed placements per FR-006, SC-004, T025 (missing)
-- [ ] T029 Report `backend: 'webgpu'` / `accelerated: true` only once the wired dispatch passes the SC-004 gate, removing the placeholder always-CPU fallback in `selectBackend` per FR-007, US2, T024 (partial)
+- [X] T027 Wire the WebGPU executor: extend `src/nesting/optimization/webgpu/device.ts` with device dispatch (`requestAdapter`/`requestDevice`/compute pipeline) and invoke fixed-point scoring from `webgpu/score.ts` in the `nestTrueShape`/`searchBestArrangement` path when the backend is `webgpu`, keeping CPU re-validation of every placement per FR-004, FR-005, SC-002, T024
+- [X] T028 Enforce the SC-004 >= 2x gate in `src/nesting/trueShape/index.ts`: after accelerated scoring compare `meetsAccelerationGate`/`ACCELERATION_GAIN_FACTOR` against the CPU baseline, and on failure set `fallbackReason`, revert `backend` to `cpu`, and finish the request on the baseline without discarding the valid baseline result per FR-006, SC-004, T025
+- [X] T029 Report `backend: 'webgpu'` / `accelerated: true` only once the wired dispatch passes the SC-004 gate, removing the placeholder always-CPU fallback in `selectBackend` per FR-007, US2, T024
+
+## Phase 8: Convergence
+
+- [X] T030 Update stale source comments in `src/nesting/optimization/backend.ts` and `src/nesting/optimization/webgpu/device.ts` to document the implemented WebGPU compute dispatch, CPU parity validation and SC-004 fallback gate per plan: documentation accuracy

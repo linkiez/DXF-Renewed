@@ -2,7 +2,7 @@
 
 **Feature Branch**: `003-nesting-optimization-gpu`
 **Created**: 2026-09-11
-**Status**: Draft
+**Status**: Implemented
 **Input**: Nesting roadmap optimization and acceleration workstreams.
 
 ## Clarifications
@@ -91,7 +91,10 @@ verify both results pass the same placement validation and the unavailable case 
 - **SC-001**: 100 consecutive equal requests with the same seed MUST return identical `placements` and `sheets` geometry and metrics, independent of the selected backend; only `backend.timings` (measurement metadata) may differ.
 - **SC-002**: Every accelerated result passes the same final placement validation as baseline results.
 - **SC-003**: 100% of unavailable-acceleration tests complete on the baseline path.
-- **SC-004**: On the reference job (100 parts / 5 sheets, feature 002), the accelerated path is at least 2× faster than the CPU baseline, while the baseline itself stays under 2 s.
+- **SC-004**: When a compliant WebGPU compute device is available, the accelerated path on the
+  reference job (100 parts / 5 sheets, feature 002) MUST be at least 2× faster than the CPU
+  baseline, while the baseline itself stays under 2 s. When no compliant device is available, the
+  accelerated clause is not applicable and SC-005 governs the CPU fallback.
 - **SC-005**: With `acceleration: false` (or `true` on a machine without acceleration), 100% of runs
   complete on the CPU baseline and report the selected backend and any fallback reason.
 

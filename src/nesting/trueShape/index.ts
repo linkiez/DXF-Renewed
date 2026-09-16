@@ -24,9 +24,19 @@ import {
   EPSILON,
 } from '../config'
 import { effectiveRotations, resolveAllowedRotations } from './rotations'
-import { materialUse, searchBestArrangement } from './search'
+import {
+  materialUse,
+  searchBestArrangement,
+  searchBestArrangementAsync,
+} from './search'
 import { normalizeObjective } from '../optimization/objective'
-import { createBackendReport, selectBackendAsync } from '../optimization/backend'
+import {
+  ACCELERATION_GAIN_FACTOR,
+  createBackendReport,
+  meetsAccelerationGate,
+  selectBackendAsync,
+} from '../optimization/backend'
+import { createGpuScorer } from '../optimization/webgpu/score'
 import { Observable } from 'rxjs'
 import { observeFlow, throwIfAborted } from '../async/observableFlow'
 
@@ -212,8 +222,8 @@ async function runNestTrueShape(
 
   throwIfAborted(signal)
 
-  const scoringStartedAtMs = Date.now()
-  const { arrangement, iterations } = searchBestArrangement(
+  const baselineStartedAtMs = Date.now()
+  const baselineResult = searchBestArrangement(
     requests,
     stock,
     edgeClearance,
@@ -222,8 +232,66 @@ async function runNestTrueShape(
     strategies,
     objective,
   )
+  const baselineScoringMs = Date.now() - baselineStartedAtMs
+  let arrangement = baselineResult.arrangement
+  let iterations = baselineResult.iterations
+  let scoringMs = baselineScoringMs
+  let reportSelection = selection
+
+  if (selection.device !== undefined) {
+    const acceleratedStartedAtMs = Date.now()
+    try {
+      const acceleratedResult = await searchBestArrangementAsync(
+        requests,
+        stock,
+        edgeClearance,
+        partToPartClearance,
+        budgetLimit,
+        strategies,
+        objective,
+        createGpuScorer(selection.device, objective),
+      )
+      const acceleratedScoringMs = Date.now() - acceleratedStartedAtMs
+      const samePlacements =
+        JSON.stringify(acceleratedResult.arrangement.placements) ===
+          JSON.stringify(baselineResult.arrangement.placements) &&
+        acceleratedResult.arrangement.placedArea ===
+          baselineResult.arrangement.placedArea &&
+        acceleratedResult.arrangement.consumedArea ===
+          baselineResult.arrangement.consumedArea &&
+        acceleratedResult.arrangement.travelLength ===
+          baselineResult.arrangement.travelLength
+      const passedGate = meetsAccelerationGate(
+        baselineScoringMs,
+        acceleratedScoringMs,
+      )
+
+      if (samePlacements && passedGate) {
+        arrangement = acceleratedResult.arrangement
+        iterations = acceleratedResult.iterations
+        scoringMs = acceleratedScoringMs
+      } else {
+        reportSelection = {
+          backend: 'cpu',
+          requested: true,
+          accelerated: false,
+          fallbackReason: samePlacements
+            ? `WebGPU acceleration below ${ACCELERATION_GAIN_FACTOR}x CPU baseline`
+            : 'WebGPU result failed CPU placement parity validation',
+        }
+      }
+    } catch (error) {
+      reportSelection = {
+        backend: 'cpu',
+        requested: true,
+        accelerated: false,
+        fallbackReason: `WebGPU scoring failed: ${error instanceof Error ? error.message : String(error)}`,
+      }
+    } finally {
+      selection.device.destroy()
+    }
+  }
   throwIfAborted(signal)
-  const scoringMs = Date.now() - scoringStartedAtMs
 
   const placements = arrangement.placements
 
@@ -254,7 +322,7 @@ async function runNestTrueShape(
   const consumedArea = sheets.reduce((sum, s) => sum + s.width * s.height, 0)
   const placedArea = arrangement.placedArea
 
-  const backend = createBackendReport(selection, {
+  const backend = createBackendReport(reportSelection, {
     scoringMs,
     totalMs: Date.now() - startedAtMs,
   })

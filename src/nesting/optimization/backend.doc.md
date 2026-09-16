@@ -14,7 +14,7 @@ Módulo `backend.ts` da feature 003-nesting-optimization-gpu.
 
 ## Fluxo principal
 1. `acceleration === false` fixa `cpu` com `requested: false` sem sondar adaptador (FR-004).
-2. `acceleration !== false` sonda o adaptador; como nenhum executor acelerado está ligado à busca, a execução permanece em `cpu` e registra `fallbackReason` explícito (falha silenciosa proibida; FR-004/FR-007). O ramo `webgpu` só deve retornar `accelerated: true` após o dispatch real em `webgpu/score.ts` passar no portão SC-004 (T024).
+2. `acceleration !== false` adquire um dispositivo computável; a execução tenta o ramo `webgpu` e só mantém `accelerated: true` após dispatch, paridade com o baseline e aprovação do portão SC-004. Falhas retornam ao `cpu` com `fallbackReason` explícito (FR-004/FR-006/FR-007).
 3. `meetsAccelerationGate(baselineMs, acceleratedMs)` exige `baselineMs >= 2 × acceleratedMs` e tempos válidos.
 4. Nenhuma colocação já concluída é descartada em qualquer caminho (FR-006).
 

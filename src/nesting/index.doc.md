@@ -5,6 +5,7 @@ Módulo `index.ts` da feature 002-true-shape-nesting.
 
 ## Responsabilidades
 - Reexporta `nestTrueShape`, helpers e tipos da feature (aditivo, sem alterar exports existentes).
+- Reexporta objetivo ponderado, seleção de backend e dispatch WebGPU da feature 003.
 
 ## Entradas / Saídas
 - Entradas: parâmetros tipados das funções exportadas em `index.ts`.

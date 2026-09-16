@@ -5,7 +5,8 @@ Barrel do módulo `optimization` da feature 003-nesting-optimization-gpu.
 
 ## Responsabilidades
 - Reexportar `normalizeObjective`, `selectBackend`, `createBackendReport`, `meetsAccelerationGate` e `scoreLayout`.
-- Reexportar a superfície de sondagem e pontuação WebGPU (`probeGpu`, `fixedPointScore`, `proposeOrder`).
+- Reexportar a superfície de sondagem, dispatch e pontuação WebGPU (`probeGpu`, `requestGpuDevice`,
+  `dispatchGpuScores`, `fixedPointScore`, `proposeOrder`).
 
 ## Entradas / Saídas
 - Entradas: parâmetros tipados das funções reexportadas.
@@ -13,8 +14,9 @@ Barrel do módulo `optimization` da feature 003-nesting-optimization-gpu.
 
 ## Fluxo principal
 1. `trueShape/index.ts` resolve o objetivo por `normalizeObjective`.
-2. `selectBackend` escolhe o caminho; `searchBestArrangement` pontua com `scoreLayout`.
-3. `createBackendReport` fecha o relatório ecoado na resposta.
+2. `selectBackend`/`selectBackendAsync` escolhem o candidato de backend.
+3. `searchBestArrangement` pontua com `scoreLayout`; `dispatchGpuScores` executa a proposta WebGPU.
+4. `createBackendReport` fecha o relatório ecoado na resposta.
 
 ## Erros
 - Objetivos inválidos e falhas de aceleração são reportados explicitamente; nenhuma condição lança em `nestTrueShape`.

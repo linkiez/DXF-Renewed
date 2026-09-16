@@ -1,6 +1,9 @@
 node_modules/
 lib/
 dist/
+coverage/
+*.log
+.env*
 test/resources/#*
 examples/example.es5.svg
 examples/example.es6.svg

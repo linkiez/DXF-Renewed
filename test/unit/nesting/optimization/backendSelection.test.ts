@@ -50,12 +50,12 @@ describe('optimization/backend — selection and report', () => {
     expect(selection.fallbackReason).toContain('navigator.gpu')
   })
 
-  it('never reports acceleration while no accelerated executor is wired', async () => {
+  it('selects WebGPU when capability probing succeeds', async () => {
     const selection = selectBackend(true, { available: true })
-    expect(selection.backend).toBe('cpu')
+    expect(selection.backend).toBe('webgpu')
     expect(selection.requested).toBe(true)
-    expect(selection.accelerated).toBe(false)
-    expect(selection.fallbackReason).toContain('no accelerated executor')
+    expect(selection.accelerated).toBe(true)
+    expect(selection.fallbackReason).toBeUndefined()
   })
 
   it('createBackendReport carries timings and the fallback reason when present', async () => {

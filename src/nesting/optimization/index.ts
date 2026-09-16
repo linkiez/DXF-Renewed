@@ -29,18 +29,34 @@ export {
 } from './backend'
 export type { BackendSelection } from './backend'
 
-export { probeGpu, requestGpuDevice } from './webgpu/device'
+export {
+  GPU_BUFFER_USAGE,
+  GPU_MAP_MODE_READ,
+  isGpuComputeDevice,
+  probeGpu,
+  requestGpuDevice,
+} from './webgpu/device'
 export type {
   GpuAdapterLike,
+  GpuBindGroupLike,
+  GpuBindGroupLayoutLike,
+  GpuBufferLike,
   GpuDeviceLike,
+  GpuCommandEncoderLike,
+  GpuComputeDeviceLike,
+  GpuComputePassLike,
+  GpuComputePipelineLike,
   GpuLike,
   GpuCapableNavigator,
+  GpuQueueLike,
   GpuProbeResult,
   GpuDeviceResult,
 } from './webgpu/device'
 
 export {
   FIXED_POINT_SCALE,
+  createGpuScorer,
+  dispatchGpuScores,
   fixedPointScore,
   proposeOrder,
 } from './webgpu/score'

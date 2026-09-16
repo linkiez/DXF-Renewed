@@ -213,6 +213,8 @@ export {
   probeGpu,
   requestGpuDevice,
   FIXED_POINT_SCALE,
+  createGpuScorer,
+  dispatchGpuScores,
   fixedPointScore,
   proposeOrder,
 } from './optimization/index'

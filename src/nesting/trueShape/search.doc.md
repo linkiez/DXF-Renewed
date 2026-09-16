@@ -4,11 +4,13 @@
 Módulo `search.ts` da feature 002-true-shape-nesting.
 
 ## Responsabilidades
-- Busca determinística com orçamento derivado da entrada (FR-005/FR-007) e melhor arranjo por área colocada.
+- Busca determinística com orçamento derivado da entrada (FR-005/FR-007) e melhor arranjo por objetivo ponderado.
+- Expor um scorer assíncrono opcional para propostas WebGPU, mantendo seleção e validação no CPU.
+- Rejeitar resultados de scorer com cardinalidade ou valores não finitos inválidos.
 
 ## Entradas / Saídas
 - Entradas: parâmetros tipados das funções exportadas em `search.ts`.
-- Saídas: valores tipados; sem I/O e sem dependência de relógio (FR-007).
+- Saídas: valores tipados; o orçamento não depende do relógio (FR-007).
 
 ## Fluxo principal
 1. Recebe geometria já validada pelo chamador.
