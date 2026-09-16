@@ -324,3 +324,10 @@ export {
   SearchBudget,
 } from './trueShape/index'
 export type { AsyncScorer } from './trueShape/index'
+
+// ─────────────────────────────────────────────
+// Stateless ERP nesting contract (feature 006)
+// ─────────────────────────────────────────────
+
+export { calculateErpNesting } from './erp/flow'
+export * from './erp'
