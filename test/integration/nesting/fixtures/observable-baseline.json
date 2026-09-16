@@ -47,7 +47,7 @@
     "nestFromDxf": {
       "placements": [
         {
-          "shapeId": "shape-3",
+          "shapeId": "shape-1",
           "x": 11,
           "y": 11,
           "rotation": 0,
@@ -61,7 +61,7 @@
           }
         },
         {
-          "shapeId": "shape-4",
+          "shapeId": "shape-2",
           "x": 63,
           "y": 11,
           "rotation": 0,

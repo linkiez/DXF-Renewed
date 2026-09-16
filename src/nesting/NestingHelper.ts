@@ -65,13 +65,9 @@ export class NestingHelper extends Helper {
 
         this._shapes = extraction.shapes
 
-        // Build shape → entity map
-        for (
-          let i = 0;
-          i < extraction.shapes.length && i < this.denormalised.length;
-          i++
-        ) {
-          this._shapeEntityMap.set(extraction.shapes[i].id, this.denormalised[i])
+        for (const shape of extraction.shapes) {
+          const entity = extraction.shapeEntities.get(shape.id)
+          if (entity) this._shapeEntityMap.set(shape.id, entity)
         }
 
         this._nestingResult = result

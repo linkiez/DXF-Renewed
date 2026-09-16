@@ -28,3 +28,7 @@ Cobertura em `test/unit/nesting/trueShape*.test.ts` e `test/integration/nesting/
 
 ## Dependências
 - `src/nesting/types.ts`, `src/nesting/polygonUtils.ts`, `src/nesting/collision.ts`, `src/nesting/config.ts`.
+
+Shape extraction results include a `shapeEntities` map so consumers can
+associate placements with their source DXF entities without relying on array
+positions.

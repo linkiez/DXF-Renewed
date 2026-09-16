@@ -87,6 +87,11 @@ ENDSEC
 EOF
 `
 
+const UNSUPPORTED_ENTITY_BEFORE_CIRCLES_DXF = MINIMAL_DXF.replace(
+  '0\nCIRCLE\n8\nPARTS',
+  '0\nLINE\n8\nGUIDES\n10\n0\n20\n0\n11\n5\n21\n5\n0\nCIRCLE\n8\nPARTS',
+)
+
 describe('nesting integration', () => {
   beforeEach(async () => {
     resetNestingState()
@@ -149,6 +154,18 @@ EOF
       expect(result.placements).toHaveLength(0)
       expect(result.utilization).toBe(0)
     })
+
+    it('should report zero utilization when all extracted shapes are unplaced', async () => {
+      const result = await firstValueFrom(
+        nestFromDxf(MINIMAL_DXF, {
+          stockSheet: { width: 15, height: 15 },
+        }),
+      )
+
+      expect(result.placements).toHaveLength(0)
+      expect(result.unplacedShapes).toHaveLength(3)
+      expect(result.utilization).toBe(0)
+    })
   })
 
   describe('NestingHelper', () => {
@@ -192,6 +209,19 @@ EOF
       const dxf = helper.toNestedDxf()
       expect(dxf).toContain('SECTION')
       expect(dxf).toContain('ENTITIES')
+    })
+
+    it('should preserve shape-to-entity mapping when unsupported entities precede shapes', async () => {
+      const helper = new NestingHelper(UNSUPPORTED_ENTITY_BEFORE_CIRCLES_DXF)
+      await firstValueFrom(
+        helper.nest({
+          stockSheet: { width: 300, height: 300 },
+        }),
+      )
+
+      const dxf = helper.toNestedDxf()
+
+      expect((dxf.match(/\nCIRCLE\n/g) ?? []).length).toBe(2)
     })
 
     it('should throw when accessing result before nesting', async () => {

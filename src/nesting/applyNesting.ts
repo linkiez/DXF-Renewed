@@ -86,7 +86,7 @@ function computeMetrics(
   placements: Placement[][],
   unplaced: Parameters<typeof guillotinePack>[0],
   sheets: StockSheet[],
-  shapesTotalArea: number,
+  placedShapesArea: number,
   algorithm: NestingAlgorithm,
   processingTimeMs: number,
 ): NestingMetrics {
@@ -101,8 +101,8 @@ function computeMetrics(
     placedShapes: totalPlaced,
     unplacedShapes: unplaced.length,
     sheetsUsed: sheets.length,
-    utilization: totalArea > 0 ? (shapesTotalArea / totalArea) * 100 : 0,
-    wasteArea: Math.max(0, totalArea - shapesTotalArea),
+    utilization: totalArea > 0 ? (placedShapesArea / totalArea) * 100 : 0,
+    wasteArea: Math.max(0, totalArea - placedShapesArea),
     processingTimeMs,
     algorithm,
   }
@@ -204,13 +204,21 @@ async function runNest(
       allFlatPlacements.push(...sheetPlacements)
     }
 
+    const shapeAreas = new Map(
+      sortedShapes.map((shape) => [shape.id, shape.area]),
+    )
+    const placedShapesArea = allFlatPlacements.reduce(
+      (sum, placement) => sum + (shapeAreas.get(placement.shapeId) ?? 0),
+      0,
+    )
+
     // Step 8: Compute metrics
     const processingTimeMs = performance.now() - startTime
     const metrics = computeMetrics(
       allPlacements,
       unplacedShapes as any,
       sheets.slice(0, allPlacements.length),
-      shapesTotalArea,
+      placedShapesArea,
       options.algorithm ?? 'guillotine',
       processingTimeMs,
     )

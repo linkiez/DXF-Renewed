@@ -6,6 +6,8 @@
  * to minimize material waste.
  */
 
+import type { Entity } from '../types'
+
 // ─────────────────────────────────────────────
 // Point & Geometry Primitives
 // ─────────────────────────────────────────────
@@ -423,6 +425,7 @@ export interface Shelf {
 /** Shape extraction result */
 export interface ExtractionResult {
   shapes: NestableShape[]
+  shapeEntities: Map<string, Entity>
   compoundShapes: CompoundShape[]
   skippedEntities: Array<{ type: string; reason: string }>
 }
