@@ -5,6 +5,7 @@
  * clearance, no overlap, nothing unplaced.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting/trueShape/index'
 import { isWithinBounds } from '../../../src/nesting/trueShape/bounds'
@@ -60,7 +61,7 @@ const stock: StockItem[] = [
 
 describe('trueShape/placement', () => {
   it('places irregular and rectangular parts with nothing unplaced', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [
         { shape: lShape('l1', 60), quantity: 2 },
@@ -69,14 +70,14 @@ describe('trueShape/placement', () => {
       edgeClearance,
       partToPartClearance,
       seed: 11,
-    })
+    }))
 
     expect(response.unplaced).toEqual([])
     expect(response.placements).toHaveLength(5)
   })
 
   it('keeps every placement in bounds at the edge clearance', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [
         { shape: lShape('l1', 60), quantity: 2 },
@@ -85,7 +86,7 @@ describe('trueShape/placement', () => {
       edgeClearance,
       partToPartClearance,
       seed: 11,
-    })
+    }))
 
     for (const placement of response.placements) {
       expect(placement.transformedVertices).toBeDefined()
@@ -100,7 +101,7 @@ describe('trueShape/placement', () => {
   })
 
   it('keeps every pair of placements apart by the part-to-part clearance', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [
         { shape: lShape('l1', 60), quantity: 2 },
@@ -109,7 +110,7 @@ describe('trueShape/placement', () => {
       edgeClearance,
       partToPartClearance,
       seed: 11,
-    })
+    }))
 
     const instances = response.placements.map(
       (p) => p.transformedVertices ?? [],
@@ -124,13 +125,13 @@ describe('trueShape/placement', () => {
   })
 
   it('records sheet identity and instance index on every placement', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [{ shape: rect('r1', 30, 30), quantity: 3 }],
       edgeClearance,
       partToPartClearance,
       seed: 3,
-    })
+    }))
 
     expect(response.placements.map((p) => p.sheetId)).toEqual([
       'sheet-1',

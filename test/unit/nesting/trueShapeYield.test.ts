@@ -6,6 +6,7 @@
  * a stable order.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting/trueShape/index'
 import type { Point2D, StockItem } from '../../../src/nesting/types'
@@ -28,26 +29,26 @@ describe('trueShape/yield', () => {
       { id: 'small', kind: 'sheet', width: 30, height: 30 },
     ]
 
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [{ shape: square('a', 20), quantity: 1 }],
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 1,
-    })
+    }))
 
     expect(response.sheets).toHaveLength(1)
     expect(response.sheets[0].id).toBe('small')
   })
 
   it('maximizes placed part area across the job', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: [{ id: 's1', kind: 'sheet', width: 60, height: 60 }],
       parts: [{ shape: square('a', 20), quantity: 4 }],
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 1,
-    })
+    }))
 
     expect(response.unplaced).toEqual([])
     expect(response.placements).toHaveLength(4)
@@ -59,13 +60,13 @@ describe('trueShape/yield', () => {
       { id: 'dense', kind: 'sheet', width: 100, height: 100 },
     ]
 
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [{ shape: square('a', 30), quantity: 2 }],
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 11,
-    })
+    }))
 
     // Both sheets fit the parts; material use favors the smaller consumed area.
     expect(response.sheets.map((s) => s.id)).toEqual(['dense'])
@@ -86,8 +87,8 @@ describe('trueShape/yield', () => {
       seed: 5,
     }
 
-    const first = await nestTrueShape(request)
-    const second = await nestTrueShape(request)
+    const first = await firstValueFrom(nestTrueShape(request))
+    const second = await firstValueFrom(nestTrueShape(request))
 
     expect(JSON.stringify(first.placements)).toBe(JSON.stringify(second.placements))
     expect(first.sheets.map((s) => s.id)).toEqual(second.sheets.map((s) => s.id))

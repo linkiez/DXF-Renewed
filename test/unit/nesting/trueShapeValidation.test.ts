@@ -5,6 +5,7 @@
  * boundary and a grain-locked part without `grainAngle` (FR-004, FR-006).
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting/trueShape/index'
 import { computeBoundingBox } from '../../../src/nesting/polygonUtils'
@@ -57,27 +58,32 @@ async function expectReason(
 
 describe('trueShape/validation', () => {
   it('rejects a negative edge clearance with an explicit reason', async () => {
-    await expectReason(() => nestTrueShape({ ...base, edgeClearance: -1 }), /edgeClearance/)
+    await expectReason(
+      () => firstValueFrom(nestTrueShape({ ...base, edgeClearance: -1 })),
+      /edgeClearance/,
+    )
   })
 
   it('rejects a negative part-to-part clearance with an explicit reason', async () => {
     await expectReason(
-      () => nestTrueShape({ ...base, partToPartClearance: -1 }),
+      () => firstValueFrom(nestTrueShape({ ...base, partToPartClearance: -1 })),
       /partToPartClearance/,
     )
   })
 
   it('rejects empty stock with an explicit reason', async () => {
-    await expectReason(() => nestTrueShape({ ...base, stock: [] }), /stock/)
+    await expectReason(
+      () => firstValueFrom(nestTrueShape({ ...base, stock: [] })),
+      /stock/,
+    )
   })
 
   it('rejects a non-positive stock dimension with an explicit reason', async () => {
     await expectReason(
-      () =>
-        nestTrueShape({
+      () => firstValueFrom(nestTrueShape({
           ...base,
           stock: [{ id: 'bad', kind: 'sheet', width: 0, height: 100 }],
-        }),
+        })),
       /positive/,
     )
   })
@@ -91,27 +97,26 @@ describe('trueShape/validation', () => {
       { x: -5, y: 10 },
     ])
     await expectReason(
-      () =>
-        nestTrueShape({
+      () => firstValueFrom(nestTrueShape({
           ...base,
           stock: [{ id: 's1', kind: 'sheet', width: 100, height: 100, holes: [hole] }],
-        }),
+        })),
       /hole/,
     )
   })
 
   it('reports a grain-locked part without grainAngle as unplaced', async () => {
-    const response = await nestTrueShape({ ...base, parts: [{ ...part, grainLocked: true }] })
+    const response = await firstValueFrom(nestTrueShape({ ...base, parts: [{ ...part, grainLocked: true }] }))
     expect(response.placements).toHaveLength(0)
     expect(response.unplaced).toHaveLength(1)
     expect(response.unplaced[0].reason).toMatch(/grainAngle/)
   })
 
   it('reports a grain-locked part with no aligned permitted rotation', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       ...base,
       parts: [{ ...part, grainLocked: true, grainAngle: 45 }],
-    })
+    }))
     expect(response.placements).toHaveLength(0)
     expect(response.unplaced).toHaveLength(1)
     expect(response.unplaced[0].reason).toMatch(/grainAngle/)
@@ -119,7 +124,7 @@ describe('trueShape/validation', () => {
 
   it('rejects a non-positive part quantity with an explicit reason', async () => {
     await expectReason(
-      () => nestTrueShape({ ...base, parts: [{ ...part, quantity: 0 }] }),
+      () => firstValueFrom(nestTrueShape({ ...base, parts: [{ ...part, quantity: 0 }] })),
       /quantity/,
     )
   })

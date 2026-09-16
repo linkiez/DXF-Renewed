@@ -1,7 +1,6 @@
 import { getResourcePath } from './test-helpers.ts'
 import fs from 'node:fs'
 import expect from 'expect'
-import { parseString } from 'xml2js'
 import { Box2 } from 'vecks'
 import { Helper } from '../../src'
 const dxfContents = fs.readFileSync(
@@ -26,16 +25,12 @@ describe('Helper', () => {
     const helper = new Helper(dxfContents)
     expect(helper.groups.Default.length).toEqual(1)
   })
-  it('can output an SVG', (done) => {
+  it('can output an SVG', () => {
     const helper = new Helper(dxfContents)
     const svg = helper.toSVG()
-    parseString(svg, (err, result) => {
-      if (err) {
-        throw Error(err)
-      }
-      expect(result.svg.$.viewBox).toEqual('0 -10 10 10')
-      done()
-    })
+    const viewBox = /viewBox\s*=\s*["']([^"']*)["']/.exec(svg)?.[1]
+
+    expect(viewBox).toEqual('0 -10 10 10')
   })
   it('can output polylines', async () => {
     const helper = new Helper(dxfContents)

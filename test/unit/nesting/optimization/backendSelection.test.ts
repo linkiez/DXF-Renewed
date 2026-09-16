@@ -5,6 +5,7 @@
  * never silently degrades. The SC-004 gate is 2× the baseline.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import {
   ACCELERATION_GAIN_FACTOR,
@@ -76,13 +77,13 @@ describe('optimization/backend — selection and report', () => {
   })
 
   it('nestTrueShape always returns a backend report reflecting the real path', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts,
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 1,
-    })
+    }))
     expect(response.backend).toBeDefined()
     expect(response.backend?.accelerated).toBe(response.backend?.backend === 'webgpu')
     expect(response.backend?.requested).toBe(true)

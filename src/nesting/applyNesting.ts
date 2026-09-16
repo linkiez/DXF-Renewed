@@ -8,7 +8,7 @@
 
 import type { ParsedDXF } from '../types'
 import { Observable } from 'rxjs'
-import { observeFlow } from './async/observableFlow'
+import { observeFlow, throwIfAborted } from './async/observableFlow'
 import type {
   NestingOptions,
   NestingResult,
@@ -127,13 +127,6 @@ export function nest(
     (signal) => runNest(parsed, partialOptions, signal),
     partialOptions.signal,
   )
-}
-
-/** Abort the flow when the cooperative signal fires (FR-007). */
-function throwIfAborted(signal: AbortSignal): void {
-  if (signal.aborted) {
-    throw new Error('nest: aborted')
-  }
 }
 
 async function runNest(

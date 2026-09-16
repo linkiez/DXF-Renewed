@@ -27,6 +27,8 @@ import { effectiveRotations, resolveAllowedRotations } from './rotations'
 import { materialUse, searchBestArrangement } from './search'
 import { normalizeObjective } from '../optimization/objective'
 import { createBackendReport, selectBackendAsync } from '../optimization/backend'
+import { Observable } from 'rxjs'
+import { observeFlow, throwIfAborted } from '../async/observableFlow'
 
 const DEFAULT_STRATEGIES: SortStrategy[] = [
   'area-desc',
@@ -128,9 +130,18 @@ function invalidResponse(request: NestRequest, reason: string): NestResponse {
 /**
  * Runs true-shape nesting. Never throws for unplaceable parts — they are reported in `unplaced`.
  */
-export async function nestTrueShape(
+export function nestTrueShape(request: NestRequest): Observable<NestResponse> {
+  return observeFlow(
+    (signal) => runNestTrueShape(request, signal),
+    request.signal,
+  )
+}
+
+async function runNestTrueShape(
   request: NestRequest,
+  signal: AbortSignal,
 ): Promise<NestResponse> {
+  throwIfAborted(signal)
   const edgeClearance = request.edgeClearance
   const partToPartClearance = request.partToPartClearance
 
@@ -145,6 +156,8 @@ export async function nestTrueShape(
     return invalidResponse(request, `invalid objective: ${objectiveResult.reason}`)
   }
   const objective = objectiveResult.normalized
+
+  throwIfAborted(signal)
 
   // FR-004/FR-006: pick the backend up front so the report always reflects the actual path.
   const selection = await selectBackendAsync(
@@ -194,6 +207,8 @@ export async function nestTrueShape(
     instanceCount * Math.max(stock.length, 1) * DEFAULT_SEARCH_BUDGET_FACTOR,
     1,
   )
+
+  throwIfAborted(signal)
 
   const scoringStartedAtMs = Date.now()
   const { arrangement, iterations } = searchBestArrangement(

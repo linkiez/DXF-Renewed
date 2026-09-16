@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs'
 import assert from 'node:assert'
 import { prepareParts } from '../../../src/nesting/pro/partPrep/index'
 import { fixture, deepEqual } from './helpers'
@@ -7,20 +8,20 @@ const options = { tolerance: 0.01, cutWidthAllowance: 0 }
 
 describe('prepareParts pipeline', () => {
   it('returns the contract result shape', async () => {
-    const result = await prepareParts(dxf, options)
+    const result = await firstValueFrom(prepareParts(dxf, options))
     assert.ok(Array.isArray(result.parts))
     assert.ok(Array.isArray(result.issues))
     assert.equal(result.unit, 'mm')
   })
 
   it('rejects an unsupported declared unit with no parts', async () => {
-    const result = await prepareParts(dxf, { ...options, unit: 'in' })
+    const result = await firstValueFrom(prepareParts(dxf, { ...options, unit: 'in' }))
     assert.equal(result.parts.length, 0)
     assert.ok(result.issues.some((issue) => issue.code === 'UNSUPPORTED_UNIT'))
   })
 
   it('tags every boundary with its depth and source', async () => {
-    const result = await prepareParts(dxf, options)
+    const result = await firstValueFrom(prepareParts(dxf, options))
     for (const part of result.parts) {
       assert.equal(part.outer.depth, 0)
       assert.equal(part.outer.classification, 'outer')
@@ -37,9 +38,9 @@ describe('prepareParts pipeline', () => {
   })
 
   it('is deterministic across 100 runs', async () => {
-    const first = await prepareParts(dxf, options)
+    const first = await firstValueFrom(prepareParts(dxf, options))
     for (let i = 0; i < 99; i++) {
-      deepEqual(await prepareParts(dxf, options), first)
+      deepEqual(await firstValueFrom(prepareParts(dxf, options)), first)
     }
   })
 })

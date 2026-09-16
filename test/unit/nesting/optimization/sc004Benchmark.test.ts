@@ -6,6 +6,7 @@
  * silently — the fallback reason is asserted).
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -37,14 +38,14 @@ const fixture = JSON.parse(
 describe('optimization/sc004 — reference job (100 parts / 5 sheets)', () => {
   it('baseline stays under 2 s and places every part', async () => {
     const started = Date.now()
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: fixture.stock,
       parts: fixture.parts.map((p) => ({ shape: shapeFrom(p.id, p.vertices), quantity: p.quantity })),
       edgeClearance: fixture.edgeClearance,
       partToPartClearance: fixture.partToPartClearance,
       seed: fixture.seed,
       acceleration: false,
-    })
+    }))
     const baselineMs = Date.now() - started
 
     expect(baselineMs).toBeLessThan(2000)
@@ -54,25 +55,25 @@ describe('optimization/sc004 — reference job (100 parts / 5 sheets)', () => {
 
   it('reaches the 2× gate when accelerated, otherwise records the fallback', async () => {
     const baselineStarted = Date.now()
-    await nestTrueShape({
+    await firstValueFrom(nestTrueShape({
       stock: fixture.stock,
       parts: fixture.parts.map((p) => ({ shape: shapeFrom(p.id, p.vertices), quantity: p.quantity })),
       edgeClearance: fixture.edgeClearance,
       partToPartClearance: fixture.partToPartClearance,
       seed: fixture.seed,
       acceleration: false,
-    })
+    }))
     const baselineMs = Date.now() - baselineStarted
 
     const acceleratedStarted = Date.now()
-    const accelerated = await nestTrueShape({
+    const accelerated = await firstValueFrom(nestTrueShape({
       stock: fixture.stock,
       parts: fixture.parts.map((p) => ({ shape: shapeFrom(p.id, p.vertices), quantity: p.quantity })),
       edgeClearance: fixture.edgeClearance,
       partToPartClearance: fixture.partToPartClearance,
       seed: fixture.seed,
       acceleration: true,
-    })
+    }))
     const acceleratedMs = Date.now() - acceleratedStarted
 
     if (accelerated.backend?.accelerated) {

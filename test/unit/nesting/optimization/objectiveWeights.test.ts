@@ -5,6 +5,7 @@
  * valid weights normalize to 1 within EPSILON; an omitted objective preserves feature-002 behavior.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape, normalizeObjective } from '../../../../src/nesting'
 import type { OptimizationObjective, Point2D } from '../../../../src/nesting'
@@ -69,21 +70,21 @@ describe('optimization/objective — weights', () => {
     if (!result.ok) return
     expect(result.normalized).toEqual(DEFAULT_OBJECTIVE_WEIGHTS)
 
-    const omitted = await nestTrueShape({
+    const omitted = await firstValueFrom(nestTrueShape({
       stock,
       parts,
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 5,
-    })
-    const explicit = await nestTrueShape({
+    }))
+    const explicit = await firstValueFrom(nestTrueShape({
       stock,
       parts,
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 5,
       objective: DEFAULT_OBJECTIVE_WEIGHTS,
-    })
+    }))
     expect(JSON.stringify(omitted.placements)).toBe(
       JSON.stringify(explicit.placements),
     )
@@ -92,14 +93,14 @@ describe('optimization/objective — weights', () => {
   })
 
   it('rejects an invalid objective through nestTrueShape without throwing', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts,
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 5,
       objective: invalid[0],
-    })
+    }))
     expect(response.placements).toHaveLength(0)
     expect(response.unplaced).toHaveLength(1)
     expect(response.unplaced[0].reason).toContain('invalid objective')

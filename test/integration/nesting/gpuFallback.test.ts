@@ -5,6 +5,7 @@
  * host without an adapter the request is still answered (never dropped) and the report states why.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting'
 import type { Point2D } from '../../../src/nesting'
@@ -33,8 +34,8 @@ const base = {
 
 describe('gpu fallback — acceleration is transparent', () => {
   it('acceleration on and off yield identical placements for the same seed', async () => {
-    const on = await nestTrueShape({ ...base, acceleration: true })
-    const off = await nestTrueShape({ ...base, acceleration: false })
+    const on = await firstValueFrom(nestTrueShape({ ...base, acceleration: true }))
+    const off = await firstValueFrom(nestTrueShape({ ...base, acceleration: false }))
 
     expect(JSON.stringify(on.placements)).toBe(JSON.stringify(off.placements))
     expect(on.utilization).toBe(off.utilization)
@@ -43,7 +44,7 @@ describe('gpu fallback — acceleration is transparent', () => {
   })
 
   it('an unavailable adapter still completes and reports the fallback reason', async () => {
-    const response = await nestTrueShape({ ...base, acceleration: true })
+    const response = await firstValueFrom(nestTrueShape({ ...base, acceleration: true }))
     if (response.backend?.backend === 'cpu') {
       expect(response.backend.requested).toBe(true)
       expect(response.backend.accelerated).toBe(false)

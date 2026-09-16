@@ -5,6 +5,7 @@
  * budget calibration (or the search quality) is the defect — the 85% threshold does not move.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting/trueShape/index'
 import {
@@ -18,13 +19,13 @@ const PART_TO_PART_CLEARANCE = 2
 describe('trueShape/thresholds', () => {
   it('SC-002: 100-part job returns within 2 seconds', async () => {
     const started = Date.now()
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: buildBenchmarkStock(),
       parts: buildBenchmarkParts().map((shape) => ({ shape, quantity: 1 })),
       edgeClearance: EDGE_CLEARANCE,
       partToPartClearance: PART_TO_PART_CLEARANCE,
       seed: 20260912,
-    })
+    }))
     const elapsed = Date.now() - started
 
     console.log(
@@ -36,13 +37,13 @@ describe('trueShape/thresholds', () => {
   })
 
   it('SC-003: 100-part job reaches at least 85% material use', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: buildBenchmarkStock(),
       parts: buildBenchmarkParts().map((shape) => ({ shape, quantity: 1 })),
       edgeClearance: EDGE_CLEARANCE,
       partToPartClearance: PART_TO_PART_CLEARANCE,
       seed: 20260912,
-    })
+    }))
 
     expect(response.unplaced).toEqual([])
     expect(response.utilization).toBeGreaterThanOrEqual(85)

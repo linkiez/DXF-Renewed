@@ -5,6 +5,7 @@
  * and metrics. The search budget is input-derived only, so nothing here reads wall-clock time.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape, scoreLayout } from '../../../../src/nesting'
 import type { OptimizationObjective, Point2D } from '../../../../src/nesting'
@@ -43,13 +44,13 @@ const request = {
 
 describe('optimization/determinism', () => {
   it('100 consecutive identical requests yield identical placements and metrics', async () => {
-    const first = await nestTrueShape(request)
+    const first = await firstValueFrom(nestTrueShape(request))
     const placements = JSON.stringify(first.placements)
     const budget = first.budget.iterations
     const utilization = first.utilization
 
     for (let i = 0; i < 100; i++) {
-      const run = await nestTrueShape(request)
+      const run = await firstValueFrom(nestTrueShape(request))
       expect(JSON.stringify(run.placements)).toBe(placements)
       expect(run.budget.iterations).toBe(budget)
       expect(run.utilization).toBe(utilization)

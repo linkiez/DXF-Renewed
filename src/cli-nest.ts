@@ -10,6 +10,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
+import { firstValueFrom } from 'rxjs'
 import { nestDXF, NEST_PRESETS } from './nest/index'
 
 // ─── Argument parsing simples ─────────────────────────────────────────
@@ -149,7 +150,7 @@ async function main() {
   console.time('⏱ Nesting completo')
 
   try {
-    const result = await nestDXF(dxfText, options)
+    const result = await firstValueFrom(nestDXF(dxfText, options))
 
     console.log(`\n✅ Nesting concluído!`)
     console.log(

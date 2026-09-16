@@ -3,6 +3,7 @@
  * ponta, coloca todas as peças sem colocação inválida e fica dentro do piso de tempo SC-002.
  * T012 — reforça o eco do objetivo aplicado e a ausência de sobreposição (SC-002).
  */
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting'
 import type { OptimizationObjective } from '../../../src/nesting'
@@ -18,14 +19,14 @@ const partToPartClearance = 2
 
 async function job(objective?: OptimizationObjective) {
   const parts = buildBenchmarkParts().map((shape) => ({ shape, quantity: 1 }))
-  return await nestTrueShape({
+  return await firstValueFrom(nestTrueShape({
     stock: buildBenchmarkStock(),
     parts,
     edgeClearance,
     partToPartClearance,
     seed: 20260912,
     ...(objective === undefined ? {} : { objective }),
-  })
+  }))
 }
 
 describe('trueShape/integração pelo barrel público', () => {

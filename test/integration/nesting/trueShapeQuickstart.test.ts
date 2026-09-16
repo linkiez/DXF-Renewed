@@ -5,6 +5,7 @@
  * modified-seed consistency check, end to end through the public `nestTrueShape` entry point.
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting'
 import type { PartRequest, StockItem } from '../../../src/nesting'
@@ -33,13 +34,13 @@ const parts: PartRequest[] = [
 
 describe('quickstart — true-shape nesting scenarios', () => {
   it('scenario 1 — irregular parts fit with no overlap and nothing unplaced', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: [sheet],
       parts,
       edgeClearance,
       partToPartClearance,
       seed: 1,
-    })
+    }))
 
     expect(response.unplaced).toEqual([])
     for (const placement of response.placements) {
@@ -62,46 +63,46 @@ describe('quickstart — true-shape nesting scenarios', () => {
 
   it('scenario 2 — deterministic tie-break, self-consistent seed change, threshold exclusion', async () => {
     const request = { stock: [sheet], parts, edgeClearance, partToPartClearance, seed: 42 }
-    const first = await nestTrueShape(request)
-    const second = await nestTrueShape(request)
+    const first = await firstValueFrom(nestTrueShape(request))
+    const second = await firstValueFrom(nestTrueShape(request))
     expect(JSON.stringify(first.placements)).toBe(JSON.stringify(second.placements))
 
-    const changed = await nestTrueShape({ ...request, seed: 43 })
+    const changed = await firstValueFrom(nestTrueShape({ ...request, seed: 43 }))
     expect(changed.utilization).toBeGreaterThan(0)
 
-    const withRemnant = await nestTrueShape({
+    const withRemnant = await firstValueFrom(nestTrueShape({
       stock: [sheet, { id: 'tiny', kind: 'remnant', width: 5, height: 5 }],
       parts,
       edgeClearance,
       partToPartClearance,
       seed: 42,
       remnantThreshold: 1000,
-    })
+    }))
     expect(withRemnant.sheets.map((s) => s.id)).not.toContain('tiny')
   })
 
   it('scenario 3 — grain-locked rotations and missing grainAngle', async () => {
     const grain = shapeFrom('g', closed([[0, 0], [40, 0], [40, 25], [0, 25], [0, 0]]))
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: [sheet],
       parts: [{ shape: grain, quantity: 2, grainLocked: true, grainAngle: 0 }],
       edgeClearance,
       partToPartClearance,
       seed: 7,
-    })
+    }))
 
     expect(response.unplaced).toEqual([])
     for (const placement of response.placements) {
       expect([0, 180]).toContain(placement.rotation)
     }
 
-    const missing = await nestTrueShape({
+    const missing = await firstValueFrom(nestTrueShape({
       stock: [sheet],
       parts: [{ shape: grain, quantity: 1, grainLocked: true }],
       edgeClearance,
       partToPartClearance,
       seed: 7,
-    })
+    }))
     expect(missing.placements).toHaveLength(0)
     expect(missing.unplaced.length).toBeGreaterThan(0)
   })
@@ -111,13 +112,13 @@ describe('quickstart — true-shape nesting scenarios', () => {
       'huge',
       closed([[0, 0], [500, 0], [500, 500], [0, 500], [0, 0]]),
     )
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: [sheet],
       parts: [{ shape: huge, quantity: 2 }],
       edgeClearance,
       partToPartClearance,
       seed: 1,
-    })
+    }))
 
     expect(response.placements).toHaveLength(0)
     expect(response.unplaced[0].quantity).toBe(2)
@@ -126,13 +127,13 @@ describe('quickstart — true-shape nesting scenarios', () => {
 
   it('scenario 5 — 100-part benchmark within 2 s and at least 85% material use', async () => {
     const started = Date.now()
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: buildBenchmarkStock(),
       parts: buildBenchmarkParts().map((shape) => ({ shape, quantity: 1 })),
       edgeClearance,
       partToPartClearance,
       seed: 20260912,
-    })
+    }))
     const elapsed = Date.now() - started
 
     expect(elapsed).toBeLessThan(2000)

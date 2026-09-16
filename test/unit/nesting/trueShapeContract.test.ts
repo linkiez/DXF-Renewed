@@ -5,6 +5,7 @@
  * (data-model invariant 3).
  */
 
+import { firstValueFrom } from 'rxjs'
 import { expect } from 'expect'
 import { nestTrueShape } from '../../../src/nesting/trueShape/index'
 import { computeBoundingBox } from '../../../src/nesting/polygonUtils'
@@ -38,13 +39,13 @@ const stock: StockItem[] = [
 
 describe('trueShape/contract', () => {
   it('returns the documented result shape', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [{ shape: rectShape('a', 20, 20), quantity: 2 }],
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 42,
-    })
+    }))
 
     expect(response.placements).toBeInstanceOf(Array)
     expect(response.sheets).toBeInstanceOf(Array)
@@ -64,13 +65,13 @@ describe('trueShape/contract', () => {
       { shape: rectShape('b', 400, 400), quantity: 2 },
     ]
 
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: requests,
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 7,
-    })
+    }))
 
     for (const request of requests) {
       const placed = response.placements.filter(
@@ -84,13 +85,13 @@ describe('trueShape/contract', () => {
   })
 
   it('reports an explicit reason for a part that cannot fit', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock,
       parts: [{ shape: rectShape('huge', 500, 500), quantity: 1 }],
       edgeClearance: 2,
       partToPartClearance: 2,
       seed: 1,
-    })
+    }))
 
     expect(response.placements).toHaveLength(0)
     expect(response.unplaced).toHaveLength(1)
@@ -107,8 +108,8 @@ describe('trueShape/contract', () => {
       seed: 99,
     }
 
-    const first = await nestTrueShape(request)
-    const second = await nestTrueShape(request)
+    const first = await firstValueFrom(nestTrueShape(request))
+    const second = await firstValueFrom(nestTrueShape(request))
 
     expect(JSON.stringify(first.placements)).toBe(
       JSON.stringify(second.placements),
@@ -117,7 +118,7 @@ describe('trueShape/contract', () => {
   })
 
   it('excludes remnants below the caller threshold (FR-008)', async () => {
-    const response = await nestTrueShape({
+    const response = await firstValueFrom(nestTrueShape({
       stock: [
         { id: 'sheet-1', kind: 'sheet', width: 100, height: 100 },
         { id: 'tiny', kind: 'remnant', width: 5, height: 5 },
@@ -127,7 +128,7 @@ describe('trueShape/contract', () => {
       partToPartClearance: 2,
       seed: 5,
       remnantThreshold: 1000,
-    })
+    }))
 
     expect(response.sheets.map((s) => s.id)).not.toContain('tiny')
     expect(response.placements.every((p) => p.sheetId !== 'tiny')).toBe(true)

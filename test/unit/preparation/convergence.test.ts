@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs'
 import assert from 'node:assert'
 import { prepareParts } from '../../../src/nesting/pro/partPrep/index'
 import { applyCutWidth } from '../../../src/nesting/pro/partPrep/offset'
@@ -29,10 +30,10 @@ describe('convergence fixes', () => {
   })
 
   it('gives every part a unique id even for repeated block references (T028)', async () => {
-    const result = await prepareParts(fixture('arrayed-holes.dxf'), {
+    const result = await firstValueFrom(prepareParts(fixture('arrayed-holes.dxf'), {
       tolerance: 0.01,
       cutWidthAllowance: 0,
-    })
+    }))
     const ids = result.parts.map((part) => part.id)
     assert.equal(new Set(ids).size, ids.length)
   })
@@ -43,7 +44,7 @@ describe('convergence fixes', () => {
         { type: 'ARC', handle: 'A9', layer: '0', x: 0, y: 0, r: 10, startAngle: 0, endAngle: 1 },
       ],
     }
-    const result = await prepareParts(dxf, { tolerance: 0.1, cutWidthAllowance: 0 })
+    const result = await firstValueFrom(prepareParts(dxf, { tolerance: 0.1, cutWidthAllowance: 0 }))
     assert.equal(result.parts.length, 0)
     assert.ok(result.issues.some((issue) => issue.code === 'OPEN_BOUNDARY'))
   })

@@ -15,4 +15,14 @@ export {
 // Nesting module (2D bin packing for sheet optimization)
 export * from './nesting/index'
 
+// Nest module (DXF parsing + part extraction pipeline)
+export {
+  nestDXF,
+  nestWithPreset,
+  quickNest,
+  NEST_PRESETS,
+  DEFAULT_NEST_OPTIONS,
+  COMMON_BIN_SIZES,
+} from './nest/index'
+
 export * from './types/index'

@@ -12,10 +12,11 @@ import {
   toNestedDxf,
   extractShapes,
   sortShapes,
-  packMultiSheet,
   searchBestArrangement,
   analyzeShapes,
 } from '../../../../src/nesting/index'
+// `packMultiSheet` is an internal binPacking helper: not reexported by the nesting barrel.
+import { packMultiSheet } from '../../../../src/nesting/binPacking/multiSheetPacker'
 
 const IN_SCOPE = {
   nest,
