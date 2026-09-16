@@ -23,7 +23,10 @@ const baseline = JSON.parse(
 ) as Baseline
 
 const dxf = fs.readFileSync(
-  path.join(process.cwd(), 'test/resources/nest-fixtures/simple-parts.dxf'),
+  path.join(
+    process.cwd(),
+    'test/integration/nesting/fixtures/observable-reference-two-shape.dxf',
+  ),
   'utf8',
 )
 
@@ -50,33 +53,37 @@ describe('Observable baseline parity', () => {
     ])
 
     const rawOptions = {
-      binSize: { width: 100, height: 100 },
+      binSize: { width: 200, height: 100 },
       gaPopulation: 4,
       maxIterations: 3,
       seed: 20260101,
     }
     const actual = {
-      'parsed-dxf-simple': await firstValueFrom(
-        nest(parseString(dxf), {
-          stockSheet: { width: 3000, height: 2000 },
-          margin: 10,
-          kerf: 2,
-        }),
-      ),
-      'raw-dxf': await firstValueFrom(
-        nestFromDxf(dxf, {
-          stockSheet: { width: 3000, height: 2000 },
-          margin: 10,
-          kerf: 2,
-        }),
-      ),
-      'raw-dxf-nestDXF': await firstValueFrom(nestDXF(dxf, rawOptions)),
-      'raw-dxf-preset': await firstValueFrom(
-        nestWithPreset(dxf, 'laser', rawOptions.binSize, rawOptions),
-      ),
-      'raw-dxf-quick': await firstValueFrom(
-        quickNest(dxf, { ...rawOptions, binSize: undefined }),
-      ),
+      'parsed-dxf-simple': {
+        nest: await firstValueFrom(
+          nest(parseString(dxf), {
+            stockSheet: { width: 200, height: 100 },
+            margin: 10,
+            kerf: 2,
+          }),
+        ),
+        nestFromDxf: await firstValueFrom(
+          nestFromDxf(dxf, {
+            stockSheet: { width: 200, height: 100 },
+            margin: 10,
+            kerf: 2,
+          }),
+        ),
+      },
+      'raw-dxf-preset': {
+        nestDXF: await firstValueFrom(nestDXF(dxf, rawOptions)),
+        nestWithPreset: await firstValueFrom(
+          nestWithPreset(dxf, 'laser', rawOptions.binSize, rawOptions),
+        ),
+        quickNest: await firstValueFrom(
+          quickNest(dxf, { ...rawOptions, binSize: undefined }),
+        ),
+      },
       'true-shape-mixed': await firstValueFrom(
         nestTrueShape({
           stock: [{ id: 'fixture-sheet', kind: 'sheet', width: 100, height: 100 }],

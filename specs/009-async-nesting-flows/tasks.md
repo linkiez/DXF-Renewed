@@ -244,3 +244,8 @@ Task: "Migrate test/unit/preparation/** to firstValueFrom"
 
 - [X] T050 [CRITICAL] Replace non-seeded randomness in `src/nest/nestCore.ts` and `src/nest/svgnest-core.js` with a deterministic seed-driven generator, add the seed to `NestOptions` and thread it through `nestDXF`, `nestWithPreset` and `quickNest`, satisfying FR-002, FR-003, SC-003 and Constitution IV (contradicts)
 - [X] T051 [HIGH] Rebuild `test/integration/nesting/fixtures/observable-baseline.json` and `test/integration/nesting/observableParity.test.ts` from the complete 7.7.6 reference set: both `nest` and `nestFromDxf`, all three raw-DXF entry points with normal seeded options, the mixed true-shape case with `iterations: 5000`, and a part-preparation case containing one rejection and one warning, satisfying FR-002 and SC-002 (partial)
+
+## Phase 8: Convergence
+
+- [X] T052 [HIGH] Replace the current generated parity fixture and inputs with verified 7.7.6 outputs for the exact four reference jobs defined by the specification, including the specified two-shape parsed/raw DXF case and measurement-only field exclusions, per FR-002 and SC-002
+- [X] T053 [HIGH] Make `NestingHelper.nest` state transactional per subscription by clearing or staging `_nestingResult`, `_shapes`, and `_shapeEntityMap` on restart and cancellation, then add regression coverage for cancelled and subsequent runs, per FR-007, SC-006, and plan T043
