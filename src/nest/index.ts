@@ -149,11 +149,12 @@ export function nestWithPreset(
   dxfText: string,
   preset: keyof typeof NEST_PRESETS,
   binSize: { width: number; height: number },
+  options: Partial<NestOptions> = {},
 ): Observable<
   NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
 > {
   const presetOpts = NEST_PRESETS[preset] ?? {}
-  return nestDXF(dxfText, { ...presetOpts, binSize })
+  return nestDXF(dxfText, { ...presetOpts, ...options, binSize })
 }
 
 /**
@@ -161,8 +162,9 @@ export function nestWithPreset(
  */
 export function quickNest(
   dxfText: string,
+  options: Partial<NestOptions> = {},
 ): Observable<
   NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
 > {
-  return nestWithPreset(dxfText, 'laser', { width: 2000, height: 4000 })
+  return nestWithPreset(dxfText, 'laser', { width: 2000, height: 4000 }, options)
 }

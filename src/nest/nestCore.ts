@@ -11,23 +11,26 @@ import { throwIfAborted } from '../nesting/async/observableFlow'
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 
-function shuffleArray<T>(array: T[]): T[] {
+function shuffleArray<T>(array: T[], random: () => number): T[] {
   const result = array.slice(0)
   for (let i = result.length - 1; i > 0; i--) {
-    const j = randomIndex(i + 1)
+    const j = randomIndex(i + 1, random)
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return result
 }
 
-function randomIndex(length: number): number {
-  const values = new Uint32Array(1)
-  const cryptoApi = globalThis.crypto
-  if (cryptoApi) {
-    cryptoApi.getRandomValues(values)
-    return values[0] % length
+function createSeededRandom(seed: number): () => number {
+  let state = seed >>> 0 || 0x6d2b79f5
+  return () => {
+    state = Math.imul(state ^ (state >>> 15), state | 1)
+    state ^= state + Math.imul(state ^ (state >>> 7), state | 61)
+    return ((state ^ (state >>> 14)) >>> 0) / 4294967296
   }
-  return Math.floor(Math.random() * length)
+}
+
+function randomIndex(length: number, random: () => number): number {
+  return Math.floor(random() * length)
 }
 
 function toSvgPoints(vertices: [number, number][]): { x: number; y: number }[] {
@@ -121,6 +124,7 @@ async function nestSingleBin(
   }
 
   const startMs = performance.now()
+  const random = createSeededRandom(options.seed ?? 20260101)
 
   const {
     binSize,
@@ -160,6 +164,7 @@ async function nestSingleBin(
     rotations: maxRotations ?? 4,
     curveTolerance: curveTolerance ?? 0.1,
     spacing: spacing ?? 0.2,
+    random,
   }
 
   // Rotation angles to test
@@ -203,6 +208,7 @@ async function nestSingleBin(
       config,
       exploreConcave: exploreConcave ?? false,
       partInPart: partInPart ?? false,
+      random,
       PlacementWorker,
     })
 
@@ -447,6 +453,7 @@ function createIterationParts(
   iter: number,
   svgParts: any[],
   parts: NestPart[],
+  random: () => number,
 ): any[] {
   const mapPart = (p: any) => {
     const pts = toSvgPoints(parts[p.source].vertices)
@@ -456,7 +463,9 @@ function createIterationParts(
     return pts as any
   }
 
-  return iter === 0 ? svgParts.map(mapPart) : shuffleArray(svgParts.map(mapPart))
+  return iter === 0
+    ? svgParts.map(mapPart)
+    : shuffleArray(svgParts.map(mapPart), random)
 }
 
 /**
@@ -473,16 +482,28 @@ function runPlacementIteration(
     config: any
     exploreConcave: boolean
     partInPart: boolean
+    random: () => number
     PlacementWorker: any
   },
 ): { fitness: number; placements: any[] } | null {
-  const { svgParts, parts, rotationAngles, binPolygon, nfpCache, config, exploreConcave, partInPart, PlacementWorker } = ctx
+  const {
+    svgParts,
+    parts,
+    rotationAngles,
+    binPolygon,
+    nfpCache,
+    config,
+    exploreConcave,
+    partInPart,
+    random,
+    PlacementWorker,
+  } = ctx
 
-  const iterParts = createIterationParts(iter, svgParts, parts)
+  const iterParts = createIterationParts(iter, svgParts, parts, random)
 
   // Assign random rotations
   const iterRotations = iterParts.map(() => {
-    return rotationAngles[randomIndex(rotationAngles.length)]
+    return rotationAngles[randomIndex(rotationAngles.length, random)]
   })
 
   iterParts.forEach((part, idx) => {

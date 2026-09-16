@@ -50,6 +50,8 @@ export interface NestOptions {
   gaMutationRate: number
   /** Max GA generations before stopping */
   maxIterations: number
+  /** Seed used by all placement randomization */
+  seed?: number
   /** Explore concave areas for better packing */
   exploreConcave: boolean
   /** Progress callback: (iteration, bestFitness) => void */
@@ -69,6 +71,7 @@ export const DEFAULT_NEST_OPTIONS: Omit<NestOptions, 'binSize'> = {
   gaPopulation: 10,
   gaMutationRate: 10,
   maxIterations: 100,
+  seed: 20260101,
   exploreConcave: false,
 }
 

@@ -239,3 +239,8 @@ Task: "Migrate test/unit/preparation/** to firstValueFrom"
 - Commit after each logical group; the version bump is a deliberate breaking change authorized by ADR-0001
 - Out of scope and MUST stay synchronous: `toNestedSvg`, `toNestedDxf`, `extractShapes`, `sortShapes`, `packMultiSheet`, `searchBestArrangement`, `analyzeShapes`
 - The 22 pre-existing test files that call the in-scope flows are migrated by T022–T024; nothing else in the repository calls them (`src/cli-nest.ts` is covered by T021)
+
+## Phase 7: Convergence
+
+- [X] T050 [CRITICAL] Replace non-seeded randomness in `src/nest/nestCore.ts` and `src/nest/svgnest-core.js` with a deterministic seed-driven generator, add the seed to `NestOptions` and thread it through `nestDXF`, `nestWithPreset` and `quickNest`, satisfying FR-002, FR-003, SC-003 and Constitution IV (contradicts)
+- [ ] T051 [HIGH] Rebuild `test/integration/nesting/fixtures/observable-baseline.json` and `test/integration/nesting/observableParity.test.ts` from the complete 7.7.6 reference set: both `nest` and `nestFromDxf`, all three raw-DXF entry points with normal seeded options, the mixed true-shape case with `iterations: 5000`, and a part-preparation case containing one rejection and one warning, satisfying FR-002 and SC-002 (partial)
