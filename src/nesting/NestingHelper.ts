@@ -6,7 +6,7 @@
  */
 
 import Helper from '../Helper'
-import { firstValueFrom, type Observable } from 'rxjs'
+import { defer, firstValueFrom, type Observable } from 'rxjs'
 import type { Entity } from '../types'
 import type { NestingOptions, NestingResult, NestableShape } from './types'
 import { nest } from './applyNesting'
@@ -43,39 +43,41 @@ export class NestingHelper extends Helper {
 
   /** Perform nesting with the given options */
   nest(partialOptions: Partial<NestingOptions> = {}): Observable<NestingResult> {
-    return observeFlow(async (signal) => {
+    return defer(() => {
       this.clearNestingState()
 
-      const result = await firstValueFrom(
-        nest(this.parsed, { ...partialOptions, signal }),
-      )
+      return observeFlow(async (signal) => {
+        const result = await firstValueFrom(
+          nest(this.parsed, { ...partialOptions, signal }),
+        )
 
-      // Extract shapes for SVG output
-      const extraction = extractShapes(this.denormalised, {
-        ...partialOptions,
-        stockSheet: partialOptions.stockSheet ?? {
-          width: 3000,
-          height: 2000,
-        },
-        curveSegments: partialOptions.curveSegments ?? 36,
-        allowedRotations: partialOptions.allowedRotations ?? [0, 90, 180, 270],
-        kerf: partialOptions.kerf ?? 2,
-      })
+        // Extract shapes for SVG output
+        const extraction = extractShapes(this.denormalised, {
+          ...partialOptions,
+          stockSheet: partialOptions.stockSheet ?? {
+            width: 3000,
+            height: 2000,
+          },
+          curveSegments: partialOptions.curveSegments ?? 36,
+          allowedRotations: partialOptions.allowedRotations ?? [0, 90, 180, 270],
+          kerf: partialOptions.kerf ?? 2,
+        })
 
-      this._shapes = extraction.shapes
+        this._shapes = extraction.shapes
 
-      // Build shape → entity map
-      for (
-        let i = 0;
-        i < extraction.shapes.length && i < this.denormalised.length;
-        i++
-      ) {
-        this._shapeEntityMap.set(extraction.shapes[i].id, this.denormalised[i])
-      }
+        // Build shape → entity map
+        for (
+          let i = 0;
+          i < extraction.shapes.length && i < this.denormalised.length;
+          i++
+        ) {
+          this._shapeEntityMap.set(extraction.shapes[i].id, this.denormalised[i])
+        }
 
-      this._nestingResult = result
-      return result
-    }, partialOptions.signal)
+        this._nestingResult = result
+        return result
+      }, partialOptions.signal)
+    })
   }
 
   private clearNestingState(): void {

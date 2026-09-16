@@ -36,8 +36,12 @@ export function observeFlow<T>(
         }
 
         if (external) {
-          if (external.aborted) onAbort()
-          else external.addEventListener('abort', onAbort, { once: true })
+          if (external.aborted) {
+            onAbort()
+            return () => controller.abort()
+          }
+
+          external.addEventListener('abort', onAbort, { once: true })
         }
 
         factory(controller.signal).then(

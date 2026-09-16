@@ -98,4 +98,17 @@ describe('observeFlow', () => {
     external.abort()
     assert.equal(signal?.aborted, true)
   })
+
+  it('does not start the factory when the external signal is already aborted', () => {
+    const external = new AbortController()
+    external.abort()
+    let calls = 0
+
+    observeFlow(async () => {
+      calls++
+      return 'unexpected'
+    }, external.signal).subscribe()
+
+    assert.equal(calls, 0)
+  })
 })
