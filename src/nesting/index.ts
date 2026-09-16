@@ -58,6 +58,57 @@ export type {
 } from './types'
 
 // ─────────────────────────────────────────────
+// Cut-path planning (feature 004)
+// ─────────────────────────────────────────────
+
+export type {
+  CutAction,
+  CutActionKind,
+  CutActionMetadata,
+  CutContour,
+  CutLayout,
+  CutPathProblem,
+  CutPathProblemCode,
+  CutPathProblemSeverity,
+  CutPlan,
+  CutPlanMetrics,
+  CutPlanResult,
+  CutPlanStats,
+  CutProcessProfile,
+  CutSequenceStrategy,
+  ClearanceRules,
+  CommonLineOptions,
+  CommonLineCandidate,
+  LeadSpec,
+  OvercutSpec,
+  PierceSpec,
+  SequenceOptions,
+  TabSpec,
+} from './cutPath'
+
+export {
+  contourBounds,
+  contourClearance,
+  isContourWithinSheet,
+  pointOnOrInsidePolygon,
+  pointToSegmentDistance,
+  rapidCrossesContour,
+  rapidRouteDistance,
+  routeDistance,
+  transformedContour,
+  validateCutGeometry,
+  validateCutLayout,
+  validateCutProcessProfile,
+  validateRapidRoute,
+  planCutPath,
+  sequenceContours,
+  leadCandidate,
+  overcutCandidate,
+  pierceCandidate,
+  tabCandidates,
+} from './cutPath'
+
+// ─────────────────────────────────────────────
 // Configuration
 // ─────────────────────────────────────────────
 

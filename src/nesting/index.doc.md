@@ -24,3 +24,14 @@ Cobertura em `test/unit/nesting/trueShape*.test.ts` e `test/integration/nesting/
 
 ## Dependências
 - `src/nesting/types.ts`, `src/nesting/polygonUtils.ts`, `src/nesting/collision.ts`, `src/nesting/config.ts`.
+
+## Feature 004 — Cut-path planning
+
+O barrel também expõe, de forma aditiva, os tipos públicos de layout, perfil de processo, ações,
+planos, métricas e problemas estruturados em `src/nesting/cutPath/types.ts`, além dos helpers
+puros de geometria transformada e validação estrutural/processual de `src/nesting/cutPath`.
+
+`planCutPath` composes deterministic inner-before-outer sequencing, process entry candidates and
+machine-independent actions for every referenced sheet. Verified common-line candidates produce
+explicit common-line actions. Invalid geometry is returned as structured `CutPathProblem` data;
+only malformed structural input raises an exception.
