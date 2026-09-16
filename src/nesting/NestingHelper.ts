@@ -43,8 +43,10 @@ export class NestingHelper extends Helper {
 
   /** Perform nesting with the given options */
   nest(partialOptions: Partial<NestingOptions> = {}): Observable<NestingResult> {
-    return observeFlow(async () => {
-      const result = await firstValueFrom(nest(this.parsed, partialOptions))
+    return observeFlow(async (signal) => {
+      const result = await firstValueFrom(
+        nest(this.parsed, { ...partialOptions, signal }),
+      )
 
       // Extract shapes for SVG output
       const extraction = extractShapes(this.denormalised, {

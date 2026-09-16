@@ -163,6 +163,7 @@ async function runNestTrueShape(
   const selection = await selectBackendAsync(
     request.acceleration ?? DEFAULT_ACCELERATION,
   )
+  throwIfAborted(signal)
   const startedAtMs = Date.now()
 
   const allowed = resolveAllowedRotations(request.options?.allowedRotations)
@@ -179,6 +180,7 @@ async function runNestTrueShape(
   const skipped = new Set<(typeof request.parts)[number]>()
 
   for (const part of request.parts) {
+    throwIfAborted(signal)
     const rotations = effectiveRotations(part, allowed)
     if (rotations === null) {
       skipped.add(part)
@@ -220,6 +222,7 @@ async function runNestTrueShape(
     strategies,
     objective,
   )
+  throwIfAborted(signal)
   const scoringMs = Date.now() - scoringStartedAtMs
 
   const placements = arrangement.placements

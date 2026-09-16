@@ -30,10 +30,13 @@ export function observeFlow<T>(
     () =>
       new Observable<T>((subscriber) => {
         const controller = new AbortController()
-        const onAbort = () => controller.abort()
+        const onAbort = () => {
+          controller.abort()
+          subscriber.unsubscribe()
+        }
 
         if (external) {
-          if (external.aborted) controller.abort()
+          if (external.aborted) onAbort()
           else external.addEventListener('abort', onAbort, { once: true })
         }
 

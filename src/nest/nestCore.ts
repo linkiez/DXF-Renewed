@@ -8,6 +8,7 @@
 import { randomInt } from 'node:crypto'
 import type { NestPart, NestPlacement, NestOptions } from './types'
 import { loadSvgNest } from './svgnest-loader'
+import { throwIfAborted } from '../nesting/async/observableFlow'
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 
@@ -105,6 +106,7 @@ async function nestSingleBin(
   parts: NestPart[],
   options: NestOptions,
 ): Promise<BinNestResult> {
+  if (options.signal) throwIfAborted(options.signal)
   if (parts.length === 0) {
     return { placements: [], unplaced: [], fitness: 0, timeMs: 0 }
   }
@@ -125,6 +127,7 @@ async function nestSingleBin(
   } = options
 
   await loadSvgNest()
+  if (options.signal) throwIfAborted(options.signal)
   const GeometryUtil = (globalThis as any).GeometryUtil
   const PlacementWorker = (globalThis as any).PlacementWorker
 
@@ -181,6 +184,7 @@ async function nestSingleBin(
   let bestFitness = Infinity
 
   for (let iter = 0; iter < maxIterations; iter++) {
+    if (options.signal) throwIfAborted(options.signal)
     const result = runPlacementIteration(iter, {
       svgParts,
       parts,
@@ -208,6 +212,7 @@ async function nestSingleBin(
   const placedIds = new Set<number>()
 
   for (const binPlacements of bestResult?.placements ?? []) {
+    if (options.signal) throwIfAborted(options.signal)
     for (const placement of binPlacements) {
         const sourceIdx = placement.id
         const originalPart = parts[sourceIdx]
@@ -269,6 +274,7 @@ export async function nestParts(
   parts: NestPart[],
   options: NestOptions,
 ): Promise<NestPlacement[]> {
+  if (options.signal) throwIfAborted(options.signal)
   if (parts.length === 0) return []
 
   const allPlacements: NestPlacement[] = []
@@ -277,6 +283,7 @@ export async function nestParts(
   const maxBins = options.maxBins ?? 10
 
   while (remaining.length > 0 && binCount < maxBins) {
+    if (options.signal) throwIfAborted(options.signal)
     binCount++
 
     if (binCount > 1) {

@@ -102,6 +102,7 @@ async function runNestDXF(
 
   // 5. Run nesting (supports multi-bin)
   const placements = await nestParts(parts, fullOptions)
+  throwIfAborted(signal)
 
   // 6. Determine unplaced parts
   const placedIds = new Set(placements.map((p) => p.partId))

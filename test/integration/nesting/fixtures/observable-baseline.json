@@ -1,0 +1,415 @@
+{
+  "seed": 20260101,
+  "jobs": {
+    "parsed-dxf-simple": {
+      "placements": [
+        {
+          "shapeId": "shape-1",
+          "x": 11,
+          "y": 11,
+          "rotation": 0,
+          "bbox": {
+            "minX": 10,
+            "minY": 10,
+            "maxX": 62,
+            "maxY": 62,
+            "width": 52,
+            "height": 52
+          }
+        },
+        {
+          "shapeId": "shape-2",
+          "x": 11,
+          "y": 63,
+          "rotation": 0,
+          "bbox": {
+            "minX": 10,
+            "minY": 62,
+            "maxX": 62,
+            "maxY": 114,
+            "width": 52,
+            "height": 52
+          }
+        },
+        {
+          "shapeId": "shape-3",
+          "x": 11,
+          "y": 115,
+          "rotation": 0,
+          "bbox": {
+            "minX": 10,
+            "minY": 114,
+            "maxX": 62,
+            "maxY": 166,
+            "width": 52,
+            "height": 52
+          }
+        },
+        {
+          "shapeId": "shape-4",
+          "x": 11,
+          "y": 167,
+          "rotation": 0,
+          "bbox": {
+            "minX": 10,
+            "minY": 166,
+            "maxX": 42,
+            "maxY": 198,
+            "width": 32,
+            "height": 32
+          }
+        },
+        {
+          "shapeId": "shape-5",
+          "x": 11,
+          "y": 199,
+          "rotation": 0,
+          "bbox": {
+            "minX": 10,
+            "minY": 198,
+            "maxX": 42,
+            "maxY": 230,
+            "width": 32,
+            "height": 32
+          }
+        }
+      ],
+      "sheets": [
+        {
+          "width": 3000,
+          "height": 2000
+        }
+      ],
+      "unplacedShapes": [],
+      "utilization": 0.155,
+      "wasteArea": 5990700,
+      "totalArea": 6000000,
+      "shapesTotalArea": 9300,
+      "sheetCount": 1
+    },
+    "raw-dxf-preset": {
+      "placements": [],
+      "unplaced": [
+        {
+          "id": "part-0",
+          "layer": "PARTS",
+          "vertices": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              50,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "holes": [],
+          "color": [
+            255,
+            0,
+            0
+          ],
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "w": 50,
+            "h": 50
+          },
+          "area": 2500
+        },
+        {
+          "id": "part-1",
+          "layer": "PARTS",
+          "vertices": [
+            [
+              100,
+              100
+            ],
+            [
+              150,
+              100
+            ],
+            [
+              150,
+              150
+            ],
+            [
+              100,
+              150
+            ],
+            [
+              100,
+              100
+            ]
+          ],
+          "holes": [],
+          "color": [
+            255,
+            0,
+            0
+          ],
+          "bbox": {
+            "x": 100,
+            "y": 100,
+            "w": 50,
+            "h": 50
+          },
+          "area": 2500
+        },
+        {
+          "id": "part-2",
+          "layer": "PARTS",
+          "vertices": [
+            [
+              200,
+              50
+            ],
+            [
+              250,
+              50
+            ],
+            [
+              250,
+              100
+            ],
+            [
+              200,
+              100
+            ],
+            [
+              200,
+              50
+            ]
+          ],
+          "holes": [],
+          "color": [
+            255,
+            0,
+            0
+          ],
+          "bbox": {
+            "x": 200,
+            "y": 50,
+            "w": 50,
+            "h": 50
+          },
+          "area": 2500
+        },
+        {
+          "id": "part-3",
+          "layer": "PARTS",
+          "vertices": [
+            [
+              60,
+              60
+            ],
+            [
+              90,
+              60
+            ],
+            [
+              90,
+              90
+            ],
+            [
+              60,
+              90
+            ],
+            [
+              60,
+              60
+            ]
+          ],
+          "holes": [],
+          "color": [
+            255,
+            0,
+            0
+          ],
+          "bbox": {
+            "x": 60,
+            "y": 60,
+            "w": 30,
+            "h": 30
+          },
+          "area": 900
+        },
+        {
+          "id": "part-4",
+          "layer": "PARTS",
+          "vertices": [
+            [
+              160,
+              60
+            ],
+            [
+              190,
+              60
+            ],
+            [
+              190,
+              90
+            ],
+            [
+              160,
+              90
+            ],
+            [
+              160,
+              60
+            ]
+          ],
+          "holes": [],
+          "color": [
+            255,
+            0,
+            0
+          ],
+          "bbox": {
+            "x": 160,
+            "y": 60,
+            "w": 30,
+            "h": 30
+          },
+          "area": 900
+        }
+      ],
+      "metrics": {
+        "totalParts": 5,
+        "placedParts": 0,
+        "unplacedParts": 5,
+        "totalPartArea": 9300,
+        "binArea": 10000,
+        "utilizationPercent": 93,
+        "wastePercent": 7,
+        "binsUsed": 1,
+        "avgPartArea": 1860,
+        "maxPartArea": 2500,
+        "minPartArea": 900,
+        "gaIterations": 0,
+        "bestFitness": 0
+      }
+    },
+    "true-shape-mixed": {
+      "placements": [
+        {
+          "shapeId": "fixture-square",
+          "sheetId": "fixture-sheet",
+          "instanceIndex": 0,
+          "x": 1,
+          "y": 1,
+          "rotation": 0,
+          "bbox": {
+            "minX": 1,
+            "minY": 1,
+            "maxX": 11,
+            "maxY": 11,
+            "width": 10,
+            "height": 10
+          },
+          "transformedVertices": [
+            {
+              "x": 1,
+              "y": 1
+            },
+            {
+              "x": 11,
+              "y": 1
+            },
+            {
+              "x": 11,
+              "y": 11
+            },
+            {
+              "x": 1,
+              "y": 11
+            },
+            {
+              "x": 1,
+              "y": 1
+            }
+          ]
+        },
+        {
+          "shapeId": "fixture-square",
+          "sheetId": "fixture-sheet",
+          "instanceIndex": 1,
+          "x": 12,
+          "y": 1,
+          "rotation": 0,
+          "bbox": {
+            "minX": 12,
+            "minY": 1,
+            "maxX": 22,
+            "maxY": 11,
+            "width": 10,
+            "height": 10
+          },
+          "transformedVertices": [
+            {
+              "x": 12,
+              "y": 1
+            },
+            {
+              "x": 22,
+              "y": 1
+            },
+            {
+              "x": 22,
+              "y": 11
+            },
+            {
+              "x": 12,
+              "y": 11
+            },
+            {
+              "x": 12,
+              "y": 1
+            }
+          ]
+        }
+      ],
+      "sheets": [
+        {
+          "id": "fixture-sheet",
+          "kind": "sheet",
+          "width": 100,
+          "height": 100
+        }
+      ],
+      "utilization": 2,
+      "wasteArea": 9800,
+      "totalArea": 10000,
+      "unplaced": [],
+      "budget": {
+        "iterations": 27
+      },
+      "seed": 20260101,
+      "edgeClearance": 1,
+      "partToPartClearance": 1,
+      "backend": {
+        "backend": "cpu",
+        "requested": true,
+        "accelerated": false,
+        "fallbackReason": "WebGPU unavailable: navigator.gpu is not present"
+      }
+    },
+    "part-prep-boundary": {
+      "parts": [],
+      "issues": [],
+      "unit": "mm"
+    }
+  }
+}
