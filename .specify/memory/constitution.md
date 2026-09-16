@@ -37,6 +37,11 @@ Code compiles under the existing `tsconfig.json` (`strict`, `noImplicitReturns`,
 dependency approved by a recorded ADR and a major version bump (see `.specify/adr/`). No persistence,
 no network I/O, and no mutation of caller-supplied input objects.
 
+The stateless ERP contract is an approved exception: Zod is a runtime dependency because published
+consumers must receive the same request and artifact validation as Node and browser callers. The
+exception is governed by `.specify/adr/ADR-0002-stateless-erp-contract.md` and package major
+version `9.0.0`.
+
 ## Additional Constraints
 
 **Unit discipline**: geometry values carry no implicit unit. Where a unit exists it is explicit in
@@ -127,5 +132,7 @@ only when the corresponding gate passes.
   (`specs/009-async-nesting-flows`): in-scope flow names may break under a major version bump, and
   RxJS may be added to `dependencies`. Rationale and scope:
   `.specify/adr/ADR-0001-observable-nesting-surface.md`. Major bump because a principle is weakened.
+- **2.1.0 (2026-09-16)**: Principle V amended for the stateless ERP contract's Zod runtime
+  validation dependency. Rationale and scope: `.specify/adr/ADR-0002-stateless-erp-contract.md`.
 
-**Version**: 2.0.0 | **Ratified**: 2026-09-12 | **Last Amended**: 2026-09-15
+**Version**: 2.1.0 | **Ratified**: 2026-09-12 | **Last Amended**: 2026-09-16

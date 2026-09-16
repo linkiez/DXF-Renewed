@@ -838,8 +838,6 @@ __metadata:
     "@types/lodash": "npm:^4.17.25"
     "@types/mocha": "npm:^10.0.10"
     "@types/node": "npm:^22.20.3"
-    "@typescript-eslint/eslint-plugin": "npm:^8.70.0"
-    "@typescript-eslint/parser": "npm:^8.70.0"
     commander: "npm:^15.0.0"
     commitizen: "npm:^4.3.2"
     cz-conventional-changelog: "npm:^3.3.0"
@@ -859,6 +857,7 @@ __metadata:
     typescript-eslint: "npm:^8.70.0"
     vecks: "npm:^3.9.2"
     vite: "npm:^8.3.0"
+    zod: "npm:^4.6.5"
   bin:
     dxf-to-svg: lib/cli.js
   languageName: unknown
@@ -1750,7 +1749,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:8.70.0, @typescript-eslint/eslint-plugin@npm:^8.70.0":
+"@typescript-eslint/eslint-plugin@npm:8.70.0":
   version: 8.70.0
   resolution: "@typescript-eslint/eslint-plugin@npm:8.70.0"
   dependencies:
@@ -1770,7 +1769,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:8.70.0, @typescript-eslint/parser@npm:^8.70.0":
+"@typescript-eslint/parser@npm:8.70.0":
   version: 8.70.0
   resolution: "@typescript-eslint/parser@npm:8.70.0"
   dependencies:
@@ -7600,5 +7599,12 @@ __metadata:
   version: 2.2.0
   resolution: "yoctocolors@npm:2.2.0"
   checksum: 10c0/ca179aa83401aa0711f268fda38145a44c828e612a5f5265439efb5796cd63c46ca6b786bae3b74c75440a48518c36b5b23cba7fbb76ea8af5a9f85f830a5754
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.6.5":
+  version: 4.6.5
+  resolution: "zod@npm:4.6.5"
+  checksum: 10c0/32eb6c5e98becbe045675b2141c3611451c16ba567f9779231d79af41c4d651ca1c22f154aef7e6c6e77b929f23e43f1154ca05b82e119e922353725d6776af5
   languageName: node
   linkType: hard

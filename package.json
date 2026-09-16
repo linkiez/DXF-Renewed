@@ -1,6 +1,6 @@
 {
   "name": "@linkiez/dxf-renew",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "description": "DXF parser for node/browser",
   "type": "module",
   "main": "./lib/index.js",
@@ -73,8 +73,6 @@
     "@types/lodash": "^4.17.25",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.20.3",
-    "@typescript-eslint/eslint-plugin": "^8.70.0",
-    "@typescript-eslint/parser": "^8.70.0",
     "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",
     "esbuild": "^0.28.2",
@@ -95,7 +93,8 @@
     "commander": "^15.0.0",
     "lodash": "^4.18.1",
     "rxjs": "^7.8.2",
-    "vecks": "^3.9.2"
+    "vecks": "^3.9.2",
+    "zod": "^4.6.5"
   },
   "config": {
     "commitizen": {
