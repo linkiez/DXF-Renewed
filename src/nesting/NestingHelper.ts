@@ -44,6 +44,8 @@ export class NestingHelper extends Helper {
   /** Perform nesting with the given options */
   nest(partialOptions: Partial<NestingOptions> = {}): Observable<NestingResult> {
     return observeFlow(async (signal) => {
+      this.clearNestingState()
+
       const result = await firstValueFrom(
         nest(this.parsed, { ...partialOptions, signal }),
       )
@@ -74,6 +76,12 @@ export class NestingHelper extends Helper {
       this._nestingResult = result
       return result
     }, partialOptions.signal)
+  }
+
+  private clearNestingState(): void {
+    this._nestingResult = null
+    this._shapes = []
+    this._shapeEntityMap.clear()
   }
 
   /** Get the last nesting result */

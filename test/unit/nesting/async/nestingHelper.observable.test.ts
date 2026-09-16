@@ -13,4 +13,17 @@ describe('NestingHelper Observable surface', () => {
     assert.equal(typeof helper.toNestedSvg(), 'string')
     assert.equal(typeof helper.toNestedDxf(), 'string')
   })
+
+  it('clears accessors when a later subscription is cancelled', async () => {
+    const helper = new NestingHelper('')
+    await firstValueFrom(helper.nest())
+
+    const controller = new AbortController()
+    controller.abort()
+    helper.nest({ signal: controller.signal }).subscribe()
+
+    assert.throws(() => helper.nestingResult, /No nesting result available/)
+    assert.throws(() => helper.toNestedSvg(), /No nesting result available/)
+    assert.throws(() => helper.toNestedDxf(), /No nesting result available/)
+  })
 })
