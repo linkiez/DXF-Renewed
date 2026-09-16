@@ -6,7 +6,7 @@
 
 ## Content Quality
 
-- [ ] No implementation details (languages, frameworks, APIs)
+- [x] No implementation details (languages, frameworks, APIs) — settled by Clarification Q3/Q5: the RxJS vocabulary is normative (FR-001/FR-010, ADR-0001), not incidental.
 - [x] Focused on user value and business needs
 - [x] Written for non-technical stakeholders
 - [x] All mandatory sections completed
@@ -16,7 +16,7 @@
 - [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
-- [ ] Success criteria are technology-agnostic (no implementation details)
+- [x] Success criteria are technology-agnostic (no implementation details) — SC-001..SC-008 are stated as outcomes; the Observable surface is a ratified constraint carrying its own requirement, not a leak.
 - [x] All acceptance scenarios are defined
 - [x] Edge cases are identified
 - [x] Scope is clearly bounded
@@ -27,7 +27,7 @@
 - [x] All functional requirements have clear acceptance criteria
 - [x] User scenarios cover primary flows
 - [x] Feature meets measurable outcomes defined in Success Criteria
-- [ ] No implementation details leak into specification
+- [x] No implementation details leak into specification — every technology name is mandated by FR-001/FR-010 and recorded in the Clarifications, so it is a requirement rather than leaked detail.
 
 ## Notes
 
