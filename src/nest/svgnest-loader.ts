@@ -6,13 +6,6 @@
 //   svgparser-core.js      — SvgParser (MIT)
 //   svgnest-core.js        — SvgNest (MIT)
 
-import { createRequire } from 'node:module'
-import { fileURLToPath, pathToFileURL } from 'node:url'
-import path from 'node:path'
-
-const require = createRequire(import.meta.url)
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
 let _clipperLib: any = null
 let _geometryUtil: any = null
 let _svgNest: any = null
@@ -144,8 +137,8 @@ async function loadClipper(): Promise<any> {
   if (_clipperLib) return _clipperLib
   injectPolyfills()
 
-  // UMD file: keeps its module.exports branch, so load through require
-  _clipperLib = require(path.join(__dirname, 'clipper-core.cjs'))
+  const clipperModule = await import('./clipper-core.cjs')
+  _clipperLib = clipperModule.default ?? clipperModule
 
   if (!_clipperLib?.Clipper) {
     throw new Error('[svgnest-loader] ClipperLib não carregou')
@@ -160,7 +153,7 @@ async function loadGeometryUtil(): Promise<any> {
   await loadClipper()
 
   // Global-only IIFE: import for side effects, then read the global it sets
-  await import(pathToFileURL(path.join(__dirname, 'geometryutil-core.js')).href)
+  await import('./geometryutil-core.js')
   _geometryUtil = (globalThis as any).GeometryUtil
 
   if (!_geometryUtil) {
@@ -174,10 +167,10 @@ async function loadSvgNest(): Promise<any> {
   await loadClipper()
   await loadGeometryUtil()
 
-  await import(pathToFileURL(path.join(__dirname, 'matrix-core.js')).href)
-  await import(pathToFileURL(path.join(__dirname, 'svgparser-core.js')).href)
-  await import(pathToFileURL(path.join(__dirname, 'svgnest-core.js')).href)
-  await import(pathToFileURL(path.join(__dirname, 'placementworker-core.js')).href)
+  await import('./matrix-core.js')
+  await import('./svgparser-core.js')
+  await import('./svgnest-core.js')
+  await import('./placementworker-core.js')
   _svgNest = (globalThis as any).SvgNest
 
   if (!_svgNest) {

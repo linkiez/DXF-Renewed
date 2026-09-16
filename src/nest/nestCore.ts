@@ -5,7 +5,6 @@
 // Pré-computa NFPs e roda o placement direto, contornando WebWorkers.
 // Suporta multi-bin: peças que não cabem vão para bins adicionais.
 
-import { randomInt } from 'node:crypto'
 import type { NestPart, NestPlacement, NestOptions } from './types'
 import { loadSvgNest } from './svgnest-loader'
 import { throwIfAborted } from '../nesting/async/observableFlow'
@@ -15,10 +14,20 @@ import { throwIfAborted } from '../nesting/async/observableFlow'
 function shuffleArray<T>(array: T[]): T[] {
   const result = array.slice(0)
   for (let i = result.length - 1; i > 0; i--) {
-    const j = randomInt(0, i + 1)
+    const j = randomIndex(i + 1)
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return result
+}
+
+function randomIndex(length: number): number {
+  const values = new Uint32Array(1)
+  const cryptoApi = globalThis.crypto
+  if (cryptoApi) {
+    cryptoApi.getRandomValues(values)
+    return values[0] % length
+  }
+  return Math.floor(Math.random() * length)
 }
 
 function toSvgPoints(vertices: [number, number][]): { x: number; y: number }[] {
@@ -473,7 +482,7 @@ function runPlacementIteration(
 
   // Assign random rotations
   const iterRotations = iterParts.map(() => {
-    return rotationAngles[randomInt(0, rotationAngles.length)]
+    return rotationAngles[randomIndex(rotationAngles.length)]
   })
 
   iterParts.forEach((part, idx) => {
