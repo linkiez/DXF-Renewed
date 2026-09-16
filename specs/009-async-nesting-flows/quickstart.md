@@ -89,6 +89,5 @@ recorded in
 - `yarn lint`: passed.
 - `yarn test:unit`: passed.
 - `yarn test:integration:node`: passed.
-- `yarn test:integration:browser`: blocked by the existing browser bundle configuration
-  resolving Node built-ins (`node:crypto`, `node:module`, `node:url`, and `node:path`) for the
-  browser target; no browser assertions were executed.
+- `yarn test:integration:browser`: passed all 25 browser assertions; esbuild reports one
+  pre-existing warning in the bundled Clipper source.

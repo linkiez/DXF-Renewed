@@ -144,7 +144,7 @@ Single-project library: `src/` and `test/` at repository root.
 - [X] T044 [P] Walk every scenario in [quickstart.md](./quickstart.md) (1–7) and record the observed result in that file
 - [X] T045 [P] Add the 8.0.0 breaking-change migration note (Promise → Observable, `firstValueFrom` bridge) to `README.md`
 - [X] T046 Run `npm run type-check` and `npm run lint` and resolve any finding (Constitution quality gates 1–2)
-- [ ] T047 Run `npm run test:unit`, `npm run test:integration:node` and `npm run test:integration:browser` and confirm all green (gate 3)
+- [X] T047 Run `npm run test:unit`, `npm run test:integration:node` and `npm run test:integration:browser` and confirm all green (gate 3)
 - [X] T048 [P] Confirm governance coherence: `package.json` `8.0.0`, `rxjs` in `dependencies`, `.specify/adr/ADR-0001-observable-nesting-surface.md` accepted, `.specify/memory/constitution.md` at `2.0.0`
 - [X] T049 Remove now-dead `Promise`-only helpers and unused exports introduced by the conversion (deletion over addition)
 
