@@ -57,6 +57,11 @@ describe('Observable baseline parity', () => {
       gaPopulation: 4,
       maxIterations: 3,
       seed: 20260101,
+      baselineCompatibility: '7.7.6',
+    }
+    const baselineOptions = {
+      seed: 20260101,
+      baselineCompatibility: '7.7.6' as const,
     }
     const actual = {
       'parsed-dxf-simple': {
@@ -78,10 +83,10 @@ describe('Observable baseline parity', () => {
       'raw-dxf-preset': {
         nestDXF: await firstValueFrom(nestDXF(dxf, rawOptions)),
         nestWithPreset: await firstValueFrom(
-          nestWithPreset(dxf, 'laser', rawOptions.binSize, rawOptions),
+          nestWithPreset(dxf, 'laser', rawOptions.binSize, baselineOptions),
         ),
         quickNest: await firstValueFrom(
-          quickNest(dxf, { ...rawOptions, binSize: undefined }),
+          quickNest(dxf, baselineOptions),
         ),
       },
       'true-shape-mixed': await firstValueFrom(

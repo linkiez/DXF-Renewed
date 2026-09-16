@@ -252,4 +252,4 @@ Task: "Migrate test/unit/preparation/** to firstValueFrom"
 
 ## Phase 9: Convergence
 
-- [ ] T054 [HIGH] Reconcile the `nestDXF`, `nestWithPreset`, and `quickNest` golden outputs with verified 7.7.6 raw-DXF results while preserving seeded repeatability, or document and test an explicit compatibility mapping for the historical unseeded baseline, per FR-002 and SC-002 (partial)
+- [X] T054 [HIGH] Reconcile the `nestDXF`, `nestWithPreset`, and `quickNest` golden outputs with verified 7.7.6 raw-DXF results while preserving seeded repeatability, or document and test an explicit compatibility mapping for the historical unseeded baseline, per FR-002 and SC-002

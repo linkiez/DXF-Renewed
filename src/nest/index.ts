@@ -14,6 +14,12 @@ import { DEFAULT_NEST_OPTIONS, NEST_PRESETS } from './types'
 import { Observable } from 'rxjs'
 import { observeFlow, throwIfAborted } from '../nesting/async/observableFlow'
 
+const LEGACY_BASELINE_SEEDS = {
+  nestDXF: 241,
+  preset: 11,
+  quick: 0,
+} as const
+
 // Re-export types
 export type { NestPart, NestPlacement, NestOptions, NestResult, NestMetrics } from './types'
 export type { ExtractPartsOptions } from './extractParts'
@@ -67,6 +73,11 @@ async function runNestDXF(
     ...DEFAULT_NEST_OPTIONS,
     ...options,
     binSize,
+    seed:
+      options.baselineSeedOverride ??
+      (options.baselineCompatibility === '7.7.6'
+        ? LEGACY_BASELINE_SEEDS.nestDXF
+        : options.seed),
   }
 
   // 4. Extract parts
@@ -154,7 +165,15 @@ export function nestWithPreset(
   NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
 > {
   const presetOpts = NEST_PRESETS[preset] ?? {}
-  return nestDXF(dxfText, { ...presetOpts, ...options, binSize })
+  return nestDXF(dxfText, {
+    ...presetOpts,
+    ...options,
+    binSize,
+    ...(options.baselineCompatibility === '7.7.6' &&
+    options.baselineSeedOverride === undefined
+      ? { baselineSeedOverride: LEGACY_BASELINE_SEEDS.preset }
+      : {}),
+  })
 }
 
 /**
@@ -166,5 +185,15 @@ export function quickNest(
 ): Observable<
   NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
 > {
-  return nestWithPreset(dxfText, 'laser', { width: 2000, height: 4000 }, options)
+  return nestWithPreset(
+    dxfText,
+    'laser',
+    { width: 2000, height: 4000 },
+    options.baselineCompatibility === '7.7.6'
+      ? {
+          ...options,
+          baselineSeedOverride: LEGACY_BASELINE_SEEDS.quick,
+        }
+      : options,
+  )
 }
