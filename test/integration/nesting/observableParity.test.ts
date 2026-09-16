@@ -5,14 +5,14 @@ import { describe, it } from 'mocha'
 import { firstValueFrom } from 'rxjs'
 import parseString from '../../../src/parseString'
 import { nest } from '../../../src/nesting/applyNesting'
-import { nestDXF } from '../../../src/nest'
+import { nestDXF, nestWithPreset, quickNest } from '../../../src/nest'
+import { nestFromDxf } from '../../../src/nesting/applyNesting'
 import { nestTrueShape } from '../../../src/nesting/trueShape'
 import { prepareParts } from '../../../src/nesting/pro/partPrep'
 import { shapeFrom } from '../../resources/nest-fixtures/trueShapeBenchmark'
 
 type Baseline = {
-  seed: number
-  jobs: Record<string, unknown>
+  [job: string]: unknown
 }
 
 const baseline = JSON.parse(
@@ -49,10 +49,33 @@ describe('Observable baseline parity', () => {
       { x: 0, y: 0 },
     ])
 
+    const rawOptions = {
+      binSize: { width: 100, height: 100 },
+      gaPopulation: 4,
+      maxIterations: 3,
+      seed: 20260101,
+    }
     const actual = {
-      'parsed-dxf-simple': await firstValueFrom(nest(parseString(dxf))),
+      'parsed-dxf-simple': await firstValueFrom(
+        nest(parseString(dxf), {
+          stockSheet: { width: 3000, height: 2000 },
+          margin: 10,
+          kerf: 2,
+        }),
+      ),
+      'raw-dxf': await firstValueFrom(
+        nestFromDxf(dxf, {
+          stockSheet: { width: 3000, height: 2000 },
+          margin: 10,
+          kerf: 2,
+        }),
+      ),
+      'raw-dxf-nestDXF': await firstValueFrom(nestDXF(dxf, rawOptions)),
       'raw-dxf-preset': await firstValueFrom(
-        nestDXF(dxf, { binSize: { width: 100, height: 100 }, maxIterations: 0 }),
+        nestWithPreset(dxf, 'laser', rawOptions.binSize, rawOptions),
+      ),
+      'raw-dxf-quick': await firstValueFrom(
+        quickNest(dxf, { ...rawOptions, binSize: undefined }),
       ),
       'true-shape-mixed': await firstValueFrom(
         nestTrueShape({
@@ -60,14 +83,46 @@ describe('Observable baseline parity', () => {
           parts: [{ shape, quantity: 2 }],
           edgeClearance: 1,
           partToPartClearance: 1,
-          seed: baseline.seed,
+          iterations: 5000,
+          seed: 20260101,
         }),
       ),
       'part-prep-boundary': await firstValueFrom(
-        prepareParts({ entities: [] }, { tolerance: 0.1, cutWidthAllowance: 0 }),
+        prepareParts(
+          {
+            entities: [
+              {
+                type: 'LWPOLYLINE',
+                handle: 'accepted',
+                layer: '0',
+                closed: true,
+                vertices: [
+                  { x: 0, y: 0 },
+                  { x: 10, y: 0 },
+                  { x: 10, y: 10 },
+                  { x: 0, y: 10 },
+                ],
+              },
+              {
+                type: 'LWPOLYLINE',
+                handle: 'rejected',
+                layer: '0',
+                closed: false,
+                vertices: [
+                  { x: 0, y: 0 },
+                  { x: 10, y: 0 },
+                  { x: 10, y: 10 },
+                  { x: 0, y: 10 },
+                  { x: 0, y: 5 },
+                ],
+              },
+            ],
+          },
+          { tolerance: 0.1, cutWidthAllowance: 0 },
+        ),
       ),
     }
 
-    assert.deepEqual(normalize(actual), baseline.jobs)
+    assert.deepEqual(normalize(actual), baseline)
   })
 })
