@@ -37,7 +37,7 @@ function createSquareShape(
 
 describe('nesting/geometryAnalysis', () => {
   describe('analyzeShape', () => {
-    it('should compute best rotation for a square', () => {
+    it('should compute best rotation for a square', async () => {
       const shape = createSquareShape(10)
       const analyzed = analyzeShape(shape)
       expect(analyzed.bestRotation).toBeDefined()
@@ -45,7 +45,7 @@ describe('nesting/geometryAnalysis', () => {
       expect(analyzed.enlargedBbox.width).toBeGreaterThan(shape.bbox.width)
     })
 
-    it('should enlarge bounding box by kerf', () => {
+    it('should enlarge bounding box by kerf', async () => {
       const shape = createSquareShape(10, [0])
       shape.kerf = 4
       const analyzed = analyzeShape(shape)
@@ -55,7 +55,7 @@ describe('nesting/geometryAnalysis', () => {
   })
 
   describe('analyzeShapes', () => {
-    it('should analyze multiple shapes', () => {
+    it('should analyze multiple shapes', async () => {
       const shapes = [
         createSquareShape(10),
         createSquareShape(20),
@@ -71,7 +71,7 @@ describe('nesting/geometryAnalysis', () => {
   })
 
   describe('sortShapes', () => {
-    it('should sort by area descending', () => {
+    it('should sort by area descending', async () => {
       const shapes = [
         createSquareShape(5),
         createSquareShape(20),
@@ -83,7 +83,7 @@ describe('nesting/geometryAnalysis', () => {
       expect(sorted[2].area).toBe(25)
     })
 
-    it('should sort by area ascending', () => {
+    it('should sort by area ascending', async () => {
       const shapes = [
         createSquareShape(10),
         createSquareShape(5),
@@ -95,7 +95,7 @@ describe('nesting/geometryAnalysis', () => {
       expect(sorted[2].area).toBe(400)
     })
 
-    it('should not modify order when strategy is none', () => {
+    it('should not modify order when strategy is none', async () => {
       const shapes = [
         createSquareShape(20),
         createSquareShape(5),
@@ -109,7 +109,7 @@ describe('nesting/geometryAnalysis', () => {
   })
 
   describe('enlargeBbox', () => {
-    it('should enlarge bounding box by margin', () => {
+    it('should enlarge bounding box by margin', async () => {
       const bbox = { minX: 0, minY: 0, maxX: 10, maxY: 10, width: 10, height: 10 }
       const enlarged = enlargeBbox(bbox, 2)
       expect(enlarged.minX).toBe(-2)

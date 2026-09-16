@@ -5,6 +5,7 @@
  */
 
 import { expect } from 'expect'
+import { firstValueFrom } from 'rxjs'
 import { nest, nestFromDxf, resetNestingState } from '../../../src/nesting/applyNesting'
 import { toNestedSvg } from '../../../src/nesting/toNestedSvg'
 import { NestingHelper } from '../../../src/nesting/NestingHelper'
@@ -87,18 +88,20 @@ EOF
 `
 
 describe('nesting integration', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetNestingState()
   })
 
   describe('nestFromDxf', () => {
     it('should nest from a DXF string', async () => {
-      const result = await nestFromDxf(MINIMAL_DXF, {
-        stockSheet: { width: 300, height: 300 },
-        algorithm: 'guillotine',
-        kerf: 2,
-        margin: 10,
-      })
+      const result = await firstValueFrom(
+        nestFromDxf(MINIMAL_DXF, {
+          stockSheet: { width: 300, height: 300 },
+          algorithm: 'guillotine',
+          kerf: 2,
+          margin: 10,
+        }),
+      )
 
       expect(result.placements.length).toBeGreaterThan(0)
       expect(result.sheetCount).toBeGreaterThan(0)
@@ -137,9 +140,11 @@ ENDSEC
 0
 EOF
 `
-      const result = await nestFromDxf(emptyDxf, {
-        stockSheet: { width: 300, height: 300 },
-      })
+      const result = await firstValueFrom(
+        nestFromDxf(emptyDxf, {
+          stockSheet: { width: 300, height: 300 },
+        }),
+      )
 
       expect(result.placements).toHaveLength(0)
       expect(result.utilization).toBe(0)
@@ -149,12 +154,14 @@ EOF
   describe('NestingHelper', () => {
     it('should nest DXF content', async () => {
       const helper = new NestingHelper(MINIMAL_DXF)
-      const result = await helper.nest({
-        stockSheet: { width: 300, height: 300 },
-        algorithm: 'maxrects',
-        kerf: 2,
-        margin: 10,
-      })
+      const result = await firstValueFrom(
+        helper.nest({
+          stockSheet: { width: 300, height: 300 },
+          algorithm: 'maxrects',
+          kerf: 2,
+          margin: 10,
+        }),
+      )
 
       expect(result.placements.length).toBeGreaterThan(0)
       expect(helper.nestingResult).toBe(result)
@@ -162,9 +169,11 @@ EOF
 
     it('should generate SVG output', async () => {
       const helper = new NestingHelper(MINIMAL_DXF)
-      await helper.nest({
-        stockSheet: { width: 300, height: 300 },
-      })
+      await firstValueFrom(
+        helper.nest({
+          stockSheet: { width: 300, height: 300 },
+        }),
+      )
 
       const svg = helper.toNestedSvg()
       expect(svg).toContain('<svg')
@@ -174,23 +183,25 @@ EOF
 
     it('should generate DXF output', async () => {
       const helper = new NestingHelper(MINIMAL_DXF)
-      await helper.nest({
-        stockSheet: { width: 300, height: 300 },
-      })
+      await firstValueFrom(
+        helper.nest({
+          stockSheet: { width: 300, height: 300 },
+        }),
+      )
 
       const dxf = helper.toNestedDxf()
       expect(dxf).toContain('SECTION')
       expect(dxf).toContain('ENTITIES')
     })
 
-    it('should throw when accessing result before nesting', () => {
+    it('should throw when accessing result before nesting', async () => {
       const helper = new NestingHelper(MINIMAL_DXF)
       expect(() => {
         helper.nestingResult
       }).toThrow()
     })
 
-    it('should throw when generating SVG before nesting', () => {
+    it('should throw when generating SVG before nesting', async () => {
       const helper = new NestingHelper(MINIMAL_DXF)
       expect(() => {
         helper.toNestedSvg()
@@ -200,9 +211,11 @@ EOF
 
   describe('toNestedSvg', () => {
     it('should generate valid SVG', async () => {
-      const result = await nestFromDxf(MINIMAL_DXF, {
-        stockSheet: { width: 300, height: 300 },
-      })
+      const result = await firstValueFrom(
+        nestFromDxf(MINIMAL_DXF, {
+          stockSheet: { width: 300, height: 300 },
+        }),
+      )
 
       // Extract shapes for SVG
       const svg = toNestedSvg(result, [], {})
@@ -211,9 +224,11 @@ EOF
     })
 
     it('should include metrics overlay', async () => {
-      const result = await nestFromDxf(MINIMAL_DXF, {
-        stockSheet: { width: 300, height: 300 },
-      })
+      const result = await firstValueFrom(
+        nestFromDxf(MINIMAL_DXF, {
+          stockSheet: { width: 300, height: 300 },
+        }),
+      )
 
       const svg = toNestedSvg(result, [], { showMetrics: true })
       expect(svg).toContain('Nesting Metrics')
@@ -221,9 +236,11 @@ EOF
     })
 
     it('should omit metrics when disabled', async () => {
-      const result = await nestFromDxf(MINIMAL_DXF, {
-        stockSheet: { width: 300, height: 300 },
-      })
+      const result = await firstValueFrom(
+        nestFromDxf(MINIMAL_DXF, {
+          stockSheet: { width: 300, height: 300 },
+        }),
+      )
 
       const svg = toNestedSvg(result, [], { showMetrics: false })
       expect(svg).not.toContain('Nesting Metrics')

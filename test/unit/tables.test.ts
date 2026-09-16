@@ -7,7 +7,7 @@ const dxfContents = fs.readFileSync(
   'utf-8',
 )
 describe('tables', () => {
-  it('can parse the ltype', () => {
+  it('can parse the ltype', async () => {
     const parsed = parseString(dxfContents)
     expect(parsed.tables.ltypes).toEqual({
       ByBlock: {
@@ -690,7 +690,7 @@ describe('tables', () => {
       },
     })
   })
-  it('can parse additional table types (APPID, BLOCK_RECORD, UCS, VIEW)', () => {
+  it('can parse additional table types (APPID, BLOCK_RECORD, UCS, VIEW)', async () => {
     const dxf = `0
 SECTION
 2

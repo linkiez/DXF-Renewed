@@ -2,7 +2,7 @@ import expect from 'expect'
 import { buildEvenOddPath, parseString, toSVG } from '../../src'
 
 describe('toSVG (closed polylines)', () => {
-  it('renders closed LWPOLYLINE with a closed svg path and optional fill', () => {
+  it('renders closed LWPOLYLINE with a closed svg path and optional fill', async () => {
     const dxf = `0
 SECTION
 2
@@ -72,7 +72,7 @@ EOF
     expect(svg).toContain('stroke="rgb(0, 255, 0)"')
   })
 
-  it('renders closed POLYLINE with a closed svg path and optional fill', () => {
+  it('renders closed POLYLINE with a closed svg path and optional fill', async () => {
     const dxf = `0
 SECTION
 2
@@ -158,7 +158,7 @@ EOF
     expect(svg).toContain('stroke="rgb(0, 0, 255)"')
   })
 
-  it('fills closed polylines with entity color when the fill toggle is enabled', () => {
+  it('fills closed polylines with entity color when the fill toggle is enabled', async () => {
     const dxf = `0
 SECTION
 2
@@ -227,7 +227,7 @@ EOF
     expect(svg).toContain('stroke="rgb(0, 255, 0)"')
   })
 
-  it('applies closedPolylineStroke only to closed POLYLINE/LWPOLYLINE entities', () => {
+  it('applies closedPolylineStroke only to closed POLYLINE/LWPOLYLINE entities', async () => {
     const dxf = `0
 SECTION
 2
@@ -305,7 +305,7 @@ EOF
     expect(svg).toContain('stroke="rgb(0, 255, 0)"')
   })
 
-  it('rotates fill colors across multiple closed polygons when an array is provided', () => {
+  it('rotates fill colors across multiple closed polygons when an array is provided', async () => {
     const dxf = `0
 SECTION
 2
@@ -448,7 +448,7 @@ EOF
     expect(fillMatches).toEqual(['#ff0000', '#00ff00', '#0000ff', '#ff0000'])
   })
 
-  it('fills closed loops composed of multiple open LINE entities', () => {
+  it('fills closed loops composed of multiple open LINE entities', async () => {
     const dxf = `0
 SECTION
 2
@@ -540,7 +540,7 @@ EOF
     expect(svg).toContain('fill="rgb(0, 255, 0)"')
   })
 
-  it('orders nested contour rings for evenodd fill', () => {
+  it('orders nested contour rings for evenodd fill', async () => {
     const outer = [
       [0, 0],
       [100, 0],

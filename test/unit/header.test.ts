@@ -7,7 +7,7 @@ const dxfContents = fs.readFileSync(
   'utf-8',
 )
 describe('header', () => {
-  it('can parse the header', () => {
+  it('can parse the header', async () => {
     const parsed = parseString(dxfContents)
     expect(parsed.header).toEqual({
       measurement: 1,

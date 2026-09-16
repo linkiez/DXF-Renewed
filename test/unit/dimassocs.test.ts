@@ -1,7 +1,7 @@
 import expect from 'expect'
 import parseString from '../../src/parseString'
 describe('DIMASSOC (OBJECTS)', () => {
-  it('parses DIMASSOC object and stores raw tuples', () => {
+  it('parses DIMASSOC object and stores raw tuples', async () => {
     const dxfContent = `0
 SECTION
 2

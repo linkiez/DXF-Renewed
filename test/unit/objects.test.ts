@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { parseString } from '../../src'
 describe('Objects', () => {
-  it('parses DICTIONARY objects into a handle map', () => {
+  it('parses DICTIONARY objects into a handle map', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'dictionary-basic.dxf'),
       'utf-8',
@@ -15,7 +15,7 @@ describe('Objects', () => {
     expect(parsed.objects.dictionaries.AB.handle).toEqual('AB')
     expect(parsed.objects.dictionaries.AB.entries.MYKEY).toEqual('CD')
   })
-  it('parses XRECORD objects into a handle map', () => {
+  it('parses XRECORD objects into a handle map', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'xrecord-basic.dxf'),
       'utf-8',
@@ -31,7 +31,7 @@ describe('Objects', () => {
     const tuples = xRecord.tuples
     expect(tuples).toEqual(expect.arrayContaining([[1, 'HELLO'], [40, 3.14]]))
   })
-  it('parses IMAGEDEF and IMAGEDEF_REACTOR objects into handle maps', () => {
+  it('parses IMAGEDEF and IMAGEDEF_REACTOR objects into handle maps', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'image-basic.dxf'),
       'utf-8',
@@ -55,7 +55,7 @@ describe('Objects', () => {
     expect(image).toBeDefined()
     expect(reactor.imageHandle).toEqual(image.handle)
   })
-  it('parses DIMASSOC objects into a handle map', () => {
+  it('parses DIMASSOC objects into a handle map', async () => {
     const dxf = `0
 SECTION
 2
@@ -85,7 +85,7 @@ EOF
       expect.arrayContaining([[340, 'CC'], [70, 1]]),
     )
   })
-  it('parses TABLESTYLE objects into a handle map', () => {
+  it('parses TABLESTYLE objects into a handle map', async () => {
     const dxf = `0
 SECTION
 2
@@ -116,7 +116,7 @@ EOF
       tuples: expect.any(Array),
     })
   })
-  it('parses GROUP objects into a handle map', () => {
+  it('parses GROUP objects into a handle map', async () => {
     const dxf = `0
 SECTION
 2

@@ -1,7 +1,7 @@
 import expect from 'expect'
 import { parseString, toPolylines } from '../../src'
 describe('TRACE', () => {
-  it('parses and converts TRACE to a closed polyline', () => {
+  it('parses and converts TRACE to a closed polyline', async () => {
     const dxf = `0
 SECTION
 2

@@ -7,7 +7,7 @@ const dxfContents = fs.readFileSync(
   'utf-8',
 )
 describe('Layer Styles', () => {
-  it('can be parsed', () => {
+  it('can be parsed', async () => {
     const result = parseString(dxfContents)
     const expected = {
       0: { colorNumber: 7 },

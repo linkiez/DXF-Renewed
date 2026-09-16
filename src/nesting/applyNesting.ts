@@ -7,6 +7,8 @@
  */
 
 import type { ParsedDXF } from '../types'
+import { Observable } from 'rxjs'
+import { observeFlow } from './async/observableFlow'
 import type {
   NestingOptions,
   NestingResult,
@@ -117,18 +119,38 @@ function computeMetrics(
  * @param options - Nesting options
  * @returns Nesting result with placements and metrics
  */
-export async function nest(
+export function nest(
   parsed: ParsedDXF,
   partialOptions: Partial<NestingOptions> = {},
+): Observable<NestingResult> {
+  return observeFlow(
+    (signal) => runNest(parsed, partialOptions, signal),
+    partialOptions.signal,
+  )
+}
+
+/** Abort the flow when the cooperative signal fires (FR-007). */
+function throwIfAborted(signal: AbortSignal): void {
+  if (signal.aborted) {
+    throw new Error('nest: aborted')
+  }
+}
+
+async function runNest(
+  parsed: ParsedDXF,
+  partialOptions: Partial<NestingOptions>,
+  signal: AbortSignal,
 ): Promise<NestingResult> {
   const startTime = performance.now()
 
   try {
     // Validate and merge options
     const options = validateNestingOptions(partialOptions)
+    throwIfAborted(signal)
 
     // Step 1: Denormalize entities (expand blocks)
     const entities = denormalise(parsed)
+    throwIfAborted(signal)
 
     // Step 2: Extract closed shapes
     const extraction = extractShapes(entities, options)
@@ -159,6 +181,7 @@ export async function nest(
       (sum, shape) => sum + shape.area,
       0,
     )
+    throwIfAborted(signal)
 
     // Step 6: Pack shapes using selected algorithm
     const sheets = Array.isArray(options.stockSheet)
@@ -166,6 +189,7 @@ export async function nest(
       : [options.stockSheet]
 
     const primarySheet = sheets[0]
+    throwIfAborted(signal)
 
     // Pack all shapes in one call (algorithm handles multi-sheet)
     const packResult = packWithAlgorithm(
@@ -245,13 +269,14 @@ function emptyResult(
 /**
  * Nest from raw DXF string.
  */
-export async function nestFromDxf(
+export function nestFromDxf(
   dxfString: string,
   partialOptions: Partial<NestingOptions> = {},
-): Promise<NestingResult> {
-  const { default: parseString } = await import('../parseString')
-  const parsed = parseString(dxfString)
-  return nest(parsed, partialOptions)
+): Observable<NestingResult> {
+  return observeFlow(async (signal) => {
+    const { default: parseString } = await import('../parseString')
+    return runNest(parseString(dxfString), partialOptions, signal)
+  }, partialOptions.signal)
 }
 
 /** Reset internal state (for testing) */

@@ -22,13 +22,13 @@ function square(id: string, size: number) {
 }
 
 describe('trueShape/yield', () => {
-  it('prefers the arrangement that consumes less stock for the same placed area', () => {
+  it('prefers the arrangement that consumes less stock for the same placed area', async () => {
     const stock: StockItem[] = [
       { id: 'big', kind: 'sheet', width: 100, height: 100 },
       { id: 'small', kind: 'sheet', width: 30, height: 30 },
     ]
 
-    const response = nestTrueShape({
+    const response = await nestTrueShape({
       stock,
       parts: [{ shape: square('a', 20), quantity: 1 }],
       edgeClearance: 2,
@@ -40,8 +40,8 @@ describe('trueShape/yield', () => {
     expect(response.sheets[0].id).toBe('small')
   })
 
-  it('maximizes placed part area across the job', () => {
-    const response = nestTrueShape({
+  it('maximizes placed part area across the job', async () => {
+    const response = await nestTrueShape({
       stock: [{ id: 's1', kind: 'sheet', width: 60, height: 60 }],
       parts: [{ shape: square('a', 20), quantity: 4 }],
       edgeClearance: 2,
@@ -53,13 +53,13 @@ describe('trueShape/yield', () => {
     expect(response.placements).toHaveLength(4)
   })
 
-  it('maximizes material use when several stock items can host the same job', () => {
+  it('maximizes material use when several stock items can host the same job', async () => {
     const stock: StockItem[] = [
       { id: 'large', kind: 'sheet', width: 200, height: 200 },
       { id: 'dense', kind: 'sheet', width: 100, height: 100 },
     ]
 
-    const response = nestTrueShape({
+    const response = await nestTrueShape({
       stock,
       parts: [{ shape: square('a', 30), quantity: 2 }],
       edgeClearance: 2,
@@ -73,7 +73,7 @@ describe('trueShape/yield', () => {
     expect(response.utilization).toBeCloseTo(((2 * 30 * 30) / (100 * 100)) * 100, 5)
   })
 
-  it('resolves equally yielding arrangements in a stable deterministic order', () => {
+  it('resolves equally yielding arrangements in a stable deterministic order', async () => {
     const stock: StockItem[] = [
       { id: 's1', kind: 'sheet', width: 100, height: 100 },
       { id: 's2', kind: 'sheet', width: 100, height: 100 },
@@ -86,8 +86,8 @@ describe('trueShape/yield', () => {
       seed: 5,
     }
 
-    const first = nestTrueShape(request)
-    const second = nestTrueShape(request)
+    const first = await nestTrueShape(request)
+    const second = await nestTrueShape(request)
 
     expect(JSON.stringify(first.placements)).toBe(JSON.stringify(second.placements))
     expect(first.sheets.map((s) => s.id)).toEqual(second.sheets.map((s) => s.id))

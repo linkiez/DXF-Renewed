@@ -25,8 +25,8 @@ const stock: StockItem[] = [{ id: 's1', kind: 'sheet', width: 100, height: 100 }
 const parts = [{ shape: square('a', 20), quantity: 5 }]
 
 describe('trueShape/determinism', () => {
-  it('derives a positive deterministic budget from the input size', () => {
-    const response = nestTrueShape({
+  it('derives a positive deterministic budget from the input size', async () => {
+    const response = await nestTrueShape({
       stock,
       parts,
       edgeClearance: 2,
@@ -38,22 +38,22 @@ describe('trueShape/determinism', () => {
     expect(Number.isFinite(response.budget.iterations)).toBe(true)
   })
 
-  it('produces identical placements and budget for identical input and seed', () => {
+  it('produces identical placements and budget for identical input and seed', async () => {
     const request = { stock, parts, edgeClearance: 2, partToPartClearance: 2, seed: 9 }
 
-    const first = nestTrueShape(request)
-    const second = nestTrueShape(request)
+    const first = await nestTrueShape(request)
+    const second = await nestTrueShape(request)
 
     expect(JSON.stringify(first.placements)).toBe(JSON.stringify(second.placements))
     expect(first.budget.iterations).toBe(second.budget.iterations)
     expect(first.utilization).toBe(second.utilization)
   })
 
-  it('stays self-consistent when only the seed changes', () => {
-    const run = (seed: number) =>
+  it('stays self-consistent when only the seed changes', async () => {
+    const run = async (seed: number) =>
       nestTrueShape({ stock, parts, edgeClearance: 2, partToPartClearance: 2, seed })
 
-    const response = run(1234)
+    const response = await run(1234)
     const placed = response.placements.length
     const unplaced = response.unplaced.reduce((sum, u) => sum + u.quantity, 0)
 
@@ -62,6 +62,8 @@ describe('trueShape/determinism', () => {
       expect(placement.sheetId).toBe('s1')
       expect(Number.isFinite(placement.rotation)).toBe(true)
     }
-    expect(JSON.stringify(run(1234).placements)).toBe(JSON.stringify(response.placements))
+    expect(JSON.stringify((await run(1234)).placements)).toBe(
+      JSON.stringify(response.placements),
+    )
   })
 })

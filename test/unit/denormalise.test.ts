@@ -4,7 +4,7 @@ import { getResourcePath } from './test-helpers.ts'
 import { denormalise, parseString } from '../../src'
 import applyTransforms from '../../src/applyTransforms'
 describe('Denormalise', () => {
-  it('top-level entities', () => {
+  it('top-level entities', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'lines.dxf'),
       'utf-8',
@@ -13,7 +13,7 @@ describe('Denormalise', () => {
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(11)
   })
-  it('entities from inserted blocks', () => {
+  it('entities from inserted blocks', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'blocks1.dxf'),
       'utf-8',
@@ -22,7 +22,7 @@ describe('Denormalise', () => {
     const entities = denormalise(parsed)
     expect(entities.length).toEqual(10)
   })
-  it('for blocks that contain inserts', () => {
+  it('for blocks that contain inserts', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'blocks2.dxf'),
       'utf-8',
@@ -35,7 +35,7 @@ describe('Denormalise', () => {
       { x: 175, y: 25, scaleX: 0.5, scaleY: 0.5, scaleZ: 0, rotation: 0 },
     ])
   })
-  it('inserts with rectangular array of blocks', () => {
+  it('inserts with rectangular array of blocks', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'arrayed-holes.dxf'),
       'utf-8',
@@ -45,7 +45,7 @@ describe('Denormalise', () => {
     // An insert of a circle should be repeated 14 times
     expect(entities.filter((e) => e.type === 'CIRCLE').length).toEqual(14)
   })
-  it('rectangular blocks rotate correctly', () => {
+  it('rectangular blocks rotate correctly', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'array-rotated.dxf'),
       'utf-8',
@@ -104,7 +104,7 @@ describe('Denormalise', () => {
       rotation: 120,
     })
   })
-  it('applies block basepoint adjustment to TEXT/MTEXT/DIMENSION', () => {
+  it('applies block basepoint adjustment to TEXT/MTEXT/DIMENSION', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'block-basepoint-text-mtext-dimension.dxf'),
       'utf-8',

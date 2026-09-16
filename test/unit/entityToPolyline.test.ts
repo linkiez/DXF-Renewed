@@ -5,7 +5,7 @@ import { parseString, denormalise } from '../../src'
 import entityToPolyline from '../../src/entityToPolyline'
 import applyTransforms from '../../src/applyTransforms'
 describe('Entity To Polyline', () => {
-  it('supports LINE', () => {
+  it('supports LINE', async () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'lines.dxf'), 'utf-8'),
     )
@@ -17,7 +17,7 @@ describe('Entity To Polyline', () => {
       [100, 0],
     ])
   })
-  it('supports LWPOLYLINE', () => {
+  it('supports LWPOLYLINE', async () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'lwpolylines.dxf'), 'utf-8'),
     )
@@ -42,7 +42,7 @@ describe('Entity To Polyline', () => {
       [60, 100],
     ])
   })
-  it('address the observed closed LWPOLYLINE transform bug', () => {
+  it('address the observed closed LWPOLYLINE transform bug', async () => {
     // There was a bug with LW polyline where the duplicated point
     // used for closing it was no copied by mutated multiple times
     const parsed = parseString(
@@ -65,7 +65,7 @@ describe('Entity To Polyline', () => {
     ])
   })
   // https://github.com/bjnortier/dxf/issues/20
-  it('warns on a LWPOLYLINE with a single vertex', () => {
+  it('warns on a LWPOLYLINE with a single vertex', async () => {
     const polyline = entityToPolyline({
       type: 'LWPOLYLINE',
       vertices: [{ x: 294.598692, y: 168.66373 }],
@@ -79,7 +79,7 @@ describe('Entity To Polyline', () => {
       [294.598692, 168.66373],
     ])
   })
-  it('supports CIRCLE, ELLIPSE, ARC', () => {
+  it('supports CIRCLE, ELLIPSE, ARC', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'circlesellipsesarcs.dxf'),
@@ -94,7 +94,7 @@ describe('Entity To Polyline', () => {
     expect(entityToPolyline(entities[3]).length).toEqual(18)
     expect(entityToPolyline(entities[4]).length).toEqual(73)
   })
-  it('supports SPLINE', () => {
+  it('supports SPLINE', async () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'splines.dxf'), 'utf-8'),
     )
@@ -107,7 +107,7 @@ describe('Entity To Polyline', () => {
         .length,
     ).toEqual(11)
   })
-  it('supports BLOCK with INSERT', () => {
+  it('supports BLOCK with INSERT', async () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'blocks1.dxf'), 'utf-8'),
     )

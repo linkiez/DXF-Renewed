@@ -4,7 +4,7 @@ import { parseString, toSVG } from '../../src'
 import { getResourcePath } from '../unit/test-helpers.ts'
 
 describe('SVG integration: DIMENSION', () => {
-  it('renders vertical DIMENSION with markers and text', () => {
+  it('renders vertical DIMENSION with markers and text', async () => {
     const dxfText = fs.readFileSync(
       getResourcePath(import.meta.url, 'dimension-vertical.dxf'),
       'utf-8',

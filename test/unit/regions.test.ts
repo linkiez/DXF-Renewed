@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('REGION', () => {
-  it('parses REGION entity and safely ignores rendering', () => {
+  it('parses REGION entity and safely ignores rendering', async () => {
     const dxfContent = `0
 SECTION
 2

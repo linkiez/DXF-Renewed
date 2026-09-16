@@ -12,7 +12,7 @@ function area(vertices: [number, number][]): number {
 }
 
 describe('cut-width allowance', () => {
-  it('offsets an outer boundary outward by kerf/2', () => {
+  it('offsets an outer boundary outward by kerf/2', async () => {
     const base = ring(0, 0, 20, 180)
     const allowance = 1
     const result = applyCutWidth(base, allowance, 'outer')
@@ -23,7 +23,7 @@ describe('cut-width allowance', () => {
     )
   })
 
-  it('offsets a hole inward by kerf/2', () => {
+  it('offsets a hole inward by kerf/2', async () => {
     const base = ring(0, 0, 10, 180)
     const result = applyCutWidth(base, 1, 'hole')
     const expected = Math.PI * Math.pow(10 - 0.5, 2)

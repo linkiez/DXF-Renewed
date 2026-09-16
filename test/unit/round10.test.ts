@@ -1,7 +1,7 @@
 import expect from 'expect'
 import round10 from '../../src/util/round10'
 describe('round10', () => {
-  it('works correctly with some numbers', () => {
+  it('works correctly with some numbers', async () => {
     expect(round10(55.55, -1)).toEqual(55.6)
     expect(round10(55.549, -1)).toEqual(55.5)
     expect(round10(55, 1)).toEqual(60)

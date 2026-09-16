@@ -36,21 +36,21 @@ function holeFrom(vertices: Point2D[]): NestableShape {
 const sheet: StockSheet = { width: 100, height: 100 }
 
 describe('trueShape/bounds', () => {
-  it('accepts an instance at exactly the edge clearance', () => {
+  it('accepts an instance at exactly the edge clearance', async () => {
     expect(isWithinBounds(rect(5, 5, 90, 90), sheet, 5)).toBe(true)
   })
 
-  it('rejects an instance closer than the edge clearance to the outer edge', () => {
+  it('rejects an instance closer than the edge clearance to the outer edge', async () => {
     expect(isWithinBounds(rect(4, 5, 90, 90), sheet, 5)).toBe(false)
     expect(isWithinBounds(rect(5, 5, 91, 90), sheet, 5)).toBe(false)
   })
 
-  it('rejects an instance crossing a hole contour', () => {
+  it('rejects an instance crossing a hole contour', async () => {
     const stock: StockSheet = { ...sheet, holes: [holeFrom(rect(40, 40, 20, 20))] }
     expect(isWithinBounds(rect(35, 40, 10, 20), stock, 5)).toBe(false)
   })
 
-  it('rejects an instance closer than the clearance to a hole contour', () => {
+  it('rejects an instance closer than the clearance to a hole contour', async () => {
     const stock: StockSheet = { ...sheet, holes: [holeFrom(rect(40, 40, 20, 20))] }
     // Gap of 2 between instance and hole edge, clearance is 5.
     expect(isWithinBounds(rect(30, 40, 8, 20), stock, 5)).toBe(false)
@@ -58,7 +58,7 @@ describe('trueShape/bounds', () => {
     expect(isWithinBounds(rect(25, 40, 10, 20), stock, 5)).toBe(true)
   })
 
-  it('measures contour distance, not just bounding boxes', () => {
+  it('measures contour distance, not just bounding boxes', async () => {
     const a = rect(0, 0, 10, 10)
     const b = rect(12, 0, 10, 10)
     expect(polygonDistance(a, b)).toBeCloseTo(2, 6)
@@ -66,15 +66,15 @@ describe('trueShape/bounds', () => {
 })
 
 describe('trueShape/separation', () => {
-  it('accepts two instances exactly at the part-to-part clearance', () => {
+  it('accepts two instances exactly at the part-to-part clearance', async () => {
     expect(isSeparated(rect(0, 0, 10, 10), rect(12, 0, 10, 10), 2)).toBe(true)
   })
 
-  it('rejects two instances closer than the part-to-part clearance', () => {
+  it('rejects two instances closer than the part-to-part clearance', async () => {
     expect(isSeparated(rect(0, 0, 10, 10), rect(11, 0, 10, 10), 2)).toBe(false)
   })
 
-  it('rejects overlapping instances', () => {
+  it('rejects overlapping instances', async () => {
     expect(isSeparated(rect(0, 0, 10, 10), rect(5, 5, 10, 10), 2)).toBe(false)
   })
 })

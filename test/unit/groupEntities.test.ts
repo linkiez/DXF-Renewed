@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { denormalise, groupEntitiesByLayer, parseString } from '../../src'
 describe('Group entities', () => {
-  it('by layer', () => {
+  it('by layer', async () => {
     const parsed = parseString(
       fs.readFileSync(getResourcePath(import.meta.url, 'floorplan.dxf'), 'utf-8'),
     )

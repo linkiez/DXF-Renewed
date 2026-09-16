@@ -61,13 +61,13 @@ ENDSEC
 EOF
 `
 
-  it('keeps the historical screen-relative stroke-width by default', () => {
+  it('keeps the historical screen-relative stroke-width by default', async () => {
     const svg = toSVG(parseString(dxf))
 
     expect(svg).toContain('stroke-width="0.1%"')
   })
 
-  it('supports screen-relative stroke-width scaling', () => {
+  it('supports screen-relative stroke-width scaling', async () => {
     const svg = toSVG(parseString(dxf), {
       strokeWidth: {
         mode: 'screen',
@@ -78,7 +78,7 @@ EOF
     expect(svg).toContain('stroke-width="0.25%"')
   })
 
-  it('supports viewport-relative stroke-width scaling', () => {
+  it('supports viewport-relative stroke-width scaling', async () => {
     const svg = toSVG(parseString(dxf), {
       strokeWidth: {
         mode: 'viewport',

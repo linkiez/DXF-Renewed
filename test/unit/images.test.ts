@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { parseString, toSVG } from '../../src'
 describe('IMAGE', () => {
-  it('can be parsed', () => {
+  it('can be parsed', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'image-basic.dxf'),
       'utf-8',
@@ -27,7 +27,7 @@ describe('IMAGE', () => {
     expect(image.imageDefReactorHandle).toBeDefined()
     expect(String(image.imageDefReactorHandle)).toMatch(/^[0-9A-F]+$/i)
   })
-  it('renders as a dashed extent quad in SVG', () => {
+  it('renders as a dashed extent quad in SVG', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'image-basic.dxf'),
       'utf-8',

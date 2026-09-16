@@ -16,9 +16,9 @@ const EDGE_CLEARANCE = 2
 const PART_TO_PART_CLEARANCE = 2
 
 describe('trueShape/thresholds', () => {
-  it('SC-002: 100-part job returns within 2 seconds', () => {
+  it('SC-002: 100-part job returns within 2 seconds', async () => {
     const started = Date.now()
-    const response = nestTrueShape({
+    const response = await nestTrueShape({
       stock: buildBenchmarkStock(),
       parts: buildBenchmarkParts().map((shape) => ({ shape, quantity: 1 })),
       edgeClearance: EDGE_CLEARANCE,
@@ -35,8 +35,8 @@ describe('trueShape/thresholds', () => {
     expect(response.placements.length + response.unplaced.reduce((s, u) => s + u.quantity, 0)).toBe(100)
   })
 
-  it('SC-003: 100-part job reaches at least 85% material use', () => {
-    const response = nestTrueShape({
+  it('SC-003: 100-part job reaches at least 85% material use', async () => {
+    const response = await nestTrueShape({
       stock: buildBenchmarkStock(),
       parts: buildBenchmarkParts().map((shape) => ({ shape, quantity: 1 })),
       edgeClearance: EDGE_CLEARANCE,

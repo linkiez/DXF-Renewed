@@ -9,6 +9,7 @@
 
 import type {
   NestableShape,
+  OptimizationObjective,
   PartRequest,
   Placement,
   Point2D,
@@ -19,7 +20,8 @@ import { computeBoundingBox, rotatePolygon, translatePolygon } from '../polygonU
 import { isWithinBounds } from './bounds'
 import { isSeparatedFromAll } from './separation'
 import { candidatePositions } from './candidates'
-import { EPSILON } from '../config'
+import { DEFAULT_OBJECTIVE_WEIGHTS, EPSILON } from '../config'
+import { scoreLayout, type LayoutMetrics } from '../optimization/objective'
 
 /** Deterministic iteration budget. Wall-clock time is never a term. */
 export class SearchBudget {
@@ -49,11 +51,41 @@ interface Instance {
   instanceIndex: number
 }
 
-interface Arrangement {
+export interface Arrangement {
   placements: Placement[]
   placedVertices: Map<string, Point2D[]>
   placedArea: number
   consumedArea: number
+  travelLength: number
+}
+
+/**
+ * Layout metrics on a comparable 0–100 scale, higher-is-better. The single deterministic input to
+ * the weighted score (FR-001); nothing here reads wall-clock time.
+ */
+function arrangementMetrics(
+  result: Arrangement,
+  stock: StockItem[],
+): LayoutMetrics {
+  const usedIds = new Set(result.placements.map((p) => p.sheetId))
+  const usedSheets = usedIds.size
+
+  let remnantConsumed = 0
+  for (const item of stock) {
+    if (usedIds.has(item.id) && item.kind === 'remnant') {
+      remnantConsumed += item.width * item.height
+    }
+  }
+
+  return {
+    materialUse: materialUse(result.placedArea, result.consumedArea),
+    travel: 100 / (1 + result.travelLength / 100),
+    sheetCount: usedSheets > 0 ? 100 / usedSheets : 0,
+    remnant:
+      result.consumedArea > 0
+        ? (remnantConsumed / result.consumedArea) * 100
+        : 0,
+  }
 }
 
 function sortInstances(instances: Instance[], strategy: SortStrategy): Instance[] {
@@ -125,6 +157,7 @@ function runArrangement(
   const placedVertices = new Map<string, Point2D[]>()
   const perStock = new Map<string, Point2D[][]>()
   let placedArea = 0
+  let travelLength = 0
 
   for (const item of stock) perStock.set(item.id, [])
 
@@ -145,7 +178,13 @@ function runArrangement(
           item.holes,
         )) {
           if (!budget.tick()) {
-            return { placements, placedVertices, placedArea, consumedArea: consumedAreaOf(placements, stock) }
+            return {
+              placements,
+              placedVertices,
+              placedArea,
+              consumedArea: consumedAreaOf(placements, stock),
+              travelLength,
+            }
           }
 
           const vertices = placeAt(instance.shape, rotation, position.x, position.y)
@@ -170,6 +209,7 @@ function runArrangement(
           already.push(vertices)
           placedVertices.set(`${instance.shape.id}#${instance.instanceIndex}`, vertices)
           placedArea += Math.abs(instance.shape.area)
+          travelLength += Math.abs(instance.shape.perimeter)
           placed = true
           break
         }
@@ -177,7 +217,13 @@ function runArrangement(
     }
   }
 
-  return { placements, placedVertices, placedArea, consumedArea: consumedAreaOf(placements, stock) }
+  return {
+    placements,
+    placedVertices,
+    placedArea,
+    consumedArea: consumedAreaOf(placements, stock),
+    travelLength,
+  }
 }
 
 /**
@@ -186,6 +232,111 @@ function runArrangement(
 export function materialUse(placedArea: number, consumedArea: number): number {
   if (consumedArea <= 0) return 0
   return (placedArea / consumedArea) * 100
+}
+
+/** Deterministic empty arrangement: the starting point of every best-so-far comparison. */
+function emptyArrangement(): Arrangement {
+  return {
+    placements: [],
+    placedVertices: new Map(),
+    placedArea: 0,
+    consumedArea: 0,
+    travelLength: 0,
+  }
+}
+
+/** Expands part requests into one instance per requested unit (shared by both search paths). */
+function buildInstances(
+  requests: Array<{ request: PartRequest; rotations: number[] }>,
+): Instance[] {
+  const instances: Instance[] = []
+  requests.forEach(({ request, rotations }) => {
+    for (let i = 0; i < request.quantity; i++) {
+      instances.push({ shape: request.shape, rotations, instanceIndex: i })
+    }
+  })
+  return instances
+}
+
+/**
+ * The single `better` rule shared by the synchronous and asynchronous searches: a higher score
+ * wins; within `EPSILON` the larger placed area wins, then the smaller consumed area. Stable and
+ * independent of candidate identity.
+ */
+function isBetter(
+  score: number,
+  placedArea: number,
+  consumedArea: number,
+  best: { score: number; placedArea: number; consumedArea: number },
+): boolean {
+  return (
+    score > best.score + EPSILON ||
+    (Math.abs(score - best.score) <= EPSILON &&
+      (placedArea > best.placedArea ||
+        (placedArea === best.placedArea && consumedArea < best.consumedArea)))
+  )
+}
+
+/** Applies `isBetter` in enumeration order and returns the winning arrangement. */
+function pickBest(
+  candidates: Array<{ arrangement: Arrangement; metrics: LayoutMetrics }>,
+  scores: number[],
+): Arrangement {
+  let best = emptyArrangement()
+  const bestState = { score: -1, placedArea: -1, consumedArea: Infinity }
+
+  candidates.forEach((candidate, index) => {
+    const score = scores[index] ?? -1
+    const { arrangement } = candidate
+    if (isBetter(score, arrangement.placedArea, arrangement.consumedArea, bestState)) {
+      bestState.score = score
+      bestState.placedArea = arrangement.placedArea
+      bestState.consumedArea = arrangement.consumedArea
+      best = arrangement
+    }
+  })
+
+  return best
+}
+
+/**
+ * Enumerates the strategy × stock-order candidate arrangements under the deterministic budget.
+ * The budget (a count of candidate evaluations) is the only bound; wall-clock time is never a term.
+ */
+function enumerateCandidates(
+  instances: Instance[],
+  stock: StockItem[],
+  edgeClearance: number,
+  partToPartClearance: number,
+  budget: SearchBudget,
+  strategies: SortStrategy[],
+): Array<{ arrangement: Arrangement; metrics: LayoutMetrics }> {
+  const candidates: Array<{ arrangement: Arrangement; metrics: LayoutMetrics }> = []
+
+  for (const strategy of strategies) {
+    for (const stockOrder of STOCK_ORDERS) {
+      if (budget.exhausted) break
+      const orderedStock = orderStock(stock, stockOrder)
+      const arrangement = runArrangement(
+        sortInstances(instances, strategy),
+        orderedStock,
+        edgeClearance,
+        partToPartClearance,
+        budget,
+      )
+      candidates.push({ arrangement, metrics: arrangementMetrics(arrangement, orderedStock) })
+    }
+  }
+
+  return candidates
+}
+
+/**
+ * Async scoring seam: an accelerator proposes one score per candidate arrangement, while the CPU
+ * keeps selection, tie-break and validation authority (FR-004/FR-006).
+ */
+export interface AsyncScorer {
+  score(metrics: readonly LayoutMetrics[]): Promise<number[]>
 }
 
 /**
@@ -199,51 +350,47 @@ export function searchBestArrangement(
   partToPartClearance: number,
   budgetLimit: number,
   strategies: SortStrategy[],
+  weights: OptimizationObjective = DEFAULT_OBJECTIVE_WEIGHTS,
 ): { arrangement: Arrangement; iterations: number } {
   const budget = new SearchBudget(budgetLimit)
+  const candidates = enumerateCandidates(
+    buildInstances(requests),
+    stock,
+    edgeClearance,
+    partToPartClearance,
+    budget,
+    strategies,
+  )
+  const scores = candidates.map((candidate) => scoreLayout(candidate.metrics, weights))
+  return { arrangement: pickBest(candidates, scores), iterations: budget.iterations }
+}
 
-  const instances: Instance[] = []
-  requests.forEach(({ request, rotations }) => {
-    for (let i = 0; i < request.quantity; i++) {
-      instances.push({ shape: request.shape, rotations, instanceIndex: i })
-    }
-  })
-
-  let best: Arrangement = {
-    placements: [],
-    placedVertices: new Map(),
-    placedArea: 0,
-    consumedArea: 0,
-  }
-  let bestUse = -1
-  let bestPlaced = -1
-  let bestConsumed = Infinity
-
-  for (const strategy of strategies) {
-    for (const stockOrder of STOCK_ORDERS) {
-      if (budget.exhausted) break
-      const ordered = sortInstances(instances, strategy)
-      const result = runArrangement(
-        ordered,
-        orderStock(stock, stockOrder),
-        edgeClearance,
-        partToPartClearance,
-        budget,
-      )
-      const use = materialUse(result.placedArea, result.consumedArea)
-      const better =
-        use > bestUse + EPSILON ||
-        (Math.abs(use - bestUse) <= EPSILON &&
-          (result.placedArea > bestPlaced ||
-            (result.placedArea === bestPlaced && result.consumedArea < bestConsumed)))
-      if (better) {
-        bestUse = use
-        bestPlaced = result.placedArea
-        bestConsumed = result.consumedArea
-        best = result
-      }
-    }
-  }
-
-  return { arrangement: best, iterations: budget.iterations }
+/**
+ * Async counterpart of `searchBestArrangement`. Without a scorer the CPU scores inline, so the
+ * result is identical to the synchronous baseline; with a scorer the accelerator only proposes
+ * scores and the CPU still selects the winner.
+ */
+export async function searchBestArrangementAsync(
+  requests: Array<{ request: PartRequest; rotations: number[] }>,
+  stock: StockItem[],
+  edgeClearance: number,
+  partToPartClearance: number,
+  budgetLimit: number,
+  strategies: SortStrategy[],
+  weights: OptimizationObjective = DEFAULT_OBJECTIVE_WEIGHTS,
+  scorer?: AsyncScorer,
+): Promise<{ arrangement: Arrangement; iterations: number }> {
+  const budget = new SearchBudget(budgetLimit)
+  const candidates = enumerateCandidates(
+    buildInstances(requests),
+    stock,
+    edgeClearance,
+    partToPartClearance,
+    budget,
+    strategies,
+  )
+  const scores = scorer
+    ? await scorer.score(candidates.map((candidate) => candidate.metrics))
+    : candidates.map((candidate) => scoreLayout(candidate.metrics, weights))
+  return { arrangement: pickBest(candidates, scores), iterations: budget.iterations }
 }

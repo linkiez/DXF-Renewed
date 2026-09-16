@@ -6,21 +6,21 @@ const dxf = fixture('arrayed-holes.dxf')
 const options = { tolerance: 0.01, cutWidthAllowance: 0 }
 
 describe('prepareParts pipeline', () => {
-  it('returns the contract result shape', () => {
-    const result = prepareParts(dxf, options)
+  it('returns the contract result shape', async () => {
+    const result = await prepareParts(dxf, options)
     assert.ok(Array.isArray(result.parts))
     assert.ok(Array.isArray(result.issues))
     assert.equal(result.unit, 'mm')
   })
 
-  it('rejects an unsupported declared unit with no parts', () => {
-    const result = prepareParts(dxf, { ...options, unit: 'in' })
+  it('rejects an unsupported declared unit with no parts', async () => {
+    const result = await prepareParts(dxf, { ...options, unit: 'in' })
     assert.equal(result.parts.length, 0)
     assert.ok(result.issues.some((issue) => issue.code === 'UNSUPPORTED_UNIT'))
   })
 
-  it('tags every boundary with its depth and source', () => {
-    const result = prepareParts(dxf, options)
+  it('tags every boundary with its depth and source', async () => {
+    const result = await prepareParts(dxf, options)
     for (const part of result.parts) {
       assert.equal(part.outer.depth, 0)
       assert.equal(part.outer.classification, 'outer')
@@ -36,10 +36,10 @@ describe('prepareParts pipeline', () => {
     }
   })
 
-  it('is deterministic across 100 runs', () => {
-    const first = prepareParts(dxf, options)
+  it('is deterministic across 100 runs', async () => {
+    const first = await prepareParts(dxf, options)
     for (let i = 0; i < 99; i++) {
-      deepEqual(prepareParts(dxf, options), first)
+      deepEqual(await prepareParts(dxf, options), first)
     }
   })
 })

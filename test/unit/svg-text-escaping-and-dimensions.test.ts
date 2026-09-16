@@ -13,7 +13,7 @@ const extractNumbersFrom = (re, text) => {
   return out
 }
 describe('SVG text escaping', () => {
-  it('escapes < and > in TEXT entity content', () => {
+  it('escapes < and > in TEXT entity content', async () => {
     const dxf = [
       '0',
       'SECTION',
@@ -43,7 +43,7 @@ describe('SVG text escaping', () => {
   })
 })
 describe('DIMENSION SVG rendering', () => {
-  it('renders numeric dimension text for dimensions.dxf', () => {
+  it('renders numeric dimension text for dimensions.dxf', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions.dxf'),
@@ -55,7 +55,7 @@ describe('DIMENSION SVG rendering', () => {
     // This guards against missing measurement text due to empty DIMENSION text.
     expect(svg).toMatch(/<text[^>]*>[^<]*\d[^<]*<\/text>/)
   })
-  it('auto-scales arrow/text sizes when enabled', () => {
+  it('auto-scales arrow/text sizes when enabled', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions.dxf'),
@@ -91,7 +91,7 @@ describe('DIMENSION SVG rendering', () => {
     const maxFontAuto = Math.max(...fontSizesAuto)
     expect(Math.abs(maxFontAuto - maxFontDefault)).toBeGreaterThan(1e-9)
   })
-  it('supports screen-relative stroke-width scaling for dimension strokes', () => {
+  it('supports screen-relative stroke-width scaling for dimension strokes', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions.dxf'),
@@ -107,7 +107,7 @@ describe('DIMENSION SVG rendering', () => {
 
     expect(svg).toMatch(/stroke-width="0\.25%"/)
   })
-  it('supports viewport-relative stroke-width scaling for dimension strokes', () => {
+  it('supports viewport-relative stroke-width scaling for dimension strokes', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions.dxf'),
@@ -137,7 +137,7 @@ describe('DIMENSION SVG rendering', () => {
     expect(svg).not.toContain('stroke-width="-')
     expect(svg).toContain('stroke="none"')
   })
-  it('defines forward and backward arrow markers', () => {
+  it('defines forward and backward arrow markers', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions.dxf'),
@@ -167,7 +167,7 @@ describe('DIMENSION SVG rendering', () => {
     expect(hasBackward).toBe(true)
     expect(hasForward).toBe(true)
   })
-  it('does not render marker-only zero-length lines', () => {
+  it('does not render marker-only zero-length lines', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions.dxf'),
@@ -193,7 +193,7 @@ describe('DIMENSION SVG rendering', () => {
     })
     expect(zeroish).toEqual([])
   })
-  it('supports viewport-percentage autoScale overrides per element', () => {
+  it('supports viewport-percentage autoScale overrides per element', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions.dxf'),
@@ -234,7 +234,7 @@ describe('DIMENSION SVG rendering', () => {
     expect(Math.abs(maxMarker - targetArrow)).toBeLessThan(viewportMin * 0.02)
     expect(Math.abs(maxFont - targetText)).toBeLessThan(viewportMin * 0.02)
   })
-  it('does not throw for angular 3-point DIMENSION (type 5)', () => {
+  it('does not throw for angular 3-point DIMENSION (type 5)', async () => {
     const parsed = parseString(
       fs.readFileSync(
         getResourcePath(import.meta.url, 'dimensions-angular-3p.dxf'),

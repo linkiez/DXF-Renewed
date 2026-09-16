@@ -6,9 +6,11 @@
  */
 
 import Helper from '../Helper'
+import { firstValueFrom, type Observable } from 'rxjs'
 import type { Entity } from '../types'
 import type { NestingOptions, NestingResult, NestableShape } from './types'
 import { nest } from './applyNesting'
+import { observeFlow } from './async/observableFlow'
 import { toNestedSvg } from './toNestedSvg'
 import { toNestedDxf } from './toNestedDxf'
 import { extractShapes } from './shapeExtractor'
@@ -23,12 +25,12 @@ import { extractShapes } from './shapeExtractor'
  * @example
  * ```typescript
  * const helper = new NestingHelper(dxfString)
- * const result = await helper.nest({
+ * const result = await firstValueFrom(helper.nest({
  *   stockSheet: { width: 3000, height: 2000 },
  *   algorithm: 'maxrects',
  *   kerf: 2,
  *   margin: 10,
- * })
+ * }))
  *
  * console.log(`Utilization: ${result.utilization.toFixed(1)}%`)
  * const svg = helper.toNestedSvg()
@@ -40,35 +42,36 @@ export class NestingHelper extends Helper {
   private _shapeEntityMap = new Map<string, Entity>()
 
   /** Perform nesting with the given options */
-  async nest(
-    partialOptions: Partial<NestingOptions> = {},
-  ): Promise<NestingResult> {
-    this._nestingResult = await nest(this.parsed, partialOptions)
+  nest(partialOptions: Partial<NestingOptions> = {}): Observable<NestingResult> {
+    return observeFlow(async () => {
+      const result = await firstValueFrom(nest(this.parsed, partialOptions))
 
-    // Extract shapes for SVG output
-    const extraction = extractShapes(this.denormalised, {
-      ...partialOptions,
-      stockSheet: partialOptions.stockSheet ?? {
-        width: 3000,
-        height: 2000,
-      },
-      curveSegments: partialOptions.curveSegments ?? 36,
-      allowedRotations: partialOptions.allowedRotations ?? [0, 90, 180, 270],
-      kerf: partialOptions.kerf ?? 2,
-    })
+      // Extract shapes for SVG output
+      const extraction = extractShapes(this.denormalised, {
+        ...partialOptions,
+        stockSheet: partialOptions.stockSheet ?? {
+          width: 3000,
+          height: 2000,
+        },
+        curveSegments: partialOptions.curveSegments ?? 36,
+        allowedRotations: partialOptions.allowedRotations ?? [0, 90, 180, 270],
+        kerf: partialOptions.kerf ?? 2,
+      })
 
-    this._shapes = extraction.shapes
+      this._shapes = extraction.shapes
 
-    // Build shape → entity map
-    for (
-      let i = 0;
-      i < extraction.shapes.length && i < this.denormalised.length;
-      i++
-    ) {
-      this._shapeEntityMap.set(extraction.shapes[i].id, this.denormalised[i])
-    }
+      // Build shape → entity map
+      for (
+        let i = 0;
+        i < extraction.shapes.length && i < this.denormalised.length;
+        i++
+      ) {
+        this._shapeEntityMap.set(extraction.shapes[i].id, this.denormalised[i])
+      }
 
-    return this._nestingResult
+      this._nestingResult = result
+      return result
+    }, partialOptions.signal)
   }
 
   /** Get the last nesting result */

@@ -1,7 +1,7 @@
 import expect from 'expect'
 import getRGBForEntity from '../../src/getRGBForEntity'
 describe('colors', () => {
-  it('Color defined in the entity but with value 256 means that we have to use the color defined in the layer.', () => {
+  it('Color defined in the entity but with value 256 means that we have to use the color defined in the layer.', async () => {
     const fakeEntity = {
       layer: '0',
       colorNumber: 256,

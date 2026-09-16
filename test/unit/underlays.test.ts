@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { parseString, toSVG } from '../../src'
 describe('UNDERLAY', () => {
-  it('parses PDFUNDERLAY entity and UNDERLAYDEFINITION object', () => {
+  it('parses PDFUNDERLAY entity and UNDERLAYDEFINITION object', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'underlay-basic.dxf'),
       'utf-8',
@@ -25,7 +25,7 @@ describe('UNDERLAY', () => {
     expect(def.fileName).toEqual('file.pdf')
     expect(def.underlayName).toEqual('U1')
   })
-  it('renders as a dashed placeholder quad in SVG', () => {
+  it('renders as a dashed placeholder quad in SVG', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'underlay-basic.dxf'),
       'utf-8',

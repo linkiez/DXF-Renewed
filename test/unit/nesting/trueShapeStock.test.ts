@@ -34,13 +34,13 @@ function square(id: string, size: number): NestableShape {
 }
 
 describe('trueShape/stock', () => {
-  it('uses several sheets when one is not enough', () => {
+  it('uses several sheets when one is not enough', async () => {
     const stock: StockItem[] = [
       { id: 's1', kind: 'sheet', width: 50, height: 50 },
       { id: 's2', kind: 'sheet', width: 50, height: 50 },
     ]
 
-    const response = nestTrueShape({
+    const response = await nestTrueShape({
       stock,
       parts: [{ shape: square('a', 20), quantity: 6 }],
       edgeClearance: 2,
@@ -52,8 +52,8 @@ describe('trueShape/stock', () => {
     expect(new Set(response.placements.map((p) => p.sheetId)).size).toBe(2)
   })
 
-  it('excludes a remnant below the caller threshold (FR-008)', () => {
-    const response = nestTrueShape({
+  it('excludes a remnant below the caller threshold (FR-008)', async () => {
+    const response = await nestTrueShape({
       stock: [{ id: 'tiny', kind: 'remnant', width: 30, height: 30 }],
       parts: [{ shape: square('a', 20), quantity: 1 }],
       edgeClearance: 2,
@@ -68,8 +68,8 @@ describe('trueShape/stock', () => {
     expect(response.unplaced[0].reason.length).toBeGreaterThan(0)
   })
 
-  it('uses a remnant at or above the caller threshold', () => {
-    const response = nestTrueShape({
+  it('uses a remnant at or above the caller threshold', async () => {
+    const response = await nestTrueShape({
       stock: [{ id: 'offcut', kind: 'remnant', width: 60, height: 60 }],
       parts: [{ shape: square('a', 20), quantity: 1 }],
       edgeClearance: 2,

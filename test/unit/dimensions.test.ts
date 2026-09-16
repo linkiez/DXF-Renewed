@@ -11,7 +11,7 @@ const verticalDxfDimension = fs.readFileSync(
   'utf-8',
 )
 describe('DIMENSION', () => {
-  it('can be parsed', () => {
+  it('can be parsed', async () => {
     const parsed = parseString(dxfContents)
     const entities = parsed.entities
     const dimensions = entities.filter((e) => e.type === 'DIMENSION')
@@ -37,7 +37,7 @@ describe('DIMENSION', () => {
     })
     expect(header.dimArrowSize).toEqual(2.5)
   })
-  it('can handle rotation for vertical dimension', () => {
+  it('can handle rotation for vertical dimension', async () => {
     const parsed = parseString(verticalDxfDimension)
     const entities = parsed.entities
     const dimensions = entities.filter((e) => e.type === 'DIMENSION')

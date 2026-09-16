@@ -10,7 +10,7 @@ const hatchFixture = fs.readFileSync(
 )
 
 describe('HATCH SVG rendering', () => {
-  it('renders a solid hatch with nested hole contours as one evenodd path', () => {
+  it('renders a solid hatch with nested hole contours as one evenodd path', async () => {
     const parsed = parseString(hatchFixture)
     const hatch = parsed.entities[0] as {
       type: 'HATCH'

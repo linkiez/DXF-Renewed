@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('SHAPE', () => {
-  it('parses SHAPE entity and renders SVG text fallback', () => {
+  it('parses SHAPE entity and renders SVG text fallback', async () => {
     const dxfContent = `0
 SECTION
 2

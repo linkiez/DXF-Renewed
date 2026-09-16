@@ -2,7 +2,7 @@ import expect from 'expect'
 import parseString from '../../src/parseString'
 import toSVG from '../../src/toSVG'
 describe('TOLERANCE', () => {
-  it('parses TOLERANCE entity and renders SVG text fallback', () => {
+  it('parses TOLERANCE entity and renders SVG text fallback', async () => {
     const dxfContent = `0
 SECTION
 2

@@ -11,7 +11,7 @@ import {
 
 describe('nest/geometry', () => {
   describe('polygonArea', () => {
-    it('calculates area of a square', () => {
+    it('calculates area of a square', async () => {
       const square: [number, number][] = [
         [0, 0],
         [10, 0],
@@ -21,7 +21,7 @@ describe('nest/geometry', () => {
       expect(polygonArea(square)).toBeCloseTo(100)
     })
 
-    it('calculates area of a triangle', () => {
+    it('calculates area of a triangle', async () => {
       const triangle: [number, number][] = [
         [0, 0],
         [10, 0],
@@ -30,12 +30,12 @@ describe('nest/geometry', () => {
       expect(polygonArea(triangle)).toBeCloseTo(50)
     })
 
-    it('returns 0 for less than 3 vertices', () => {
+    it('returns 0 for less than 3 vertices', async () => {
       expect(polygonArea([[0, 0], [1, 1]])).toBe(0)
       expect(polygonArea([])).toBe(0)
     })
 
-    it('handles closed polygons (duplicate last vertex)', () => {
+    it('handles closed polygons (duplicate last vertex)', async () => {
       const square: [number, number][] = [
         [0, 0],
         [10, 0],
@@ -48,25 +48,25 @@ describe('nest/geometry', () => {
   })
 
   describe('rotatePoint', () => {
-    it('rotates 90 degrees', () => {
+    it('rotates 90 degrees', async () => {
       const result = rotatePoint(1, 0, 90)
       expect(result.x).toBeCloseTo(0)
       expect(result.y).toBeCloseTo(1)
     })
 
-    it('rotates 180 degrees', () => {
+    it('rotates 180 degrees', async () => {
       const result = rotatePoint(1, 0, 180)
       expect(result.x).toBeCloseTo(-1)
       expect(result.y).toBeCloseTo(0)
     })
 
-    it('rotates 360 degrees (identity)', () => {
+    it('rotates 360 degrees (identity)', async () => {
       const result = rotatePoint(3, 4, 360)
       expect(result.x).toBeCloseTo(3)
       expect(result.y).toBeCloseTo(4)
     })
 
-    it('rotates 0 degrees (identity)', () => {
+    it('rotates 0 degrees (identity)', async () => {
       const result = rotatePoint(3, 4, 0)
       expect(result.x).toBeCloseTo(3)
       expect(result.y).toBeCloseTo(4)
@@ -74,7 +74,7 @@ describe('nest/geometry', () => {
   })
 
   describe('getBBox', () => {
-    it('calculates bounding box', () => {
+    it('calculates bounding box', async () => {
       const poly: [number, number][] = [
         [10, 20],
         [50, 20],
@@ -88,14 +88,14 @@ describe('nest/geometry', () => {
       expect(bbox.h).toBe(40)
     })
 
-    it('handles empty polygon', () => {
+    it('handles empty polygon', async () => {
       const bbox = getBBox([])
       expect(bbox).toEqual({ x: 0, y: 0, w: 0, h: 0 })
     })
   })
 
   describe('translatePolygon', () => {
-    it('translates all vertices', () => {
+    it('translates all vertices', async () => {
       const poly: [number, number][] = [
         [0, 0],
         [10, 0],
@@ -109,7 +109,7 @@ describe('nest/geometry', () => {
   })
 
   describe('simplifyPolygon', () => {
-    it('removes duplicate consecutive vertices', () => {
+    it('removes duplicate consecutive vertices', async () => {
       const poly: [number, number][] = [
         [0, 0],
         [0, 0],
@@ -121,7 +121,7 @@ describe('nest/geometry', () => {
       expect(result.length).toBeLessThan(poly.length)
     })
 
-    it('preserves valid polygons', () => {
+    it('preserves valid polygons', async () => {
       const poly: [number, number][] = [
         [0, 0],
         [10, 0],
@@ -134,15 +134,15 @@ describe('nest/geometry', () => {
   })
 
   describe('pointsEqual', () => {
-    it('returns true for identical points', () => {
+    it('returns true for identical points', async () => {
       expect(pointsEqual([1, 2], [1, 2])).toBe(true)
     })
 
-    it('returns true for approximately equal points', () => {
+    it('returns true for approximately equal points', async () => {
       expect(pointsEqual([1, 2], [1.0001, 2.0001])).toBe(true)
     })
 
-    it('returns false for different points', () => {
+    it('returns false for different points', async () => {
       expect(pointsEqual([1, 2], [3, 4])).toBe(false)
     })
   })

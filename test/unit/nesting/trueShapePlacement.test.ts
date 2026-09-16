@@ -59,8 +59,8 @@ const stock: StockItem[] = [
 ]
 
 describe('trueShape/placement', () => {
-  it('places irregular and rectangular parts with nothing unplaced', () => {
-    const response = nestTrueShape({
+  it('places irregular and rectangular parts with nothing unplaced', async () => {
+    const response = await nestTrueShape({
       stock,
       parts: [
         { shape: lShape('l1', 60), quantity: 2 },
@@ -75,8 +75,8 @@ describe('trueShape/placement', () => {
     expect(response.placements).toHaveLength(5)
   })
 
-  it('keeps every placement in bounds at the edge clearance', () => {
-    const response = nestTrueShape({
+  it('keeps every placement in bounds at the edge clearance', async () => {
+    const response = await nestTrueShape({
       stock,
       parts: [
         { shape: lShape('l1', 60), quantity: 2 },
@@ -99,8 +99,8 @@ describe('trueShape/placement', () => {
     }
   })
 
-  it('keeps every pair of placements apart by the part-to-part clearance', () => {
-    const response = nestTrueShape({
+  it('keeps every pair of placements apart by the part-to-part clearance', async () => {
+    const response = await nestTrueShape({
       stock,
       parts: [
         { shape: lShape('l1', 60), quantity: 2 },
@@ -123,8 +123,8 @@ describe('trueShape/placement', () => {
     }
   })
 
-  it('records sheet identity and instance index on every placement', () => {
-    const response = nestTrueShape({
+  it('records sheet identity and instance index on every placement', async () => {
+    const response = await nestTrueShape({
       stock,
       parts: [{ shape: rect('r1', 30, 30), quantity: 3 }],
       edgeClearance,

@@ -85,11 +85,14 @@ interface Candidate {
 /**
  * Prepare parsed DXF geometry into classified, cuttable parts (contract:
  * specs/001-part-preparation/contracts/preparation-api.ts).
+ *
+ * Async so every nesting pipeline shares one shape (feature 003); the work itself stays pure CPU
+ * with no I/O and no timing budget.
  */
-export function prepareParts(
+export async function prepareParts(
   dxf: string | { entities: unknown[] },
   options: PrepareOptions,
-): PrepareResult {
+): Promise<PrepareResult> {
   const issues: PreparationIssue[] = []
 
   const unit = resolveUnit(options.unit)

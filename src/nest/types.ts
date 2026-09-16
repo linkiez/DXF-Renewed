@@ -56,6 +56,8 @@ export interface NestOptions {
   /** Max number of bins to use (default 10) */
   maxBins?: number
   onProgress?: (iteration: number, bestFitness: number) => void
+  /** Optional cooperative cancellation signal (FR-007). */
+  signal?: AbortSignal
 }
 
 /** Default nesting options */

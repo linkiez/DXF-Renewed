@@ -12,7 +12,7 @@ const dxfSquircle = fs.readFileSync(
   'utf-8',
 )
 describe('SPLINE', () => {
-  it('can be parsed', () => {
+  it('can be parsed', async () => {
     const entities = parseString(dxfContents).entities
     expect(entities.length).toEqual(2)
     expect(entities[0]).toEqual({
@@ -70,7 +70,7 @@ describe('SPLINE', () => {
       extrusionZ: 0,
     })
   })
-  it('parses control weights', () => {
+  it('parses control weights', async () => {
     const entities = parseString(dxfSquircle).entities
     expect(entities.length).toEqual(1)
     expect(entities[0].weights).toEqual([

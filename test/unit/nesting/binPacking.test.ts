@@ -36,7 +36,7 @@ function createRectShape(
 
 describe('nesting/binPacking', () => {
   describe('guillotinePack', () => {
-    it('should pack small rectangles on a sheet', () => {
+    it('should pack small rectangles on a sheet', async () => {
       const shapes = [
         createRectShape('s1', 10, 10),
         createRectShape('s2', 10, 10),
@@ -50,7 +50,7 @@ describe('nesting/binPacking', () => {
       expect(result.unplaced).toHaveLength(0)
     })
 
-    it('should leave shapes unplaced when they do not fit', () => {
+    it('should leave shapes unplaced when they do not fit', async () => {
       const shapes = [
         createRectShape('big', 200, 200),
       ]
@@ -60,7 +60,7 @@ describe('nesting/binPacking', () => {
       expect(result.unplaced).toHaveLength(1)
     })
 
-    it('should use multiple sheets when needed', () => {
+    it('should use multiple sheets when needed', async () => {
       const shapes = [
         createRectShape('s1', 50, 50),
         createRectShape('s2', 50, 50),
@@ -80,7 +80,7 @@ describe('nesting/binPacking', () => {
   })
 
   describe('maxRectsPack', () => {
-    it('should pack small rectangles on a sheet', () => {
+    it('should pack small rectangles on a sheet', async () => {
       const shapes = [
         createRectShape('s1', 10, 10),
         createRectShape('s2', 10, 10),
@@ -94,7 +94,7 @@ describe('nesting/binPacking', () => {
       expect(result.unplaced).toHaveLength(0)
     })
 
-    it('should leave shapes unplaced when they do not fit', () => {
+    it('should leave shapes unplaced when they do not fit', async () => {
       const shapes = [
         createRectShape('big', 200, 200),
       ]
@@ -104,7 +104,7 @@ describe('nesting/binPacking', () => {
       expect(result.unplaced).toHaveLength(1)
     })
 
-    it('should use multiple sheets when needed', () => {
+    it('should use multiple sheets when needed', async () => {
       const shapes = [
         createRectShape('s1', 50, 50),
         createRectShape('s2', 50, 50),
@@ -123,7 +123,7 @@ describe('nesting/binPacking', () => {
   })
 
   describe('shelfPack', () => {
-    it('should pack small rectangles on a sheet', () => {
+    it('should pack small rectangles on a sheet', async () => {
       const shapes = [
         createRectShape('s1', 10, 10),
         createRectShape('s2', 10, 10),
@@ -137,7 +137,7 @@ describe('nesting/binPacking', () => {
       expect(result.unplaced).toHaveLength(0)
     })
 
-    it('should leave shapes unplaced when they do not fit', () => {
+    it('should leave shapes unplaced when they do not fit', async () => {
       const shapes = [
         createRectShape('big', 200, 200),
       ]
@@ -147,7 +147,7 @@ describe('nesting/binPacking', () => {
       expect(result.unplaced).toHaveLength(1)
     })
 
-    it('should use multiple sheets when needed', () => {
+    it('should use multiple sheets when needed', async () => {
       const shapes = [
         createRectShape('s1', 50, 50),
         createRectShape('s2', 50, 50),

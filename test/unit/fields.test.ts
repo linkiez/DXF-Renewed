@@ -1,7 +1,7 @@
 import expect from 'expect'
 import parseString from '../../src/parseString'
 describe('FIELD (OBJECTS)', () => {
-  it('parses FIELD object and preserves raw tuples', () => {
+  it('parses FIELD object and preserves raw tuples', async () => {
     const dxfContent = `0
 SECTION
 2

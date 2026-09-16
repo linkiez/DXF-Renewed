@@ -7,7 +7,7 @@ const dxfContents = fs.readFileSync(
   'utf-8',
 )
 describe('POLYLINE', () => {
-  it('can be parsed', () => {
+  it('can be parsed', async () => {
     const entities = parseString(dxfContents).entities
     expect(entities).toHaveLength(2)
     expect(entities[0]).toEqual({
@@ -29,7 +29,7 @@ describe('POLYLINE', () => {
       ],
     })
   })
-  it('flushes an open POLYLINE when SEQEND is missing', () => {
+  it('flushes an open POLYLINE when SEQEND is missing', async () => {
     const dxf = `0
 SECTION
 2
@@ -65,7 +65,7 @@ EOF
     expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
     expect(entities[1].type).toEqual('LINE')
   })
-  it('treats SEQEND as a terminator even without a handler', () => {
+  it('treats SEQEND as a terminator even without a handler', async () => {
     const dxf = `0
 SECTION
 2
@@ -109,7 +109,7 @@ EOF
     expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
     expect(entities[1].type).toEqual('LINE')
   })
-  it('ignores orphan VERTEX entities', () => {
+  it('ignores orphan VERTEX entities', async () => {
     const dxf = `0
 SECTION
 2
@@ -139,7 +139,7 @@ EOF
     expect(entities).toHaveLength(1)
     expect(entities[0].type).toEqual('LINE')
   })
-  it('ignores an orphan SEQEND', () => {
+  it('ignores an orphan SEQEND', async () => {
     const dxf = `0
 SECTION
 2
@@ -165,7 +165,7 @@ EOF
     expect(entities).toHaveLength(1)
     expect(entities[0].type).toEqual('LINE')
   })
-  it('flushes a POLYLINE left open at end of ENTITIES section', () => {
+  it('flushes a POLYLINE left open at end of ENTITIES section', async () => {
     const dxf = `0
 SECTION
 2
@@ -190,7 +190,7 @@ EOF
     expect(entities[0].type).toEqual('POLYLINE')
     expect(entities[0].vertices).toEqual([{ x: 0, y: 0 }])
   })
-  it('flushes a previous POLYLINE when a new POLYLINE starts', () => {
+  it('flushes a previous POLYLINE when a new POLYLINE starts', async () => {
     const dxf = `0
 SECTION
 2

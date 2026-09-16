@@ -9,12 +9,12 @@ import { extractShapes, resetShapeIdCounter } from '../../../src/nesting/shapeEx
 import type { Entity } from '../../../src/types'
 
 describe('nesting/shapeExtractor', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetShapeIdCounter()
   })
 
   describe('extractShapes', () => {
-    it('should extract closed LWPOLYLINE', () => {
+    it('should extract closed LWPOLYLINE', async () => {
       const entity: Entity = {
         type: 'LWPOLYLINE',
         handle: '1A',
@@ -39,7 +39,7 @@ describe('nesting/shapeExtractor', () => {
       expect(result.shapes[0].layer).toBe('TEST')
     })
 
-    it('should skip open LWPOLYLINE', () => {
+    it('should skip open LWPOLYLINE', async () => {
       const entity: Entity = {
         type: 'LWPOLYLINE',
         handle: '1B',
@@ -62,7 +62,7 @@ describe('nesting/shapeExtractor', () => {
       expect(result.skippedEntities).toHaveLength(1)
     })
 
-    it('should extract circle as polygon', () => {
+    it('should extract circle as polygon', async () => {
       const entity: Entity = {
         type: 'CIRCLE',
         handle: '1C',
@@ -83,7 +83,7 @@ describe('nesting/shapeExtractor', () => {
       expect(result.shapes[0].area).toBeCloseTo(Math.PI * 100, -1)
     })
 
-    it('should extract SOLID as polygon', () => {
+    it('should extract SOLID as polygon', async () => {
       const entity: Entity = {
         type: 'SOLID',
         handle: '1D',
@@ -106,7 +106,7 @@ describe('nesting/shapeExtractor', () => {
       expect(result.shapes[0].area).toBeCloseTo(100)
     })
 
-    it('should extract TRACE as polygon', () => {
+    it('should extract TRACE as polygon', async () => {
       const entity: Entity = {
         type: 'TRACE',
         handle: '1E',
@@ -129,7 +129,7 @@ describe('nesting/shapeExtractor', () => {
       expect(result.shapes[0].area).toBeCloseTo(300)
     })
 
-    it('should skip unsupported entity types', () => {
+    it('should skip unsupported entity types', async () => {
       const entity: Entity = {
         type: 'TEXT',
         handle: '1F',
@@ -146,7 +146,7 @@ describe('nesting/shapeExtractor', () => {
       expect(result.skippedEntities).toHaveLength(1)
     })
 
-    it('should skip zero-area shapes', () => {
+    it('should skip zero-area shapes', async () => {
       const entity: Entity = {
         type: 'LWPOLYLINE',
         handle: '1G',
@@ -168,7 +168,7 @@ describe('nesting/shapeExtractor', () => {
       expect(result.shapes).toHaveLength(0)
     })
 
-    it('should assign unique IDs to shapes', () => {
+    it('should assign unique IDs to shapes', async () => {
       const entities: Entity[] = [
         {
           type: 'CIRCLE',

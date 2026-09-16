@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('OLEFRAME', () => {
-  it('parses OLEFRAME entity and renders a placeholder rectangle', () => {
+  it('parses OLEFRAME entity and renders a placeholder rectangle', async () => {
     const dxfContent = `0
 SECTION
 2
