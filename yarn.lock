@@ -638,6 +638,55 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fallow-cli/darwin-arm64@npm:2.40.2":
+  version: 2.40.2
+  resolution: "@fallow-cli/darwin-arm64@npm:2.40.2"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@fallow-cli/darwin-x64@npm:2.40.2":
+  version: 2.40.2
+  resolution: "@fallow-cli/darwin-x64@npm:2.40.2"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@fallow-cli/linux-arm64-gnu@npm:2.40.2":
+  version: 2.40.2
+  resolution: "@fallow-cli/linux-arm64-gnu@npm:2.40.2"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@fallow-cli/linux-arm64-musl@npm:2.40.2":
+  version: 2.40.2
+  resolution: "@fallow-cli/linux-arm64-musl@npm:2.40.2"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@fallow-cli/linux-x64-gnu@npm:2.40.2":
+  version: 2.40.2
+  resolution: "@fallow-cli/linux-x64-gnu@npm:2.40.2"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@fallow-cli/linux-x64-musl@npm:2.40.2":
+  version: 2.40.2
+  resolution: "@fallow-cli/linux-x64-musl@npm:2.40.2"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@fallow-cli/win32-x64-msvc@npm:2.40.2":
+  version: 2.40.2
+  resolution: "@fallow-cli/win32-x64-msvc@npm:2.40.2"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
 "@fastify/busboy@npm:^2.0.0":
   version: 2.1.1
   resolution: "@fastify/busboy@npm:2.1.1"
@@ -862,6 +911,7 @@ __metadata:
     eslint-plugin-n: "npm:^18.0.1"
     eslint-plugin-promise: "npm:^7.2.1"
     expect: "npm:^30.2.0"
+    fallow: "npm:2.40.2"
     husky: "npm:^9.1.7"
     lodash: "npm:^4.17.23"
     mocha: "npm:^12.0.0"
@@ -3013,7 +3063,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"detect-libc@npm:^2.0.3":
+"detect-libc@npm:2.1.2, detect-libc@npm:^2.0.3":
   version: 2.1.2
   resolution: "detect-libc@npm:2.1.2"
   checksum: 10c0/acc675c29a5649fa1fb6e255f993b8ee829e510b6b56b0910666949c80c364738833417d0edb5f90e4e46be17228b0f2b66a010513984e18b15deeeac49369c4
@@ -3770,6 +3820,41 @@ __metadata:
   version: 3.1.3
   resolution: "exponential-backoff@npm:3.1.3"
   checksum: 10c0/77e3ae682b7b1f4972f563c6dbcd2b0d54ac679e62d5d32f3e5085feba20483cf28bd505543f520e287a56d4d55a28d7874299941faf637e779a1aa5994d1267
+  languageName: node
+  linkType: hard
+
+"fallow@npm:2.40.2":
+  version: 2.40.2
+  resolution: "fallow@npm:2.40.2"
+  dependencies:
+    "@fallow-cli/darwin-arm64": "npm:2.40.2"
+    "@fallow-cli/darwin-x64": "npm:2.40.2"
+    "@fallow-cli/linux-arm64-gnu": "npm:2.40.2"
+    "@fallow-cli/linux-arm64-musl": "npm:2.40.2"
+    "@fallow-cli/linux-x64-gnu": "npm:2.40.2"
+    "@fallow-cli/linux-x64-musl": "npm:2.40.2"
+    "@fallow-cli/win32-x64-msvc": "npm:2.40.2"
+    detect-libc: "npm:2.1.2"
+  dependenciesMeta:
+    "@fallow-cli/darwin-arm64":
+      optional: true
+    "@fallow-cli/darwin-x64":
+      optional: true
+    "@fallow-cli/linux-arm64-gnu":
+      optional: true
+    "@fallow-cli/linux-arm64-musl":
+      optional: true
+    "@fallow-cli/linux-x64-gnu":
+      optional: true
+    "@fallow-cli/linux-x64-musl":
+      optional: true
+    "@fallow-cli/win32-x64-msvc":
+      optional: true
+  bin:
+    fallow: bin/fallow
+    fallow-lsp: bin/fallow-lsp
+    fallow-mcp: bin/fallow-mcp
+  checksum: 10c0/a141fb8f2d2b87a5aec196c49a28504048e4910af88304df5d18b9f7e2e2f320a5a47abb377964990fd7e47404fe56ebf40397f88babdde929a5e288bc5fd331
   languageName: node
   linkType: hard
 
