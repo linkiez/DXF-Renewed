@@ -73,6 +73,7 @@ export interface PrepareOptions {
   cutWidthAllowance: number
   minArea?: number
   minFeatureSize?: number
+  signal?: AbortSignal
 }
 
 export interface PrepareResult {

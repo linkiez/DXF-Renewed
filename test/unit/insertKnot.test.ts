@@ -1,7 +1,7 @@
 import expect from 'expect'
 import insertKnot from '../../src/util/insertKnot'
 describe('Insert knot', () => {
-  it('throws error if knot is invalid', () => {
+  it('throws error if knot is invalid', async () => {
     const controlPoints = [
       { x: 0, y: 0 },
       { x: 10, y: 0 },

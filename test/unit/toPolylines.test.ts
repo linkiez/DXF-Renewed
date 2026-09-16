@@ -12,7 +12,7 @@ const dxfPolyfaceMesh = fs.readFileSync(
   'utf-8',
 )
 describe('DXF to coloured polylines', () => {
-  it('for square and circle', () => {
+  it('for square and circle', async () => {
     const parsed = parseString(dxfSquareAndCircle)
     const { bbox, polylines } = toPolylines(parsed)
     expect(bbox.equals(new Box2({ x: 0, y: 0 }, { x: 10, y: 10 }))).toEqual(
@@ -125,7 +125,7 @@ describe('DXF to coloured polylines', () => {
       },
     ])
   })
-  it('for polyface mesh', () => {
+  it('for polyface mesh', async () => {
     const parsed = parseString(dxfPolyfaceMesh)
     const { bbox, polylines } = toPolylines(parsed)
     expect(bbox).toEqual(

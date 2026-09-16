@@ -867,6 +867,7 @@ __metadata:
     mocha: "npm:^12.0.0"
     prettier: "npm:^3.8.1"
     rimraf: "npm:^6.1.2"
+    rxjs: "npm:^7.8.2"
     semantic-release: "npm:^25.0.3"
     tsx: "npm:^4.21.0"
     typescript: "npm:^6.0.3"
@@ -7401,7 +7402,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.5.5":
+"rxjs@npm:^7.5.5, rxjs@npm:^7.8.2":
   version: 7.8.2
   resolution: "rxjs@npm:7.8.2"
   dependencies:

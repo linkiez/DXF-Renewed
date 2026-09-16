@@ -21,5 +21,14 @@ Módulo `types.ts` da feature 002-true-shape-nesting.
 ## Exemplos
 Cobertura em `test/unit/nesting/trueShape*.test.ts` e `test/integration/nesting/trueShapePipeline.test.ts`.
 
+## Feature 003 — Optimization & Acceleration
+- `OptimizationObjective` (FR-001): quatro pesos finitos `>= 0`; omitido preserva o comportamento da feature 002.
+- `ExecutionBackend` e `ExecutionBackendReport` (FR-007): backend real, `requested`, `accelerated`, `fallbackReason?` e `timings`.
+- `NestRequest.objective?` / `NestRequest.acceleration?` e `NestResponse.backend?` / `NestResponse.objective?` são aditivos — nenhuma assinatura existente quebra.
+
 ## Dependências
 - `src/nesting/types.ts`, `src/nesting/polygonUtils.ts`, `src/nesting/collision.ts`, `src/nesting/config.ts`.
+
+Shape extraction results include a `shapeEntities` map so consumers can
+associate placements with their source DXF entities without relying on array
+positions.

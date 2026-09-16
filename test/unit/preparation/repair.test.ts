@@ -11,7 +11,7 @@ import type { SourceRef } from '../../../src/nesting/pro/types'
 const source: SourceRef = { handle: 'H1', layer: '0', entityType: 'LWPOLYLINE' }
 
 describe('repair', () => {
-  it('closes a gap within tolerance', () => {
+  it('closes a gap within tolerance', async () => {
     const open: [number, number][] = [[0, 0], [10, 0], [10, 10], [0, 10], [0.05, 0.05]]
     const result = closeGap(open, 0.1, source)
     assert.equal(result.repairs.length, 1)
@@ -19,14 +19,14 @@ describe('repair', () => {
     assert.equal(gapDistance(result.vertices), 0)
   })
 
-  it('leaves a gap larger than tolerance untouched', () => {
+  it('leaves a gap larger than tolerance untouched', async () => {
     const open: [number, number][] = [[0, 0], [10, 0], [10, 10], [0, 10], [0, 5]]
     const result = closeGap(open, 0.1, source)
     assert.equal(result.repairs.length, 0)
     assert.ok(result.gap > 0.1)
   })
 
-  it('normalizes winding without moving vertices', () => {
+  it('normalizes winding without moving vertices', async () => {
     const cw: [number, number][] = [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]
     assert.ok(signedArea(cw) < 0)
     const result = normalizeOrientation(cw, source)
@@ -35,7 +35,7 @@ describe('repair', () => {
     assert.equal(result.vertices.length, cw.length)
   })
 
-  it('detects real self-intersections only', () => {
+  it('detects real self-intersections only', async () => {
     const bowtie: [number, number][] = [[0, 0], [10, 10], [10, 0], [0, 10], [0, 0]]
     assert.equal(hasSelfIntersection(bowtie), true)
     assert.equal(hasSelfIntersection([[0, 0], [10, 0], [10, 5], [0, 0]]), false)

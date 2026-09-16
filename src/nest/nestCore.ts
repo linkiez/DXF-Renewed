@@ -5,19 +5,32 @@
 // Pré-computa NFPs e roda o placement direto, contornando WebWorkers.
 // Suporta multi-bin: peças que não cabem vão para bins adicionais.
 
-import { randomInt } from 'node:crypto'
 import type { NestPart, NestPlacement, NestOptions } from './types'
 import { loadSvgNest } from './svgnest-loader'
+import { throwIfAborted } from '../nesting/async/observableFlow'
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 
-function shuffleArray<T>(array: T[]): T[] {
+function shuffleArray<T>(array: T[], random: () => number): T[] {
   const result = array.slice(0)
   for (let i = result.length - 1; i > 0; i--) {
-    const j = randomInt(0, i + 1)
+    const j = randomIndex(i + 1, random)
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return result
+}
+
+function createSeededRandom(seed: number): () => number {
+  let state = seed >>> 0 || 0x6d2b79f5
+  return () => {
+    state = Math.imul(state ^ (state >>> 15), state | 1)
+    state ^= state + Math.imul(state ^ (state >>> 7), state | 61)
+    return ((state ^ (state >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function randomIndex(length: number, random: () => number): number {
+  return Math.floor(random() * length)
 }
 
 function toSvgPoints(vertices: [number, number][]): { x: number; y: number }[] {
@@ -105,11 +118,13 @@ async function nestSingleBin(
   parts: NestPart[],
   options: NestOptions,
 ): Promise<BinNestResult> {
+  if (options.signal) throwIfAborted(options.signal)
   if (parts.length === 0) {
     return { placements: [], unplaced: [], fitness: 0, timeMs: 0 }
   }
 
   const startMs = performance.now()
+  const random = createSeededRandom(options.seed ?? 20260101)
 
   const {
     binSize,
@@ -125,6 +140,7 @@ async function nestSingleBin(
   } = options
 
   await loadSvgNest()
+  if (options.signal) throwIfAborted(options.signal)
   const GeometryUtil = (globalThis as any).GeometryUtil
   const PlacementWorker = (globalThis as any).PlacementWorker
 
@@ -148,6 +164,7 @@ async function nestSingleBin(
     rotations: maxRotations ?? 4,
     curveTolerance: curveTolerance ?? 0.1,
     spacing: spacing ?? 0.2,
+    random,
   }
 
   // Rotation angles to test
@@ -181,6 +198,7 @@ async function nestSingleBin(
   let bestFitness = Infinity
 
   for (let iter = 0; iter < maxIterations; iter++) {
+    if (options.signal) throwIfAborted(options.signal)
     const result = runPlacementIteration(iter, {
       svgParts,
       parts,
@@ -190,6 +208,7 @@ async function nestSingleBin(
       config,
       exploreConcave: exploreConcave ?? false,
       partInPart: partInPart ?? false,
+      random,
       PlacementWorker,
     })
 
@@ -208,6 +227,7 @@ async function nestSingleBin(
   const placedIds = new Set<number>()
 
   for (const binPlacements of bestResult?.placements ?? []) {
+    if (options.signal) throwIfAborted(options.signal)
     for (const placement of binPlacements) {
         const sourceIdx = placement.id
         const originalPart = parts[sourceIdx]
@@ -269,6 +289,7 @@ export async function nestParts(
   parts: NestPart[],
   options: NestOptions,
 ): Promise<NestPlacement[]> {
+  if (options.signal) throwIfAborted(options.signal)
   if (parts.length === 0) return []
 
   const allPlacements: NestPlacement[] = []
@@ -277,6 +298,7 @@ export async function nestParts(
   const maxBins = options.maxBins ?? 10
 
   while (remaining.length > 0 && binCount < maxBins) {
+    if (options.signal) throwIfAborted(options.signal)
     binCount++
 
     if (binCount > 1) {
@@ -431,6 +453,7 @@ function createIterationParts(
   iter: number,
   svgParts: any[],
   parts: NestPart[],
+  random: () => number,
 ): any[] {
   const mapPart = (p: any) => {
     const pts = toSvgPoints(parts[p.source].vertices)
@@ -440,7 +463,9 @@ function createIterationParts(
     return pts as any
   }
 
-  return iter === 0 ? svgParts.map(mapPart) : shuffleArray(svgParts.map(mapPart))
+  return iter === 0
+    ? svgParts.map(mapPart)
+    : shuffleArray(svgParts.map(mapPart), random)
 }
 
 /**
@@ -457,16 +482,28 @@ function runPlacementIteration(
     config: any
     exploreConcave: boolean
     partInPart: boolean
+    random: () => number
     PlacementWorker: any
   },
 ): { fitness: number; placements: any[] } | null {
-  const { svgParts, parts, rotationAngles, binPolygon, nfpCache, config, exploreConcave, partInPart, PlacementWorker } = ctx
+  const {
+    svgParts,
+    parts,
+    rotationAngles,
+    binPolygon,
+    nfpCache,
+    config,
+    exploreConcave,
+    partInPart,
+    random,
+    PlacementWorker,
+  } = ctx
 
-  const iterParts = createIterationParts(iter, svgParts, parts)
+  const iterParts = createIterationParts(iter, svgParts, parts, random)
 
   // Assign random rotations
   const iterRotations = iterParts.map(() => {
-    return rotationAngles[randomInt(0, rotationAngles.length)]
+    return rotationAngles[randomIndex(rotationAngles.length, random)]
   })
 
   iterParts.forEach((part, idx) => {

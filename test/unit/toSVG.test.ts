@@ -133,7 +133,7 @@ expect.extend({
   },
 })
 describe('toSVG', () => {
-  it('elliptical arcs', () => {
+  it('elliptical arcs', async () => {
     const svg1 = toSVG(dxfs['elliptical-arc1.dxf'])
     expect(svg1).toMatchViewbox(0, -5, 10, 5)
     expect(svg1).toMatchArc(10, 0, 10, 5, 0, 0, 1, 0, 5)
@@ -376,7 +376,7 @@ describe('toSVG', () => {
       -31.25,
     )
   })
-  it('splines with weights should use polyline, not bezier', () => {
+  it('splines with weights should use polyline, not bezier', async () => {
     const squircle2 = toSVG(dxfs['squircle2.dxf'])
     expect(squircle2).toBePolyline()
   })

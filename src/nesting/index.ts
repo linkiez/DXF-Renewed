@@ -33,6 +33,11 @@ export type {
   NestResponse,
   UnplacedPart,
 
+  // Optimization & acceleration types (feature 003)
+  OptimizationObjective,
+  ExecutionBackend,
+  ExecutionBackendReport,
+
   // Nesting result types
   NestingResult,
 
@@ -69,6 +74,8 @@ export {
   DEFAULT_EDGE_CLEARANCE,
   DEFAULT_PART_TO_PART_CLEARANCE,
   DEFAULT_SEARCH_BUDGET_FACTOR,
+  DEFAULT_OBJECTIVE_WEIGHTS,
+  DEFAULT_ACCELERATION,
   EPSILON,
   DEFAULT_STOCK_SHEET,
   DEFAULT_NESTING_OPTIONS,
@@ -195,6 +202,31 @@ export type {
 
 export { nestTrueShape } from './trueShape/index'
 export {
+  OBJECTIVE_KEYS,
+  normalizeObjective,
+  scoreLayout,
+  ACCELERATION_GAIN_FACTOR,
+  selectBackend,
+  selectBackendAsync,
+  createBackendReport,
+  meetsAccelerationGate,
+  probeGpu,
+  requestGpuDevice,
+  FIXED_POINT_SCALE,
+  fixedPointScore,
+  proposeOrder,
+} from './optimization/index'
+export type {
+  ObjectiveKey,
+  ObjectiveResult,
+  NormalizedObjective,
+  InvalidObjective,
+  LayoutMetrics,
+  BackendSelection,
+  CandidateProposal,
+  GpuDeviceResult,
+} from './optimization/index'
+export {
   isWithinBounds,
   polygonDistance,
   isSeparated,
@@ -205,5 +237,7 @@ export {
   resolveAllowedRotations,
   materialUse,
   searchBestArrangement,
+  searchBestArrangementAsync,
   SearchBudget,
 } from './trueShape/index'
+export type { AsyncScorer } from './trueShape/index'

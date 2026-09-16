@@ -25,31 +25,31 @@ describe('nest/output', () => {
   }
 
   describe('generateNestSVG', () => {
-    it('produces valid SVG', () => {
+    it('produces valid SVG', async () => {
       const svg = generateNestSVG([samplePlacement], [], { width: 100, height: 100 })
       expect(svg).toContain('<svg')
       expect(svg).toContain('</svg>')
       expect(svg).toContain('DXF Nest Result')
     })
 
-    it('includes bin outline', () => {
+    it('includes bin outline', async () => {
       const svg = generateNestSVG([samplePlacement], [], { width: 100, height: 100 })
       expect(svg).toContain('stroke="#4fc3f7"')
     })
 
-    it('includes placed parts', () => {
+    it('includes placed parts', async () => {
       const svg = generateNestSVG([samplePlacement], [], { width: 100, height: 100 })
       expect(svg).toContain('test-1')
     })
 
-    it('shows unplaced warning', () => {
+    it('shows unplaced warning', async () => {
       const svg = generateNestSVG([], [{ id: 'missed' } as any], { width: 100, height: 100 })
       expect(svg).toContain('could not be placed')
     })
   })
 
   describe('generateNestDXF', () => {
-    it('produces valid DXF structure', () => {
+    it('produces valid DXF structure', async () => {
       const dxf = generateNestDXF([samplePlacement], { width: 100, height: 100 })
       expect(dxf).toContain('SECTION')
       expect(dxf).toContain('HEADER')
@@ -57,19 +57,19 @@ describe('nest/output', () => {
       expect(dxf).toContain('EOF')
     })
 
-    it('includes bin as LWPOLYLINE', () => {
+    it('includes bin as LWPOLYLINE', async () => {
       const dxf = generateNestDXF([samplePlacement], { width: 100, height: 100 })
       expect(dxf).toContain('LWPOLYLINE')
     })
 
-    it('includes placed parts', () => {
+    it('includes placed parts', async () => {
       const dxf = generateNestDXF([samplePlacement], { width: 100, height: 100 })
       // Should have at least 2 LWPOLYLINEs (bin + part)
       const count = (dxf.match(/LWPOLYLINE/g) || []).length
       expect(count).toBeGreaterThanOrEqual(2)
     })
 
-    it('sets correct layer for parts', () => {
+    it('sets correct layer for parts', async () => {
       const dxf = generateNestDXF([samplePlacement], { width: 100, height: 100 })
       expect(dxf).toContain('PARTS')
     })

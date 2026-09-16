@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('TABLE (entity)', () => {
-  it('parses TABLE entity and renders extracted cell text', () => {
+  it('parses TABLE entity and renders extracted cell text', async () => {
     const dxfContent = `0
 SECTION
 2

@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs'
 import assert from 'node:assert'
 import { prepareParts } from '../../../src/nesting/pro/partPrep/index'
 import { applyCutWidth } from '../../../src/nesting/pro/partPrep/offset'
@@ -15,7 +16,7 @@ function area(vertices: [number, number][]): number {
 }
 
 describe('convergence fixes', () => {
-  it('does not invert a hole when the allowance exceeds its radius (T027)', () => {
+  it('does not invert a hole when the allowance exceeds its radius (T027)', async () => {
     const base = ring(0, 0, 1, 180)
     const result = applyCutWidth(base, 10, 'hole')
     assert.equal(hasSelfIntersection(result), false)
@@ -23,27 +24,27 @@ describe('convergence fixes', () => {
     assert.ok(area(result) <= area(base) * 1.001, `area ${area(result)} vs ${area(base)}`)
   })
 
-  it('keeps the sample point inside CW rings (T030)', () => {
+  it('keeps the sample point inside CW rings (T030)', async () => {
     const cw = rect(0, 0, 10, 10).slice().reverse() as [number, number][]
     assert.equal(pointInRing(samplePoint(cw), cw), true)
   })
 
-  it('gives every part a unique id even for repeated block references (T028)', () => {
-    const result = prepareParts(fixture('arrayed-holes.dxf'), {
+  it('gives every part a unique id even for repeated block references (T028)', async () => {
+    const result = await firstValueFrom(prepareParts(fixture('arrayed-holes.dxf'), {
       tolerance: 0.01,
       cutWidthAllowance: 0,
-    })
+    }))
     const ids = result.parts.map((part) => part.id)
     assert.equal(new Set(ids).size, ids.length)
   })
 
-  it('rejects an inherently open primitive as OPEN_BOUNDARY (T029)', () => {
+  it('rejects an inherently open primitive as OPEN_BOUNDARY (T029)', async () => {
     const dxf = {
       entities: [
         { type: 'ARC', handle: 'A9', layer: '0', x: 0, y: 0, r: 10, startAngle: 0, endAngle: 1 },
       ],
     }
-    const result = prepareParts(dxf, { tolerance: 0.1, cutWidthAllowance: 0 })
+    const result = await firstValueFrom(prepareParts(dxf, { tolerance: 0.1, cutWidthAllowance: 0 }))
     assert.equal(result.parts.length, 0)
     assert.ok(result.issues.some((issue) => issue.code === 'OPEN_BOUNDARY'))
   })

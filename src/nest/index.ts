@@ -11,6 +11,14 @@ import type {
   NestResult,
 } from './types'
 import { DEFAULT_NEST_OPTIONS, NEST_PRESETS } from './types'
+import { Observable } from 'rxjs'
+import { observeFlow, throwIfAborted } from '../nesting/async/observableFlow'
+
+const LEGACY_BASELINE_SEEDS = {
+  nestDXF: 241,
+  preset: 11,
+  quick: 0,
+} as const
 
 // Re-export types
 export type { NestPart, NestPlacement, NestOptions, NestResult, NestMetrics } from './types'
@@ -25,12 +33,29 @@ export { DEFAULT_NEST_OPTIONS, NEST_PRESETS, COMMON_BIN_SIZES } from './types'
  * @param extractOptions - Options for part extraction
  * @returns Nesting result with placements, metrics, and output generators
  */
-export async function nestDXF(
+export function nestDXF(
   dxfText: string,
   options: Partial<NestOptions> & { autoDetectBin?: boolean },
   extractOptions?: Partial<ExtractPartsOptions>,
-): Promise<NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }> {
+): Observable<
+  NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
+> {
+  return observeFlow(
+    (signal) => runNestDXF(dxfText, options, extractOptions, signal),
+    options.signal,
+  )
+}
+
+async function runNestDXF(
+  dxfText: string,
+  options: Partial<NestOptions> & { autoDetectBin?: boolean },
+  extractOptions: Partial<ExtractPartsOptions> | undefined,
+  signal: AbortSignal,
+): Promise<
+  NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
+> {
   const startMs = performance.now()
+  throwIfAborted(signal)
 
   // 1. Parse DXF
   const parsed = parseString(dxfText)
@@ -48,6 +73,11 @@ export async function nestDXF(
     ...DEFAULT_NEST_OPTIONS,
     ...options,
     binSize,
+    seed:
+      options.baselineSeedOverride ??
+      (options.baselineCompatibility === '7.7.6'
+        ? LEGACY_BASELINE_SEEDS.nestDXF
+        : options.seed),
   }
 
   // 4. Extract parts
@@ -79,8 +109,11 @@ export async function nestDXF(
     }
   }
 
+  throwIfAborted(signal)
+
   // 5. Run nesting (supports multi-bin)
   const placements = await nestParts(parts, fullOptions)
+  throwIfAborted(signal)
 
   // 6. Determine unplaced parts
   const placedIds = new Set(placements.map((p) => p.partId))
@@ -123,20 +156,44 @@ export async function nestDXF(
  * @param preset - Preset name ('laser', 'plasma', 'waterjet', 'cnc')
  * @param binSize - Bin/chapa size
  */
-export async function nestWithPreset(
+export function nestWithPreset(
   dxfText: string,
   preset: keyof typeof NEST_PRESETS,
   binSize: { width: number; height: number },
-): Promise<NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }> {
+  options: Partial<NestOptions> = {},
+): Observable<
+  NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
+> {
   const presetOpts = NEST_PRESETS[preset] ?? {}
-  return nestDXF(dxfText, { ...presetOpts, binSize })
+  return nestDXF(dxfText, {
+    ...presetOpts,
+    ...options,
+    binSize,
+    ...(options.baselineCompatibility === '7.7.6' &&
+    options.baselineSeedOverride === undefined
+      ? { baselineSeedOverride: LEGACY_BASELINE_SEEDS.preset }
+      : {}),
+  })
 }
 
 /**
  * Quick nest: auto-detect everything and nest with laser defaults.
  */
-export async function quickNest(
+export function quickNest(
   dxfText: string,
-): Promise<NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }> {
-  return nestWithPreset(dxfText, 'laser', { width: 2000, height: 4000 })
+  options: Partial<NestOptions> = {},
+): Observable<
+  NestResult & { svg: () => string; dxf: () => string; metricsSummary: () => string }
+> {
+  return nestWithPreset(
+    dxfText,
+    'laser',
+    { width: 2000, height: 4000 },
+    options.baselineCompatibility === '7.7.6'
+      ? {
+          ...options,
+          baselineSeedOverride: LEGACY_BASELINE_SEEDS.quick,
+        }
+      : options,
+  )
 }

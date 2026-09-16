@@ -7,6 +7,7 @@
 import type {
   NestingOptions,
   NestingAlgorithm,
+  OptimizationObjective,
   SortStrategy,
   StockSheet,
 } from './types'
@@ -53,6 +54,27 @@ export const DEFAULT_SEARCH_BUDGET_FACTOR = 1000
 
 /** Tolerance for floating point comparisons */
 export const EPSILON = 1e-6
+
+// ─────────────────────────────────────────────
+// Optimization & Acceleration (feature 003)
+// ─────────────────────────────────────────────
+
+/**
+ * Default objective weights (FR-001). Material use carries the full weight, so an omitted
+ * objective reproduces feature-002 behavior exactly; the other terms are opt-in trade-offs.
+ */
+export const DEFAULT_OBJECTIVE_WEIGHTS: OptimizationObjective = {
+  materialUse: 1,
+  travel: 0,
+  sheetCount: 0,
+  remnant: 0,
+}
+
+/**
+ * Acceleration defaults on (FR-004): detection runs and WebGPU is preferred when available.
+ * Callers opt out with `acceleration: false`.
+ */
+export const DEFAULT_ACCELERATION = true
 
 // ─────────────────────────────────────────────
 // Default Configuration

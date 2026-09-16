@@ -2,17 +2,17 @@ import assert from 'node:assert'
 import { resolveUnit } from '../../../src/nesting/pro/partPrep/units'
 
 describe('unit resolution', () => {
-  it('defaults to mm when unit is absent', () => {
+  it('defaults to mm when unit is absent', async () => {
     const result = resolveUnit(undefined)
     assert.equal(result.ok, true)
     if (result.ok) assert.equal(result.unit, 'mm')
   })
 
-  it('accepts declared mm', () => {
+  it('accepts declared mm', async () => {
     assert.deepStrictEqual(resolveUnit('mm'), { ok: true, unit: 'mm' })
   })
 
-  it('rejects other declared units', () => {
+  it('rejects other declared units', async () => {
     assert.equal(resolveUnit('in').ok, false)
   })
 })

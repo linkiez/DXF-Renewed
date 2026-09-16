@@ -39,29 +39,29 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('distance', () => {
-    it('should compute distance between two points', () => {
+    it('should compute distance between two points', async () => {
       expect(distance({ x: 0, y: 0 }, { x: 3, y: 4 })).toBeCloseTo(5)
     })
 
-    it('should return 0 for same point', () => {
+    it('should return 0 for same point', async () => {
       expect(distance({ x: 1, y: 1 }, { x: 1, y: 1 })).toBe(0)
     })
   })
 
   describe('distanceSquared', () => {
-    it('should compute squared distance', () => {
+    it('should compute squared distance', async () => {
       expect(distanceSquared({ x: 0, y: 0 }, { x: 3, y: 4 })).toBe(25)
     })
   })
 
   describe('degToRad / radToDeg', () => {
-    it('should convert degrees to radians', () => {
+    it('should convert degrees to radians', async () => {
       expect(degToRad(180)).toBeCloseTo(Math.PI)
       expect(degToRad(90)).toBeCloseTo(Math.PI / 2)
       expect(degToRad(360)).toBeCloseTo(2 * Math.PI)
     })
 
-    it('should convert radians to degrees', () => {
+    it('should convert radians to degrees', async () => {
       expect(radToDeg(Math.PI)).toBeCloseTo(180)
       expect(radToDeg(Math.PI / 2)).toBeCloseTo(90)
     })
@@ -72,32 +72,32 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('rotatePoint', () => {
-    it('should rotate 90° CCW around origin', () => {
+    it('should rotate 90° CCW around origin', async () => {
       const result = rotatePoint({ x: 1, y: 0 }, { x: 0, y: 0 }, 90)
       expect(result.x).toBeCloseTo(0)
       expect(result.y).toBeCloseTo(1)
     })
 
-    it('should rotate 180° around origin', () => {
+    it('should rotate 180° around origin', async () => {
       const result = rotatePoint({ x: 1, y: 0 }, { x: 0, y: 0 }, 180)
       expect(result.x).toBeCloseTo(-1)
       expect(result.y).toBeCloseTo(0)
     })
 
-    it('should rotate around custom center', () => {
+    it('should rotate around custom center', async () => {
       const result = rotatePoint({ x: 3, y: 1 }, { x: 1, y: 1 }, 90)
       expect(result.x).toBeCloseTo(1)
       expect(result.y).toBeCloseTo(3)
     })
 
-    it('should return same point for 0° rotation', () => {
+    it('should return same point for 0° rotation', async () => {
       const pt = { x: 5, y: 3 }
       const result = rotatePoint(pt, { x: 0, y: 0 }, 0)
       expect(result.x).toBeCloseTo(pt.x)
       expect(result.y).toBeCloseTo(pt.y)
     })
 
-    it('should return same point for 360° rotation', () => {
+    it('should return same point for 360° rotation', async () => {
       const pt = { x: 5, y: 3 }
       const result = rotatePoint(pt, { x: 0, y: 0 }, 360)
       expect(result.x).toBeCloseTo(pt.x)
@@ -106,7 +106,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('rotatePolygon', () => {
-    it('should rotate all vertices', () => {
+    it('should rotate all vertices', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -119,7 +119,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('translatePolygon', () => {
-    it('should translate all vertices', () => {
+    it('should translate all vertices', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -138,7 +138,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('signedArea', () => {
-    it('should compute positive area for CCW polygon', () => {
+    it('should compute positive area for CCW polygon', async () => {
       const ccwSquare: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -148,7 +148,7 @@ describe('nesting/polygonUtils', () => {
       expect(signedArea(ccwSquare)).toBeCloseTo(1)
     })
 
-    it('should compute negative area for CW polygon', () => {
+    it('should compute negative area for CW polygon', async () => {
       const cwSquare: Point2D[] = [
         { x: 0, y: 0 },
         { x: 0, y: 1 },
@@ -160,7 +160,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('computeArea', () => {
-    it('should compute area of a square', () => {
+    it('should compute area of a square', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -170,7 +170,7 @@ describe('nesting/polygonUtils', () => {
       expect(computeArea(square)).toBeCloseTo(100)
     })
 
-    it('should compute area of a triangle', () => {
+    it('should compute area of a triangle', async () => {
       const triangle: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -181,7 +181,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('isCounterClockwise', () => {
-    it('should detect CCW polygon', () => {
+    it('should detect CCW polygon', async () => {
       const ccw: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -191,7 +191,7 @@ describe('nesting/polygonUtils', () => {
       expect(isCounterClockwise(ccw)).toBe(true)
     })
 
-    it('should detect CW polygon', () => {
+    it('should detect CW polygon', async () => {
       const cw: Point2D[] = [
         { x: 0, y: 0 },
         { x: 0, y: 1 },
@@ -203,7 +203,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('normalizeWinding', () => {
-    it('should reverse CW polygon to CCW', () => {
+    it('should reverse CW polygon to CCW', async () => {
       const cw: Point2D[] = [
         { x: 0, y: 0 },
         { x: 0, y: 1 },
@@ -214,7 +214,7 @@ describe('nesting/polygonUtils', () => {
       expect(isCounterClockwise(normalized)).toBe(true)
     })
 
-    it('should leave CCW polygon unchanged', () => {
+    it('should leave CCW polygon unchanged', async () => {
       const ccw: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -231,7 +231,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('computePerimeter', () => {
-    it('should compute perimeter of a square', () => {
+    it('should compute perimeter of a square', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -242,7 +242,7 @@ describe('nesting/polygonUtils', () => {
       expect(computePerimeter(square)).toBeCloseTo(40)
     })
 
-    it('should compute perimeter of a triangle', () => {
+    it('should compute perimeter of a triangle', async () => {
       const triangle: Point2D[] = [
         { x: 0, y: 0 },
         { x: 3, y: 0 },
@@ -259,7 +259,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('computeCentroid', () => {
-    it('should compute centroid of a square', () => {
+    it('should compute centroid of a square', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -271,7 +271,7 @@ describe('nesting/polygonUtils', () => {
       expect(centroid.y).toBeCloseTo(5)
     })
 
-    it('should return origin for empty polygon', () => {
+    it('should return origin for empty polygon', async () => {
       const centroid = computeCentroid([])
       expect(centroid.x).toBe(0)
       expect(centroid.y).toBe(0)
@@ -283,7 +283,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('computeBoundingBox', () => {
-    it('should compute bounding box of a polygon', () => {
+    it('should compute bounding box of a polygon', async () => {
       const triangle: Point2D[] = [
         { x: 1, y: 2 },
         { x: 5, y: 1 },
@@ -298,7 +298,7 @@ describe('nesting/polygonUtils', () => {
       expect(bbox.height).toBeCloseTo(5)
     })
 
-    it('should return zeros for empty polygon', () => {
+    it('should return zeros for empty polygon', async () => {
       const bbox = computeBoundingBox([])
       expect(bbox.width).toBe(0)
       expect(bbox.height).toBe(0)
@@ -306,7 +306,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('computeRotatedBoundingBox', () => {
-    it('should compute rotated bounding box', () => {
+    it('should compute rotated bounding box', async () => {
       const rect: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -325,7 +325,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('computeConvexHull', () => {
-    it('should compute convex hull of points', () => {
+    it('should compute convex hull of points', async () => {
       const points: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -338,7 +338,7 @@ describe('nesting/polygonUtils', () => {
       expect(hull).toHaveLength(4)
     })
 
-    it('should return same points if already convex', () => {
+    it('should return same points if already convex', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -351,7 +351,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('isConvex', () => {
-    it('should detect convex polygon', () => {
+    it('should detect convex polygon', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -361,7 +361,7 @@ describe('nesting/polygonUtils', () => {
       expect(isConvex(square)).toBe(true)
     })
 
-    it('should detect concave polygon', () => {
+    it('should detect concave polygon', async () => {
       const lShape: Point2D[] = [
         { x: 0, y: 0 },
         { x: 2, y: 0 },
@@ -379,7 +379,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('pointInPolygon', () => {
-    it('should detect point inside polygon', () => {
+    it('should detect point inside polygon', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -389,7 +389,7 @@ describe('nesting/polygonUtils', () => {
       expect(pointInPolygon({ x: 5, y: 5 }, square)).toBe(true)
     })
 
-    it('should detect point outside polygon', () => {
+    it('should detect point outside polygon', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -399,7 +399,7 @@ describe('nesting/polygonUtils', () => {
       expect(pointInPolygon({ x: 15, y: 15 }, square)).toBe(false)
     })
 
-    it('should detect point on edge as inside', () => {
+    it('should detect point on edge as inside', async () => {
       const square: Point2D[] = [
         { x: 0, y: 0 },
         { x: 10, y: 0 },
@@ -416,7 +416,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('ensureClosed / isClosed', () => {
-    it('should detect closed polygon', () => {
+    it('should detect closed polygon', async () => {
       const closed: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -427,7 +427,7 @@ describe('nesting/polygonUtils', () => {
       expect(isClosed(closed)).toBe(true)
     })
 
-    it('should detect open polygon', () => {
+    it('should detect open polygon', async () => {
       const open: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -437,7 +437,7 @@ describe('nesting/polygonUtils', () => {
       expect(isClosed(open)).toBe(false)
     })
 
-    it('should close open polygon', () => {
+    it('should close open polygon', async () => {
       const open: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -449,7 +449,7 @@ describe('nesting/polygonUtils', () => {
       expect(closed).toHaveLength(5)
     })
 
-    it('should leave closed polygon unchanged', () => {
+    it('should leave closed polygon unchanged', async () => {
       const closed: Point2D[] = [
         { x: 0, y: 0 },
         { x: 1, y: 0 },
@@ -467,7 +467,7 @@ describe('nesting/polygonUtils', () => {
   // ─────────────────────────────────────────────
 
   describe('circleToPolygon', () => {
-    it('should approximate a circle', () => {
+    it('should approximate a circle', async () => {
       const polygon = circleToPolygon(0, 0, 10, 36)
       expect(polygon).toHaveLength(37) // 36 segments + closing vertex
       expect(isClosed(polygon)).toBe(true)
@@ -480,7 +480,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('ellipseToPolygon', () => {
-    it('should approximate an ellipse', () => {
+    it('should approximate an ellipse', async () => {
       const polygon = ellipseToPolygon(0, 0, 10, 5, 0, 36)
       expect(polygon).toHaveLength(37)
       expect(isClosed(polygon)).toBe(true)
@@ -491,7 +491,7 @@ describe('nesting/polygonUtils', () => {
       expect(area).toBeCloseTo(expectedArea, -1) // ~0.5% error with 36 segments
     })
 
-    it('should handle rotated ellipse', () => {
+    it('should handle rotated ellipse', async () => {
       const polygon = ellipseToPolygon(0, 0, 10, 5, 45, 36)
       expect(polygon).toHaveLength(37)
       expect(isClosed(polygon)).toBe(true)
@@ -499,7 +499,7 @@ describe('nesting/polygonUtils', () => {
   })
 
   describe('arcToPolygon', () => {
-    it('should approximate a 90° arc', () => {
+    it('should approximate a 90° arc', async () => {
       const polygon = arcToPolygon(0, 0, 10, 0, 90, 18)
       expect(polygon).toHaveLength(19) // 18 segments + 1
       // Arc should NOT be closed (it's an arc, not a full circle)

@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { getResourcePath } from './test-helpers.ts'
 import { parseString, toPolylines, toSVG } from '../../src'
 describe('LEADER', () => {
-  it('parses LEADER entity and renders basic SVG path', () => {
+  it('parses LEADER entity and renders basic SVG path', async () => {
     const contents = fs.readFileSync(
       getResourcePath(import.meta.url, 'leader-basic.dxf'),
       'utf-8',

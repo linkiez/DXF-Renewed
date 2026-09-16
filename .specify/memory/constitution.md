@@ -4,7 +4,9 @@
 
 ### I. Library-First, Additive Public API
 Every feature ships as a self-contained module under `src/`, re-exported from the `src/index.ts`
-barrel. New capability is additive: existing exported signatures may not break. A feature that
+barrel. New capability is additive: existing exported signatures may not break. An exception is
+permitted only for a deliberate, documented breaking change that carries a recorded ADR and a
+major version bump (see `.specify/adr/`). A feature that
 cannot be used without a new external service or repository is out of scope. Each module states
 its purpose in its header comment — no organizational-only modules.
 
@@ -31,7 +33,8 @@ tuning issue.
 ### V. Strict TypeScript, Zero New Runtime Dependencies
 Code compiles under the existing `tsconfig.json` (`strict`, `noImplicitReturns`,
 `noFallthroughCasesInSwitch`, `moduleResolution: bundler`) and passes `npm run type-check`
-(`tsc --noEmit`). No new entry may be added to `dependencies` in `package.json`. No persistence,
+(`tsc --noEmit`). No new entry may be added to `dependencies` in `package.json`, except a runtime
+dependency approved by a recorded ADR and a major version bump (see `.specify/adr/`). No persistence,
 no network I/O, and no mutation of caller-supplied input objects.
 
 ## Additional Constraints
@@ -118,4 +121,11 @@ Intentional simplifications are marked with a `ponytail:` comment naming the cei
 upgrade path. Feature work is tracked in `specs/<###-feature>/`; a `tasks.md` checkbox is flipped
 only when the corresponding gate passes.
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-12 | **Last Amended**: 2026-09-12
+### Amendment History
+
+- **2.0.0 (2026-09-15)**: Principles I and V relaxed for the Observable nesting surface
+  (`specs/009-async-nesting-flows`): in-scope flow names may break under a major version bump, and
+  RxJS may be added to `dependencies`. Rationale and scope:
+  `.specify/adr/ADR-0001-observable-nesting-surface.md`. Major bump because a principle is weakened.
+
+**Version**: 2.0.0 | **Ratified**: 2026-09-12 | **Last Amended**: 2026-09-15

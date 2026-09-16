@@ -8,7 +8,7 @@ import interpolate from '../../src/util/bSpline'
 const tValues = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 const degree = 2
 describe('B-Spline interpolation', () => {
-  it('uniform curve', () => {
+  it('uniform curve', async () => {
     const points = [
       [-1.0, 0.0],
       [-0.5, 0.5],
@@ -30,7 +30,7 @@ describe('B-Spline interpolation', () => {
     ]
     expect(tValues.map((t) => interpolate(t, degree, points))).toEqual(expected)
   })
-  it('non-uniform curve', () => {
+  it('non-uniform curve', async () => {
     const points = [
       [-1.0, 0.0],
       [-0.5, 0.5],
@@ -55,7 +55,7 @@ describe('B-Spline interpolation', () => {
       expected,
     )
   })
-  it('closed non-uniform curve', () => {
+  it('closed non-uniform curve', async () => {
     const points = [
       [-1.0, 0.0],
       [-0.5, 0.5],
@@ -84,7 +84,7 @@ describe('B-Spline interpolation', () => {
       expected,
     )
   })
-  it('non-uniform rational curve', () => {
+  it('non-uniform rational curve', async () => {
     const points = [
       [0.0, -0.5],
       [-0.5, -0.5],
@@ -117,7 +117,7 @@ describe('B-Spline interpolation', () => {
       tValues.map((t) => interpolate(t, degree, points, knots, weights)),
     ).toEqual(expected)
   })
-  it('non-uniform rational curve with boosted weights', () => {
+  it('non-uniform rational curve with boosted weights', async () => {
     const points = [
       [0.0, -0.5],
       [-0.5, -0.5],

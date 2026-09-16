@@ -42,11 +42,6 @@ import logger from '../util/logger'
 // Shape ID Counter
 // ─────────────────────────────────────────────
 
-let shapeIdCounter = 0
-function nextShapeId(): string {
-  return `shape-${++shapeIdCounter}`
-}
-
 // ─────────────────────────────────────────────
 // Entity → Vertices Conversion
 // ─────────────────────────────────────────────
@@ -275,6 +270,7 @@ function extractVertices(entity: Entity, segments: number): Point2D[] | null {
 
 /** Create a NestableShape from vertices */
 function createShape(
+  id: string,
   vertices: Point2D[],
   entity: Entity,
   options: Required<Pick<NestingOptions, 'allowedRotations' | 'kerf'>>,
@@ -288,7 +284,7 @@ function createShape(
   const bbox = computeBoundingBox(normalized)
 
   return {
-    id: nextShapeId(),
+    id,
     layer: entity.layer ?? '0',
     originalHandle: entity.handle,
     vertices: normalized,
@@ -376,8 +372,10 @@ export function extractShapes(
 ): ExtractionResult {
   const segments = options.curveSegments ?? DEFAULT_CURVE_SEGMENTS
   const shapes: NestableShape[] = []
+  const shapeEntities = new Map<string, Entity>()
   const compoundShapes: CompoundShape[] = []
   const skippedEntities: Array<{ type: string; reason: string }> = []
+  let shapeIdCounter = 0
 
   for (const entity of entities) {
     const vertices = extractVertices(entity, segments)
@@ -397,7 +395,7 @@ export function extractShapes(
       continue
     }
 
-    const shape = createShape(vertices, entity, {
+    const shape = createShape(`shape-${++shapeIdCounter}`, vertices, entity, {
       allowedRotations: options.allowedRotations ?? [0, 90, 180, 270],
       kerf: options.kerf ?? 2,
     })
@@ -409,19 +407,22 @@ export function extractShapes(
     }
 
     shapes.push(shape)
+    shapeEntities.set(shape.id, entity)
   }
 
   // Detect holes
   const { outerShapes } = detectHoles(shapes)
+  const outerShapeIds = new Set(outerShapes.map((shape) => shape.id))
 
   return {
     shapes: outerShapes,
+    shapeEntities: new Map(
+      [...shapeEntities].filter(([shapeId]) => outerShapeIds.has(shapeId)),
+    ),
     compoundShapes,
     skippedEntities,
   }
 }
 
 /** Reset shape ID counter (for testing) */
-export function resetShapeIdCounter(): void {
-  shapeIdCounter = 0
-}
+export function resetShapeIdCounter(): void {}

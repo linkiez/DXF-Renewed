@@ -10,7 +10,7 @@ import {
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 
 describe('palette', () => {
-  it('exports matching fill/stroke palettes made of valid hex colors', () => {
+  it('exports matching fill/stroke palettes made of valid hex colors', async () => {
     expect(CLOSED_POLYGON_FILL_PALETTE.length).toBeGreaterThan(1)
     expect(CLOSED_POLYGON_STROKE_PALETTE).toHaveLength(
       CLOSED_POLYGON_FILL_PALETTE.length,
@@ -24,7 +24,7 @@ describe('palette', () => {
     }
   })
 
-  it('rotates the default palette across multiple closed polygons', () => {
+  it('rotates the default palette across multiple closed polygons', async () => {
     const dxf = `0
 SECTION
 2

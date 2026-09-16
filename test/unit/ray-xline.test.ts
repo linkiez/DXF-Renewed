@@ -1,7 +1,7 @@
 import expect from 'expect'
 import { parseString, toPolylines, toSVG } from '../../src'
 describe('RAY / XLINE', () => {
-  it('parses RAY and XLINE and converts them to polylines', () => {
+  it('parses RAY and XLINE and converts them to polylines', async () => {
     const dxfContent = `0
 SECTION
 2

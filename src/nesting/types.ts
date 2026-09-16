@@ -6,6 +6,8 @@
  * to minimize material waste.
  */
 
+import type { Entity } from '../types'
+
 // ─────────────────────────────────────────────
 // Point & Geometry Primitives
 // ─────────────────────────────────────────────
@@ -200,6 +202,44 @@ export interface PartRequest {
   grainAngle?: number
 }
 
+// ─────────────────────────────────────────────
+// Optimization & Acceleration (feature 003)
+// ─────────────────────────────────────────────
+
+/** Caller-selected weights for the competing layout outcomes (FR-001). */
+export interface OptimizationObjective {
+  /** Weight for material use. Finite, >= 0. */
+  materialUse: number
+  /** Weight for machine travel. Finite, >= 0. */
+  travel: number
+  /** Weight for sheet count. Finite, >= 0. */
+  sheetCount: number
+  /** Weight for remnant preference. Finite, >= 0. */
+  remnant: number
+}
+
+/** Which calculation path produced a result (FR-007). */
+export type ExecutionBackend = 'cpu' | 'webgpu'
+
+/** Backend selection, timing and fallback information (FR-007). */
+export interface ExecutionBackendReport {
+  /** Path actually used. */
+  backend: ExecutionBackend
+  /** Effective value of the `acceleration` request field after defaulting. */
+  requested: boolean
+  /** `true` when `backend === 'webgpu'`. */
+  accelerated: boolean
+  /** Explicit reason when acceleration was requested but not used (FR-006). */
+  fallbackReason?: string
+  /** Measurement only; never a search budget. */
+  timings: {
+    /** Milliseconds spent scoring candidates. */
+    scoringMs: number
+    /** Total milliseconds for the job. */
+    totalMs: number
+  }
+}
+
 /** Request for a true-shape nesting job (true-shape nesting). */
 export interface NestRequest {
   stock: StockItem[]
@@ -208,10 +248,25 @@ export interface NestRequest {
   partToPartClearance: number
   seed: number
   /**
+   * Optional cooperative cancellation signal. Aborting it stops the flow at the
+   * next stage boundary; the subscription tears down silently (FR-007).
+   */
+  signal?: AbortSignal
+  /**
    * Minimum remnant bounding-box area. Remnants below it are excluded before search (FR-008).
    * Omitted means no threshold; no implicit default.
    */
   remnantThreshold?: number
+  /**
+   * Optional weighted objective. Omitted preserves feature-002 behavior (material use only).
+   * Invalid weights (negative, NaN/non-finite, all zero) are rejected with an explicit reason.
+   */
+  objective?: OptimizationObjective
+  /**
+   * Optional acceleration toggle. Default `true`: detect and prefer WebGPU when available.
+   * `false` runs entirely on the CPU baseline without attempting acceleration (FR-004).
+   */
+  acceleration?: boolean
   options?: Pick<NestingOptions, 'allowedRotations' | 'algorithm' | 'sortBy'>
 }
 
@@ -241,6 +296,10 @@ export interface NestResponse
   /** Clearances echoed back so the result is self-describing. */
   edgeClearance: number
   partToPartClearance: number
+  /** Backend selection, timing and fallback information (FR-007). */
+  backend?: ExecutionBackendReport
+  /** Normalized objective actually applied, echoed when the caller supplied one. */
+  objective?: OptimizationObjective
 }
 
 // ─────────────────────────────────────────────
@@ -324,6 +383,9 @@ export interface NestingOptions {
 
   /** Whether to include convex hull computation */
   computeConvexHull?: boolean
+
+  /** Optional cooperative cancellation signal (FR-007). */
+  signal?: AbortSignal
 }
 
 // ─────────────────────────────────────────────
@@ -363,6 +425,7 @@ export interface Shelf {
 /** Shape extraction result */
 export interface ExtractionResult {
   shapes: NestableShape[]
+  shapeEntities: Map<string, Entity>
   compoundShapes: CompoundShape[]
   skippedEntities: Array<{ type: string; reason: string }>
 }

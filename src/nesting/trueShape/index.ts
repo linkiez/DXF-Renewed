@@ -1,10 +1,11 @@
 /**
  * True-Shape Nesting — Public Entry Point
  *
- * `nestTrueShape(request)` is pure and synchronous: no I/O, no wall-clock dependence. It returns
- * a partial result with explicit reasons instead of throwing when parts cannot be placed
- * (FR-006), maximizes material use under a deterministic input-derived budget (FR-005, FR-007),
- * and honours FR-001/FR-002 clearances, FR-004 rotations and FR-008 remnant exclusion.
+ * `nestTrueShape(request)` is async and free of wall-clock dependence: it awaits optional device
+ * acquisition (feature 003) before running the deterministic search. It returns a partial result
+ * with explicit reasons instead of throwing when parts cannot be placed (FR-006), maximizes
+ * material use under a deterministic input-derived budget (FR-005, FR-007), and honours
+ * FR-001/FR-002 clearances, FR-004 rotations and FR-008 remnant exclusion.
  *
  * @module nesting/trueShape
  */
@@ -17,9 +18,17 @@ import type {
   StockItem,
   UnplacedPart,
 } from '../types'
-import { DEFAULT_SEARCH_BUDGET_FACTOR, EPSILON } from '../config'
+import {
+  DEFAULT_ACCELERATION,
+  DEFAULT_SEARCH_BUDGET_FACTOR,
+  EPSILON,
+} from '../config'
 import { effectiveRotations, resolveAllowedRotations } from './rotations'
 import { materialUse, searchBestArrangement } from './search'
+import { normalizeObjective } from '../optimization/objective'
+import { createBackendReport, selectBackendAsync } from '../optimization/backend'
+import { Observable } from 'rxjs'
+import { observeFlow, throwIfAborted } from '../async/observableFlow'
 
 const DEFAULT_STRATEGIES: SortStrategy[] = [
   'area-desc',
@@ -121,7 +130,18 @@ function invalidResponse(request: NestRequest, reason: string): NestResponse {
 /**
  * Runs true-shape nesting. Never throws for unplaceable parts — they are reported in `unplaced`.
  */
-export function nestTrueShape(request: NestRequest): NestResponse {
+export function nestTrueShape(request: NestRequest): Observable<NestResponse> {
+  return observeFlow(
+    (signal) => runNestTrueShape(request, signal),
+    request.signal,
+  )
+}
+
+async function runNestTrueShape(
+  request: NestRequest,
+  signal: AbortSignal,
+): Promise<NestResponse> {
+  throwIfAborted(signal)
   const edgeClearance = request.edgeClearance
   const partToPartClearance = request.partToPartClearance
 
@@ -129,6 +149,22 @@ export function nestTrueShape(request: NestRequest): NestResponse {
   if (errors.length > 0) {
     return invalidResponse(request, `invalid request: ${errors.join('; ')}`)
   }
+
+  // FR-001: reject invalid objectives with an explicit reason instead of coercing silently.
+  const objectiveResult = normalizeObjective(request.objective)
+  if (!objectiveResult.ok) {
+    return invalidResponse(request, `invalid objective: ${objectiveResult.reason}`)
+  }
+  const objective = objectiveResult.normalized
+
+  throwIfAborted(signal)
+
+  // FR-004/FR-006: pick the backend up front so the report always reflects the actual path.
+  const selection = await selectBackendAsync(
+    request.acceleration ?? DEFAULT_ACCELERATION,
+  )
+  throwIfAborted(signal)
+  const startedAtMs = Date.now()
 
   const allowed = resolveAllowedRotations(request.options?.allowedRotations)
   const strategies = request.options?.sortBy
@@ -144,6 +180,7 @@ export function nestTrueShape(request: NestRequest): NestResponse {
   const skipped = new Set<(typeof request.parts)[number]>()
 
   for (const part of request.parts) {
+    throwIfAborted(signal)
     const rotations = effectiveRotations(part, allowed)
     if (rotations === null) {
       skipped.add(part)
@@ -173,6 +210,9 @@ export function nestTrueShape(request: NestRequest): NestResponse {
     1,
   )
 
+  throwIfAborted(signal)
+
+  const scoringStartedAtMs = Date.now()
   const { arrangement, iterations } = searchBestArrangement(
     requests,
     stock,
@@ -180,7 +220,10 @@ export function nestTrueShape(request: NestRequest): NestResponse {
     partToPartClearance,
     budgetLimit,
     strategies,
+    objective,
   )
+  throwIfAborted(signal)
+  const scoringMs = Date.now() - scoringStartedAtMs
 
   const placements = arrangement.placements
 
@@ -211,6 +254,11 @@ export function nestTrueShape(request: NestRequest): NestResponse {
   const consumedArea = sheets.reduce((sum, s) => sum + s.width * s.height, 0)
   const placedArea = arrangement.placedArea
 
+  const backend = createBackendReport(selection, {
+    scoringMs,
+    totalMs: Date.now() - startedAtMs,
+  })
+
   return {
     placements,
     compoundPlacements: undefined,
@@ -223,6 +271,8 @@ export function nestTrueShape(request: NestRequest): NestResponse {
     seed: request.seed,
     edgeClearance,
     partToPartClearance,
+    backend,
+    ...(request.objective === undefined ? {} : { objective }),
   }
 }
 
@@ -231,4 +281,10 @@ export { effectiveRotations, resolveAllowedRotations } from './rotations'
 export { isWithinBounds, polygonDistance } from './bounds'
 export { isSeparated, isSeparatedFromAll } from './separation'
 export { candidateAnchors, candidatePositions } from './candidates'
-export { materialUse, searchBestArrangement, SearchBudget } from './search'
+export {
+  materialUse,
+  searchBestArrangement,
+  searchBestArrangementAsync,
+  SearchBudget,
+} from './search'
+export type { AsyncScorer } from './search'

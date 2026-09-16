@@ -7,7 +7,7 @@ const dxfContents = fs.readFileSync(
   'utf-8',
 )
 describe('CIRCLE ELLIPSE ARC', () => {
-  it('can be parsed', () => {
+  it('can be parsed', async () => {
     const entities = parseString(dxfContents).entities
     expect(entities.length).toEqual(5)
     expect(entities[0]).toEqual({

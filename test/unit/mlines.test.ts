@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('MLINE', () => {
-  it('parses MLINE entity and renders an axis segment', () => {
+  it('parses MLINE entity and renders an axis segment', async () => {
     const dxfContent = `0
 SECTION
 2

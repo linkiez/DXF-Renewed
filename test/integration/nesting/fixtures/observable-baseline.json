@@ -1,0 +1,664 @@
+{
+  "parsed-dxf-simple": {
+    "nest": {
+      "placements": [
+        {
+          "shapeId": "shape-1",
+          "x": 11,
+          "y": 11,
+          "rotation": 0,
+          "bbox": {
+            "minX": 10,
+            "minY": 10,
+            "maxX": 62,
+            "maxY": 62,
+            "width": 52,
+            "height": 52
+          }
+        },
+        {
+          "shapeId": "shape-2",
+          "x": 63,
+          "y": 11,
+          "rotation": 0,
+          "bbox": {
+            "minX": 62,
+            "minY": 10,
+            "maxX": 94,
+            "maxY": 42,
+            "width": 32,
+            "height": 32
+          }
+        }
+      ],
+      "sheets": [
+        {
+          "width": 200,
+          "height": 100
+        }
+      ],
+      "unplacedShapes": [],
+      "utilization": 17,
+      "wasteArea": 16600,
+      "totalArea": 20000,
+      "shapesTotalArea": 3400,
+      "sheetCount": 1
+    },
+    "nestFromDxf": {
+      "placements": [
+        {
+          "shapeId": "shape-1",
+          "x": 11,
+          "y": 11,
+          "rotation": 0,
+          "bbox": {
+            "minX": 10,
+            "minY": 10,
+            "maxX": 62,
+            "maxY": 62,
+            "width": 52,
+            "height": 52
+          }
+        },
+        {
+          "shapeId": "shape-2",
+          "x": 63,
+          "y": 11,
+          "rotation": 0,
+          "bbox": {
+            "minX": 62,
+            "minY": 10,
+            "maxX": 94,
+            "maxY": 42,
+            "width": 32,
+            "height": 32
+          }
+        }
+      ],
+      "sheets": [
+        {
+          "width": 200,
+          "height": 100
+        }
+      ],
+      "unplacedShapes": [],
+      "utilization": 17,
+      "wasteArea": 16600,
+      "totalArea": 20000,
+      "shapesTotalArea": 3400,
+      "sheetCount": 1
+    }
+  },
+  "raw-dxf-preset": {
+    "nestDXF": {
+      "placements": [
+        {
+          "partId": "part-0",
+          "layer": "PARTS",
+          "x": 0,
+          "y": 50,
+          "rotation": 270,
+          "vertices": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              50,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "placedVertices": [
+            [
+              3.552713678800501e-15,
+              90
+            ],
+            [
+              -7.105427357601002e-15,
+              40
+            ],
+            [
+              49.99999999999999,
+              39.99999999999999
+            ],
+            [
+              50,
+              90
+            ],
+            [
+              3.552713678800501e-15,
+              90
+            ]
+          ],
+          "color": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "partId": "part-1",
+          "layer": "PARTS",
+          "x": -60,
+          "y": 50,
+          "rotation": 0,
+          "vertices": [
+            [
+              60,
+              0
+            ],
+            [
+              90,
+              0
+            ],
+            [
+              90,
+              30
+            ],
+            [
+              60,
+              30
+            ],
+            [
+              60,
+              0
+            ]
+          ],
+          "placedVertices": [
+            [
+              0,
+              50
+            ],
+            [
+              30,
+              50
+            ],
+            [
+              30,
+              80
+            ],
+            [
+              0,
+              80
+            ],
+            [
+              0,
+              50
+            ]
+          ],
+          "color": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "unplaced": [],
+      "metrics": {
+        "totalParts": 2,
+        "placedParts": 2,
+        "unplacedParts": 0,
+        "totalPartArea": 3400,
+        "binArea": 20000,
+        "utilizationPercent": 17,
+        "wastePercent": 83,
+        "binsUsed": 1,
+        "avgPartArea": 1700,
+        "maxPartArea": 2500,
+        "minPartArea": 900,
+        "gaIterations": 3,
+        "bestFitness": 0
+      }
+    },
+    "nestWithPreset": {
+      "placements": [
+        {
+          "partId": "part-0",
+          "layer": "PARTS",
+          "x": 0,
+          "y": 0,
+          "rotation": 0,
+          "vertices": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              50,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "placedVertices": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              50,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "color": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "partId": "part-1",
+          "layer": "PARTS",
+          "x": 1.1021821192326178e-14,
+          "y": 140,
+          "rotation": 270,
+          "vertices": [
+            [
+              60,
+              0
+            ],
+            [
+              90,
+              0
+            ],
+            [
+              90,
+              30
+            ],
+            [
+              60,
+              30
+            ],
+            [
+              60,
+              0
+            ]
+          ],
+          "placedVertices": [
+            [
+              60.000000000000014,
+              164
+            ],
+            [
+              60.000000000000014,
+              134
+            ],
+            [
+              90.00000000000001,
+              134
+            ],
+            [
+              90.00000000000001,
+              164
+            ],
+            [
+              60.000000000000014,
+              164
+            ]
+          ],
+          "color": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "unplaced": [],
+      "metrics": {
+        "totalParts": 2,
+        "placedParts": 2,
+        "unplacedParts": 0,
+        "totalPartArea": 3400,
+        "binArea": 20000,
+        "utilizationPercent": 17,
+        "wastePercent": 83,
+        "binsUsed": 2,
+        "avgPartArea": 1700,
+        "maxPartArea": 2500,
+        "minPartArea": 900,
+        "gaIterations": 100,
+        "bestFitness": 0
+      }
+    },
+    "quickNest": {
+      "placements": [
+        {
+          "partId": "part-0",
+          "layer": "PARTS",
+          "x": 50,
+          "y": 3949.9999999999995,
+          "rotation": 90,
+          "vertices": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              50,
+              50
+            ],
+            [
+              0,
+              50
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "placedVertices": [
+            [
+              90,
+              3949.9999999999995
+            ],
+            [
+              90,
+              3999.9999999999995
+            ],
+            [
+              40,
+              3999.9999999999995
+            ],
+            [
+              40,
+              3949.9999999999995
+            ],
+            [
+              90,
+              3949.9999999999995
+            ]
+          ],
+          "color": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "partId": "part-1",
+          "layer": "PARTS",
+          "x": -60,
+          "y": 3920,
+          "rotation": 0,
+          "vertices": [
+            [
+              60,
+              0
+            ],
+            [
+              90,
+              0
+            ],
+            [
+              90,
+              30
+            ],
+            [
+              60,
+              30
+            ],
+            [
+              60,
+              0
+            ]
+          ],
+          "placedVertices": [
+            [
+              0,
+              3920
+            ],
+            [
+              30,
+              3920
+            ],
+            [
+              30,
+              3950
+            ],
+            [
+              0,
+              3950
+            ],
+            [
+              0,
+              3920
+            ]
+          ],
+          "color": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "unplaced": [],
+      "metrics": {
+        "totalParts": 2,
+        "placedParts": 2,
+        "unplacedParts": 0,
+        "totalPartArea": 3400,
+        "binArea": 8000000,
+        "utilizationPercent": 0.04,
+        "wastePercent": 99.96,
+        "binsUsed": 1,
+        "avgPartArea": 1700,
+        "maxPartArea": 2500,
+        "minPartArea": 900,
+        "gaIterations": 100,
+        "bestFitness": 0
+      }
+    }
+  },
+  "true-shape-mixed": {
+    "placements": [
+      {
+        "shapeId": "fixture-square",
+        "sheetId": "fixture-sheet",
+        "instanceIndex": 0,
+        "x": 1,
+        "y": 1,
+        "rotation": 0,
+        "bbox": {
+          "minX": 1,
+          "minY": 1,
+          "maxX": 11,
+          "maxY": 11,
+          "width": 10,
+          "height": 10
+        },
+        "transformedVertices": [
+          {
+            "x": 1,
+            "y": 1
+          },
+          {
+            "x": 11,
+            "y": 1
+          },
+          {
+            "x": 11,
+            "y": 11
+          },
+          {
+            "x": 1,
+            "y": 11
+          },
+          {
+            "x": 1,
+            "y": 1
+          }
+        ]
+      },
+      {
+        "shapeId": "fixture-square",
+        "sheetId": "fixture-sheet",
+        "instanceIndex": 1,
+        "x": 12,
+        "y": 1,
+        "rotation": 0,
+        "bbox": {
+          "minX": 12,
+          "minY": 1,
+          "maxX": 22,
+          "maxY": 11,
+          "width": 10,
+          "height": 10
+        },
+        "transformedVertices": [
+          {
+            "x": 12,
+            "y": 1
+          },
+          {
+            "x": 22,
+            "y": 1
+          },
+          {
+            "x": 22,
+            "y": 11
+          },
+          {
+            "x": 12,
+            "y": 11
+          },
+          {
+            "x": 12,
+            "y": 1
+          }
+        ]
+      }
+    ],
+    "sheets": [
+      {
+        "id": "fixture-sheet",
+        "kind": "sheet",
+        "width": 100,
+        "height": 100
+      }
+    ],
+    "utilization": 2,
+    "wasteArea": 9800,
+    "totalArea": 10000,
+    "unplaced": [],
+    "budget": {
+      "iterations": 27
+    },
+    "seed": 20260101,
+    "edgeClearance": 1,
+    "partToPartClearance": 1,
+    "backend": {
+      "backend": "cpu",
+      "requested": true,
+      "accelerated": false,
+      "fallbackReason": "WebGPU unavailable: navigator.gpu is not present"
+    }
+  },
+  "part-prep-boundary": {
+    "parts": [
+      {
+        "id": "accepted#0",
+        "outer": {
+          "classification": "outer",
+          "depth": 0,
+          "source": {
+            "handle": "accepted",
+            "layer": "0",
+            "entityType": "LWPOLYLINE"
+          },
+          "vertices": [
+            [
+              0,
+              0
+            ],
+            [
+              10,
+              0
+            ],
+            [
+              10,
+              10
+            ],
+            [
+              0,
+              10
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "area": 100,
+          "perimeter": 40,
+          "bbox": {
+            "minX": 0,
+            "minY": 0,
+            "maxX": 10,
+            "maxY": 10
+          }
+        },
+        "holes": [],
+        "islands": [],
+        "bbox": {
+          "minX": 0,
+          "minY": 0,
+          "maxX": 10,
+          "maxY": 10
+        },
+        "area": 100,
+        "repairs": [],
+        "warnings": []
+      }
+    ],
+    "issues": [
+      {
+        "code": "GAP_TOO_LARGE",
+        "severity": "rejection",
+        "source": {
+          "handle": "rejected",
+          "layer": "0",
+          "entityType": "LWPOLYLINE"
+        },
+        "detail": "gap 5 exceeds tolerance"
+      }
+    ],
+    "unit": "mm"
+  }
+}

@@ -19,12 +19,12 @@ import {
 
 describe('nesting/config', () => {
   describe('defaults', () => {
-    it('should have valid default stock sheet', () => {
+    it('should have valid default stock sheet', async () => {
       expect(DEFAULT_STOCK_SHEET.width).toBeGreaterThan(0)
       expect(DEFAULT_STOCK_SHEET.height).toBeGreaterThan(0)
     })
 
-    it('should have valid default options', () => {
+    it('should have valid default options', async () => {
       expect(DEFAULT_NESTING_OPTIONS.algorithm).toBe(DEFAULT_ALGORITHM)
       expect(DEFAULT_NESTING_OPTIONS.kerf).toBe(DEFAULT_KERF)
       expect(DEFAULT_NESTING_OPTIONS.margin).toBe(DEFAULT_MARGIN)
@@ -33,20 +33,20 @@ describe('nesting/config', () => {
   })
 
   describe('validateNestingOptions', () => {
-    it('should return defaults when given empty object', () => {
+    it('should return defaults when given empty object', async () => {
       const opts = validateNestingOptions({})
       expect(opts.algorithm).toBe(DEFAULT_ALGORITHM)
       expect(opts.kerf).toBe(DEFAULT_KERF)
     })
 
-    it('should merge partial options with defaults', () => {
+    it('should merge partial options with defaults', async () => {
       const opts = validateNestingOptions({ kerf: 5, margin: 20 })
       expect(opts.kerf).toBe(5)
       expect(opts.margin).toBe(20)
       expect(opts.algorithm).toBe(DEFAULT_ALGORITHM) // unchanged
     })
 
-    it('should normalize single stockSheet to array', () => {
+    it('should normalize single stockSheet to array', async () => {
       const opts = validateNestingOptions({
         stockSheet: { width: 1000, height: 500 },
       })
@@ -54,7 +54,7 @@ describe('nesting/config', () => {
       expect(opts.stockSheet).toHaveLength(1)
     })
 
-    it('should keep stockSheet array as-is', () => {
+    it('should keep stockSheet array as-is', async () => {
       const sheets = [
         { width: 3000, height: 2000 },
         { width: 1500, height: 1000 },
@@ -63,62 +63,62 @@ describe('nesting/config', () => {
       expect(opts.stockSheet).toHaveLength(2)
     })
 
-    it('should throw on negative sheet dimensions', () => {
+    it('should throw on negative sheet dimensions', async () => {
       expect(() =>
         validateNestingOptions({ stockSheet: { width: -100, height: 500 } })
       ).toThrow()
     })
 
-    it('should throw on negative kerf', () => {
+    it('should throw on negative kerf', async () => {
       expect(() => validateNestingOptions({ kerf: -1 })).toThrow()
     })
 
-    it('should throw on negative margin', () => {
+    it('should throw on negative margin', async () => {
       expect(() => validateNestingOptions({ margin: -5 })).toThrow()
     })
 
-    it('should throw on unknown algorithm', () => {
+    it('should throw on unknown algorithm', async () => {
       // @ts-expect-error testing invalid input
       expect(() => validateNestingOptions({ algorithm: 'unknown' })).toThrow()
     })
 
-    it('should throw on unknown sort strategy', () => {
+    it('should throw on unknown sort strategy', async () => {
       // @ts-expect-error testing invalid input
       expect(() => validateNestingOptions({ sortBy: 'random' })).toThrow()
     })
 
-    it('should reset empty rotations to defaults', () => {
+    it('should reset empty rotations to defaults', async () => {
       const opts = validateNestingOptions({ allowedRotations: [] })
       expect(opts.allowedRotations).toEqual(DEFAULT_ALLOWED_ROTATIONS)
     })
   })
 
   describe('parseSheetSize', () => {
-    it('should parse "WxH" format', () => {
+    it('should parse "WxH" format', async () => {
       const sheet = parseSheetSize('3000x2000')
       expect(sheet.width).toBe(3000)
       expect(sheet.height).toBe(2000)
     })
 
-    it('should parse with uppercase X', () => {
+    it('should parse with uppercase X', async () => {
       const sheet = parseSheetSize('1500X1000')
       expect(sheet.width).toBe(1500)
       expect(sheet.height).toBe(1000)
     })
 
-    it('should parse with spaces', () => {
+    it('should parse with spaces', async () => {
       const sheet = parseSheetSize('3000 x 2000')
       expect(sheet.width).toBe(3000)
       expect(sheet.height).toBe(2000)
     })
 
-    it('should parse decimal values', () => {
+    it('should parse decimal values', async () => {
       const sheet = parseSheetSize('1500.5x750.25')
       expect(sheet.width).toBe(1500.5)
       expect(sheet.height).toBe(750.25)
     })
 
-    it('should throw on invalid format', () => {
+    it('should throw on invalid format', async () => {
       expect(() => parseSheetSize('abc')).toThrow()
       expect(() => parseSheetSize('3000')).toThrow()
       expect(() => parseSheetSize('x3000x2000')).toThrow()
@@ -126,26 +126,26 @@ describe('nesting/config', () => {
   })
 
   describe('parseRotations', () => {
-    it('should parse comma-separated angles', () => {
+    it('should parse comma-separated angles', async () => {
       const rotations = parseRotations('0,90,180,270')
       expect(rotations).toEqual([0, 90, 180, 270])
     })
 
-    it('should handle spaces', () => {
+    it('should handle spaces', async () => {
       const rotations = parseRotations('0, 90, 180, 270')
       expect(rotations).toEqual([0, 90, 180, 270])
     })
 
-    it('should handle decimal angles', () => {
+    it('should handle decimal angles', async () => {
       const rotations = parseRotations('0, 45.5, 90')
       expect(rotations).toEqual([0, 45.5, 90])
     })
 
-    it('should throw on invalid angle', () => {
+    it('should throw on invalid angle', async () => {
       expect(() => parseRotations('0, abc, 90')).toThrow()
     })
 
-    it('should handle single angle', () => {
+    it('should handle single angle', async () => {
       const rotations = parseRotations('0')
       expect(rotations).toEqual([0])
     })

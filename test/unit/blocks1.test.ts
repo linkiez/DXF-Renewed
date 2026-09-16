@@ -7,7 +7,7 @@ const dxfContents = fs.readFileSync(
   'utf-8',
 )
 describe('BLOCK', () => {
-  it('can be parsed', () => {
+  it('can be parsed', async () => {
     const blocks = parseString(dxfContents).blocks
     expect(blocks.length).toEqual(3)
     expect(blocks[0]).toEqual({

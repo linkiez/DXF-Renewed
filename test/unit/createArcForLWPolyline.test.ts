@@ -1,7 +1,7 @@
 import expect from 'expect'
 import createArcForLWPolyine from '../../src/util/createArcForLWPolyline'
 describe('Arc for LWPOLYLINE', () => {
-  it('can be created for an angle < 180 degrees', () => {
+  it('can be created for an angle < 180 degrees', async () => {
     const from = [10, 0]
     const to = [0, 0]
     const bulge = Math.tan(Math.PI / 2 / 4)
@@ -13,7 +13,7 @@ describe('Arc for LWPOLYLINE', () => {
       [1.4644660940672636, 1.123724356957946],
     ])
   })
-  it('can be created for an angle > 180 degrees', () => {
+  it('can be created for an angle > 180 degrees', async () => {
     const from = [10, 0]
     const to = [0, 0]
     const bulge = Math.tan((Math.PI * 3) / 2 / 4)
@@ -25,7 +25,7 @@ describe('Arc for LWPOLYLINE', () => {
       [-2.0710678118654746, 5],
     ])
   })
-  it('can be created for negative bulge', () => {
+  it('can be created for negative bulge', async () => {
     const from = [10, 0]
     const to = [0, 0]
     const bulge = -Math.tan((Math.PI * 3) / 2 / 4)

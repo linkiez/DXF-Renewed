@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('MLEADER', () => {
-  it('parses MLEADER entity and renders its text', () => {
+  it('parses MLEADER entity and renders its text', async () => {
     const dxfContent = `0
 SECTION
 2

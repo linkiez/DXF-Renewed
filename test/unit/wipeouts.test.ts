@@ -3,7 +3,7 @@ import parseString from '../../src/parseString'
 import toPolylines from '../../src/toPolylines'
 import toSVG from '../../src/toSVG'
 describe('WIPEOUT', () => {
-  it('parses WIPEOUT entity and renders outline fallback', () => {
+  it('parses WIPEOUT entity and renders outline fallback', async () => {
     const dxfContent = `0
 SECTION
 2

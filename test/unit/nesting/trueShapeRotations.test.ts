@@ -16,17 +16,17 @@ function part(overrides: Partial<PartRequest> = {}): PartRequest {
 }
 
 describe('trueShape/rotations', () => {
-  it('returns the caller list unchanged for a free part', () => {
+  it('returns the caller list unchanged for a free part', async () => {
     expect(effectiveRotations(part(), [0, 45])).toEqual([0, 45])
   })
 
-  it('defaults to the documented rotation list', () => {
+  it('defaults to the documented rotation list', async () => {
     expect(resolveAllowedRotations(undefined)).toEqual([
       ...DEFAULT_ALLOWED_ROTATIONS,
     ])
   })
 
-  it('restricts a grain-locked part to grain-aligned angles modulo 180', () => {
+  it('restricts a grain-locked part to grain-aligned angles modulo 180', async () => {
     expect(effectiveRotations(part({ grainLocked: true, grainAngle: 0 }))).toEqual([
       0, 180,
     ])
@@ -35,7 +35,7 @@ describe('trueShape/rotations', () => {
     ])
   })
 
-  it('returns null for a grain-locked part with no declared grain angle', () => {
+  it('returns null for a grain-locked part with no declared grain angle', async () => {
     expect(effectiveRotations(part({ grainLocked: true }))).toBeNull()
   })
 })

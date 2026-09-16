@@ -4,6 +4,8 @@ import { closeGap, hasSelfIntersection, normalizeOrientation } from './repair'
 import { simplify } from './simplify'
 import { applyCutWidth } from './offset'
 import { bboxOf, classify, classificationFor, pointInRing, samplePoint } from './classify'
+import { Observable } from 'rxjs'
+import { observeFlow, throwIfAborted } from '../../async/observableFlow'
 import type {
   BBox,
   Boundary,
@@ -85,11 +87,26 @@ interface Candidate {
 /**
  * Prepare parsed DXF geometry into classified, cuttable parts (contract:
  * specs/001-part-preparation/contracts/preparation-api.ts).
+ *
+ * Async so every nesting pipeline shares one shape (feature 003); the work itself stays pure CPU
+ * with no I/O and no timing budget.
  */
 export function prepareParts(
   dxf: string | { entities: unknown[] },
   options: PrepareOptions,
-): PrepareResult {
+): Observable<PrepareResult> {
+  return observeFlow(
+    (signal) => runPrepareParts(dxf, options, signal),
+    options.signal,
+  )
+}
+
+async function runPrepareParts(
+  dxf: string | { entities: unknown[] },
+  options: PrepareOptions,
+  signal: AbortSignal,
+): Promise<PrepareResult> {
+  throwIfAborted(signal)
   const issues: PreparationIssue[] = []
 
   const unit = resolveUnit(options.unit)
@@ -107,6 +124,7 @@ export function prepareParts(
   const candidates: Candidate[] = []
 
   for (const contour of extractContours(dxf, issues)) {
+    throwIfAborted(signal)
     const repairs: Repair[] = []
     const warnings: Warning[] = []
     let ring = contour.vertices

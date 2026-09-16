@@ -1,7 +1,7 @@
 import expect from 'expect'
 import { parseString, toSVG } from '../../src'
 describe('toSVG (TRACE)', () => {
-  it('renders TRACE as a filled path', () => {
+  it('renders TRACE as a filled path', async () => {
     const dxf = `0
 SECTION
 2

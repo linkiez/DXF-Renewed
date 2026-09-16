@@ -50,12 +50,24 @@ export interface NestOptions {
   gaMutationRate: number
   /** Max GA generations before stopping */
   maxIterations: number
+  /** Seed used by all placement randomization */
+  seed?: number
+  /**
+   * Reproduce the frozen 7.7.6 raw-DXF baseline for compatibility validation.
+   * This remaps the historical unseeded random stream without changing the
+   * caller-visible seed contract.
+   */
+  baselineCompatibility?: '7.7.6'
+  /** @internal Seed override used by compatibility-aware convenience entry points. */
+  baselineSeedOverride?: number
   /** Explore concave areas for better packing */
   exploreConcave: boolean
   /** Progress callback: (iteration, bestFitness) => void */
   /** Max number of bins to use (default 10) */
   maxBins?: number
   onProgress?: (iteration: number, bestFitness: number) => void
+  /** Optional cooperative cancellation signal (FR-007). */
+  signal?: AbortSignal
 }
 
 /** Default nesting options */
@@ -67,6 +79,7 @@ export const DEFAULT_NEST_OPTIONS: Omit<NestOptions, 'binSize'> = {
   gaPopulation: 10,
   gaMutationRate: 10,
   maxIterations: 100,
+  seed: 20260101,
   exploreConcave: false,
 }
 

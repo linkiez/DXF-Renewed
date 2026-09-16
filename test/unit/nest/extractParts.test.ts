@@ -14,12 +14,12 @@ describe('nest/extractParts', () => {
   })
 
   describe('extractParts', () => {
-    it('extracts parts from simple DXF', () => {
+    it('extracts parts from simple DXF', async () => {
       const parts = extractParts(parsed)
       expect(parts.length).toBeGreaterThanOrEqual(3)
     })
 
-    it('each part has required fields', () => {
+    it('each part has required fields', async () => {
       const parts = extractParts(parsed)
       for (const part of parts) {
         expect(part.id).toBeDefined()
@@ -31,26 +31,26 @@ describe('nest/extractParts', () => {
       }
     })
 
-    it('skips text and dimension entities by default', () => {
+    it('skips text and dimension entities by default', async () => {
       const parts = extractParts(parsed)
       // Our fixture only has LWPOLYLINEs, so all should be extracted
       expect(parts.length).toBeGreaterThan(0)
     })
 
-    it('respects minArea option', () => {
+    it('respects minArea option', async () => {
       const parts = extractParts(parsed, { minArea: 10000 })
       // All our rectangles are 50x50=2500, so none should pass
       expect(parts).toHaveLength(0)
     })
 
-    it('respects skipTypes option', () => {
+    it('respects skipTypes option', async () => {
       const parts = extractParts(parsed, { skipTypes: ['LWPOLYLINE'] })
       expect(parts).toHaveLength(0)
     })
   })
 
   describe('autoDetectBin', () => {
-    it('detects reasonable bin size', () => {
+    it('detects reasonable bin size', async () => {
       const bin = autoDetectBin(parsed)
       expect(bin.width).toBeGreaterThan(0)
       expect(bin.height).toBeGreaterThan(0)

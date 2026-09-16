@@ -249,7 +249,7 @@
 			  while (0 !== currentIndex) {
 
 				// Pick a remaining element...
-				randomIndex = Math.floor(Math.random() * currentIndex);
+				randomIndex = Math.floor(config.random() * currentIndex);
 				currentIndex -= 1;
 
 				// And swap it with the current element.
@@ -841,13 +841,14 @@
 	GeneticAlgorithm.prototype.randomAngle = function(part){
 
 		var angleList = [];
+		var random = this.config.random;
 		for(var i=0; i<Math.max(this.config.rotations,1); i++){
 			angleList.push(i*(360/this.config.rotations));
 		}
 
 		function shuffleArray(array) {
 			for (var i = array.length - 1; i > 0; i--) {
-				var j = Math.floor(Math.random() * (i + 1));
+				var j = Math.floor(random() * (i + 1));
 				var temp = array[i];
 				array[i] = array[j];
 				array[j] = temp;
@@ -873,7 +874,7 @@
 	GeneticAlgorithm.prototype.mutate = function(individual){
 		var clone = {placement: individual.placement.slice(0), rotation: individual.rotation.slice(0)};
 		for(var i=0; i<clone.placement.length; i++){
-			var rand = Math.random();
+			var rand = this.config.random();
 			if(rand < 0.01*this.config.mutationRate){
 				// swap current part with next part
 				var j = i+1;
@@ -885,7 +886,7 @@
 				}
 			}
 
-			rand = Math.random();
+			rand = this.config.random();
 			if(rand < 0.01*this.config.mutationRate){
 				clone.rotation[i] = this.randomAngle(clone.placement[i]);
 			}
@@ -896,7 +897,7 @@
 
 	// single point crossover
 	GeneticAlgorithm.prototype.mate = function(male, female){
-		var cutpoint = Math.round(Math.min(Math.max(Math.random(), 0.1), 0.9)*(male.placement.length-1));
+		var cutpoint = Math.round(Math.min(Math.max(this.config.random(), 0.1), 0.9)*(male.placement.length-1));
 
 		var gene1 = male.placement.slice(0,cutpoint);
 		var rot1 = male.rotation.slice(0,cutpoint);
@@ -968,7 +969,7 @@
 			pop.splice(pop.indexOf(exclude),1);
 		}
 
-		var rand = Math.random();
+		var rand = this.config.random();
 
 		var lower = 0;
 		var weight = 1/pop.length;
