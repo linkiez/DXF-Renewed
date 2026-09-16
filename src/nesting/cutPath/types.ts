@@ -154,6 +154,18 @@ export type CutActionMetadata = Readonly<
   Record<string, string | number | boolean>
 >
 
+/** A geometric curve attached to an action. */
+export type CutCurve =
+  | Readonly<{
+      type: 'arc'
+      center: Point2D
+      clockwise: boolean
+    }>
+  | Readonly<{
+      type: 'bezier'
+      controlPoints: readonly Point2D[]
+    }>
+
 /** One ordered movement or process operation in a cut plan. */
 export interface CutAction {
   /** Action category understood by machine-independent post-processors. */
@@ -164,6 +176,8 @@ export interface CutAction {
   contourId?: string
   /** Part associated with the action, when applicable. */
   partId?: string
+  /** Explicit curve geometry for this action, when the movement is not linear. */
+  curve?: CutCurve
   /** Optional process metadata without vendor-specific commands. */
   metadata?: CutActionMetadata
 }

@@ -65,6 +65,7 @@ export type {
   CutAction,
   CutActionKind,
   CutActionMetadata,
+  CutCurve,
   CutContour,
   CutLayout,
   CutPathProblem,
@@ -226,6 +227,35 @@ export {
 // ─────────────────────────────────────────────
 
 export { NestingHelper } from './NestingHelper'
+
+// ─────────────────────────────────────────────
+// Modular post-processing (feature 005)
+// ─────────────────────────────────────────────
+
+export {
+  canonicalizeGcode,
+  generateMachineProgram,
+  GcodeWriter,
+  linearizeCutPlan,
+  listPostProcessors,
+  registerPostProcessor,
+  resolvePostProcessor,
+  validateEmittedPlan,
+  validateMachineProfile,
+  validateProcessor,
+} from './post'
+export type {
+  MachineKind,
+  MachineProfile,
+  MachineProgram,
+  PostContext,
+  PostProcessingContext,
+  PostProcessor,
+  PostProcessorContext,
+  PostProcessorSummary,
+  Units,
+  ValidationIssue,
+} from './post'
 
 // ─────────────────────────────────────────────
 // Part preparation (feature 001-part-preparation)

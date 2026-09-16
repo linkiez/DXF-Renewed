@@ -2,6 +2,7 @@ export type {
   CutAction,
   CutActionKind,
   CutActionMetadata,
+  CutCurve,
   CutContour,
   CutLayout,
   CutPathProblem,
