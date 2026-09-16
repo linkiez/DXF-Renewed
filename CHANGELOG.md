@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [8.0.0](https://github.com/linkiez/DXF-Renewed/compare/v7.7.6...v8.0.0) (2026-09-16)
+
 ## <small>7.7.6 (2026-09-11)</small>
 
 * refactor(geometry): share quarter-turn vector calculation ([db00d9c](https://github.com/linkiez/DXF-Renewed/commit/db00d9c))
