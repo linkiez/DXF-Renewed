@@ -249,3 +249,7 @@ Task: "Migrate test/unit/preparation/** to firstValueFrom"
 
 - [X] T052 [HIGH] Replace the current generated parity fixture and inputs with verified 7.7.6 outputs for the exact four reference jobs defined by the specification, including the specified two-shape parsed/raw DXF case and measurement-only field exclusions, per FR-002 and SC-002
 - [X] T053 [HIGH] Make `NestingHelper.nest` state transactional per subscription by clearing or staging `_nestingResult`, `_shapes`, and `_shapeEntityMap` on restart and cancellation, then add regression coverage for cancelled and subsequent runs, per FR-007, SC-006, and plan T043
+
+## Phase 9: Convergence
+
+- [ ] T054 [HIGH] Reconcile the `nestDXF`, `nestWithPreset`, and `quickNest` golden outputs with verified 7.7.6 raw-DXF results while preserving seeded repeatability, or document and test an explicit compatibility mapping for the historical unseeded baseline, per FR-002 and SC-002 (partial)
