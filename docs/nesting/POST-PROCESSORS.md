@@ -7,6 +7,14 @@ Documentation language: en_US (project rule).
 
 ## 1. Cut Action List — the only contract
 
+The modular post-processing API is implemented under `src/nesting/post/` and is exported from the
+nesting barrel. It consumes the existing immutable `CutPlan` and returns `MachineProgram` metadata
+including `processorName`, `processorId`, `processorRevision`, and `profileRevision`.
+
+Release is blocked by every error, including unsupported capabilities, invalid feeds, missing curve
+tolerances, and canonical expected-output mismatches. The registry resolves an exact
+`(processorId, processorRevision)` pair and never falls back.
+
 The nesting engine never knows the machine. The post-processor never knows the algorithm.
 They meet at the Cut Action List: a machine-independent, tool-independent trace.
 
@@ -23,15 +31,12 @@ export type CutActionKind =
 
 export interface CutAction {
   kind: CutActionKind
-  points: Point2D[]                              // ordered; first = entry
-  arc?: { center: Point2D; clockwise: boolean }  // when the segment is an arc
-  feed?: number                                  // mm/min
-  power?: number                                 // laser S value
-  amperage?: number                              // plasma A
-  thc?: boolean                                  // plasma torch height control
-  dwellMs?: number
+  points: readonly Point2D[]                    // ordered; first = entry
+  curve?: { type: 'arc'; center: Point2D; clockwise: boolean } |
+    { type: 'bezier'; controlPoints: readonly Point2D[] } // explicit curve geometry
   contourId?: string
   partId?: string
+  metadata?: Readonly<Record<string, string | number | boolean>>
 }
 
 export interface CutPlan {
@@ -40,9 +45,32 @@ export interface CutPlan {
     cutLength: number
     rapidLength: number
     pierceCount: number
-    tabs: number
+    tabCount: number
   }
+
 }
+```
+
+Example profile (reviewed output is passed explicitly; fixture loading is a host concern):
+
+```ts
+generateMachineProgram(plan, {
+  machineId: 'laser-01',
+  machineKind: 'laser',
+  processorId: 'generic-laser',
+  processorRevision: '1',
+  profileRevision: '2026-09',
+  units: 'mm',
+  sheet: { width: 3000, height: 2000, margin: 10 },
+  maxFeed: 5000,
+  arcSupport: false,
+  curveLinearizationTolerance: 0.01,
+  capabilities: { cutting: true },
+  feed: 1000,
+  power: 100,
+  pierceDwellMs: 0,
+  expectedOutput: reviewedGcode,
+})
 ```
 
 Rule: every emitter consumes only `CutPlan` + `PostContext`. No emitter may inspect
@@ -54,22 +82,18 @@ the algorithm and third-party post-processors become impossible.
 ## 2. `PostProcessor` interface & registry
 
 ```ts
-export interface PostContext {
-  machine: Machine
-  material: MaterialPreset
-  units: 'mm' | 'inch'
-  programNumber: number
-  options: Record<string, unknown>
+export interface PostProcessingContext {
+  profile: MachineProfile
+  linearizedPlan: CutPlan
 }
 
 export interface PostProcessor {
   id: string
-  label: string
+  name: string
+  revision: string
   machineKind: 'laser' | 'plasma'
-  /** emits the full NC program */
-  emit(plan: CutPlan, ctx: PostContext): string
-  /** returns issues; empty = valid */
-  validate(plan: CutPlan, ctx: PostContext): ValidationIssue[]
+  emit(plan: CutPlan, ctx: PostProcessingContext): string
+  validate(plan: CutPlan, ctx: PostProcessingContext): readonly ValidationIssue[]
 }
 
 export interface ValidationIssue {
@@ -84,11 +108,11 @@ Registry (open/closed — new dialect needs no core edit):
 
 ```ts
 export function registerPostProcessor(p: PostProcessor): void
-export function listPostProcessors(): { id: string; label: string; machineKind: string }[]
-export function createPostProcessor(id: string): PostProcessor
+export function listPostProcessors(): readonly PostProcessorSummary[]
+export function resolvePostProcessor(id: string, revision: string): PostProcessor | undefined
 ```
 
-Regression guard: registering two processors with the same `id` throws (fail fast at
+Regression guard: registering two processors with the same `(id, revision)` throws (fail fast at
 startup, not at emit time).
 
 ---
@@ -124,52 +148,40 @@ Dialect knobs (per processor, not global):
 | comment style | `( ... )` or `; ...` |
 | line numbers | `N` prefix, configurable step |
 
-Arc policy: if `machine.arcSupport === false`, the writer linearises arcs at the
-flattening tolerance and logs `logger.info` once per program.
+Arc policy: if `machine.arcSupport === false`, the writer deterministically
+linearises valid arcs and Bezier curves at the approved profile tolerance. Missing,
+non-finite, or malformed curve data is rejected explicitly.
 
 ---
 
 ## 4. Dialect matrix
 
-| Feature | Generic laser | Generic plasma | Hypertherm | Burny | Farley |
-|---|---|---|---|---|---|
-| Units word | G21/G20 | G21/G20 | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Pierce | laser on + dwell | dwell + pierce height | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Torch on/off | M03/M05 | M03/M05 | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| THC | n/a | M-code + `thc` flag | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Power/amperage | `S` word | `A`/M-code | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Gas select | M-code | M-code | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Arc support | G02/G03 | often linearised | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Subprograms | M98/M99 | M98/M99 | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Header/footer | template | template | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
-| Comment style | `( )` | `( )` | `[VERIFY]` | `[VERIFY]` | `[VERIFY]` |
+| Feature | Generic laser | Generic plasma | Hypertherm EDGE Connect 809550-rev6 |
+|---|---|---|---|
+| Units word | G21/G20 | G21/G20 | G21 |
+| Pierce | M03 + G04 | M03 + G04 | M15 |
+| Torch on/off | M03/M05 | M03/M05 | M15/M16 |
+| THC | capability validation | capability validation | unsupported in this subset |
+| Power/amperage | S / process settings | `S` amperage word from approved process settings | not inferred |
+| Gas select | not inferred | not inferred | not inferred |
+| Arc support | G02/G03 or approved linearization | approved linearization | rejected unless represented as G01 |
+| Header/footer | deterministic template | deterministic template | line-numbered deterministic template |
+| Comment style | `( )` | `( )` | `( )`, preceded by M00 |
 
-Every `[VERIFY]` must be replaced by the value read from the machine manual or a known-good
-program, then recorded in the table above. Never guess a vendor M-code.
+The EDGE Connect mapping is intentionally limited to directly supported EIA RS-274D behavior in
+[`Hypertherm EDGE PRO Programmer reference.md`](../Hypertherm%20EDGE%20PRO%20Programmer%20reference.md).
+ESSI, XPR, G59, bevel, program-number (`Pxx`), and other undocumented commands are not inferred.
+
+No unverified vendor values are used in the implemented matrix.
 
 ---
 
-## 5. Vendor template pattern
+## 5. Processor composition
 
-Each vendor dialect is a thin module composed of named sections so users can override
-one section without forking the processor:
-
-```ts
-export interface DialectTemplate {
-  header(ctx: PostContext, stats: CutPlan['stats']): string
-  pierce(ctx: PostContext, a: CutAction): string
-  torchOn(ctx: PostContext): string
-  torchOff(ctx: PostContext): string
-  rapid(ctx: PostContext, a: CutAction): string
-  cut(ctx: PostContext, a: CutAction): string
-  tab(ctx: PostContext, a: CutAction): string
-  footer(ctx: PostContext, stats: CutPlan['stats']): string
-}
-```
-
-`GenericLaser` and `GenericPlasma` implement this fully. Vendor dialects override only the
-sections that differ. This is the DRY boundary: shared G-code grammar lives in
-`GcodeWriter`, only vocabulary differs per vendor.
+Built-in processors implement the exported `PostProcessor` contract directly. Shared G-code
+tokenization belongs to `GcodeWriter`; processor-specific validation and emission remain in each
+processor module. New dialects are registered as complete processors rather than extending an
+unimplemented template contract.
 
 ---
 
@@ -251,8 +263,9 @@ largest cut-time saving available for laser.
 | `THC_ON_RAPID` | error | THC enabled during `rapid` |
 | `ARC_UNSUPPORTED` | warning | arc emitted for a machine that linearises |
 
-Validator runs on every emitted program before the file is written. A program with any
-`error` is never written to disk without an explicit `--force` flag.
+Validator runs on every emitted program before it is returned. A program with any `error`, or
+without a matching reviewed expected output, is never releasable. There is no force-release
+override.
 
 ---
 
