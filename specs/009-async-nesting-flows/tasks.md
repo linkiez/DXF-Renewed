@@ -32,9 +32,9 @@ Single-project library: `src/` and `test/` at repository root.
 
 **Purpose**: Directories and the frozen baseline the whole feature is measured against.
 
-- [ ] T001 Create the new source and test directories `src/nesting/async/` and `test/unit/nesting/async/`
-- [ ] T002 [P] Capture the enumerated reference job set (`parsed-dxf-simple`, `raw-dxf-preset`, `true-shape-mixed`, `part-prep-boundary`; seed `20260101` each) as 7.7.6 golden fixtures in `test/integration/nesting/fixtures/`, creating that directory; record only placement decisions, `unplaced`/`issues` reasons and metrics (exclude `processingTimeMs` and `backend.timings`) — spec.md Assumptions, research R5
-- [ ] T003 [P] Confirm `rxjs@^7.8.2` is declared in `package.json` `dependencies` and `package.json` `version` is `8.0.0` (FR-010, ADR-0001)
+- [X] T001 Create the new source and test directories `src/nesting/async/` and `test/unit/nesting/async/`
+- [X] T002 [P] Capture the enumerated reference job set (`parsed-dxf-simple`, `raw-dxf-preset`, `true-shape-mixed`, `part-prep-boundary`; seed `20260101` each) as 7.7.6 golden fixtures in `test/integration/nesting/fixtures/`, creating that directory; record only placement decisions, `unplaced`/`issues` reasons and metrics (exclude `processingTimeMs` and `backend.timings`) — spec.md Assumptions, research R5
+- [X] T003 [P] Confirm `rxjs@^7.8.2` is declared in `package.json` `dependencies` and `package.json` `version` is `8.0.0` (FR-010, ADR-0001)
 
 ---
 
@@ -44,11 +44,11 @@ Single-project library: `src/` and `test/` at repository root.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 [P] Write the failing unit tests for the wrapper — laziness (no work before `subscribe`), cold per subscription, exactly one `next` then `complete`, silent teardown on `unsubscribe` (no `next`/`complete`/`error`), contract violation becomes an `error` notification — in `test/unit/nesting/async/observableFlow.test.ts` (FR-001, FR-007, FR-009, FR-011, SC-007)
-- [ ] T005 Implement `observeFlow<T>(factory: (signal: AbortSignal) => Promise<T>): Observable<T>` using `defer(() => new Observable<T>(subscriber => { ... }))` with an internal `AbortController` aborted in the teardown callback, in `src/nesting/async/observableFlow.ts` (research R1/R2)
-- [ ] T006 Export `observeFlow` and its types from `src/nesting/async/index.ts`
-- [ ] T007 [P] Add an optional `signal?: AbortSignal` to the flow option/request types in `src/nesting/types.ts` (`NestingOptions`, `NestRequest`) and `src/nest/types.ts` (`NestOptions`), leaving all other fields and defaults unchanged (research R2)
-- [ ] T008 [P] Write the contract test asserting all eight in-scope exports return an RxJS `Observable` (and not a `Promise`) and that the out-of-scope names (`toNestedSvg`, `toNestedDxf`, `extractShapes`, `sortShapes`, `packMultiSheet`, `searchBestArrangement`, `analyzeShapes`) stay synchronous, in `test/unit/nesting/async/contracts.test.ts` (FR-001, SC-001)
+- [X] T004 [P] Write the failing unit tests for the wrapper — laziness (no work before `subscribe`), cold per subscription, exactly one `next` then `complete`, silent teardown on `unsubscribe` (no `next`/`complete`/`error`), contract violation becomes an `error` notification — in `test/unit/nesting/async/observableFlow.test.ts` (FR-001, FR-007, FR-009, FR-011, SC-007)
+- [X] T005 Implement `observeFlow<T>(factory: (signal: AbortSignal) => Promise<T>): Observable<T>` using `defer(() => new Observable<T>(subscriber => { ... }))` with an internal `AbortController` aborted in the teardown callback, in `src/nesting/async/observableFlow.ts` (research R1/R2)
+- [X] T006 Export `observeFlow` and its types from `src/nesting/async/index.ts`
+- [X] T007 [P] Add an optional `signal?: AbortSignal` to the flow option/request types in `src/nesting/types.ts` (`NestingOptions`, `NestRequest`) and `src/nest/types.ts` (`NestOptions`), leaving all other fields and defaults unchanged (research R2)
+- [X] T008 [P] Write the contract test asserting all eight in-scope exports return an RxJS `Observable` (and not a `Promise`) and that the out-of-scope names (`toNestedSvg`, `toNestedDxf`, `extractShapes`, `sortShapes`, `packMultiSheet`, `searchBestArrangement`, `analyzeShapes`) stay synchronous, in `test/unit/nesting/async/contracts.test.ts` (FR-001, SC-001)
 
 **Checkpoint**: Wrapper is green; flows can be converted one file at a time.
 
@@ -64,26 +64,26 @@ Single-project library: `src/` and `test/` at repository root.
 
 > Write these first and confirm they FAIL against the current `Promise` surface.
 
-- [ ] T009 [P] [US1] Unit tests for `nest` and `nestFromDxf` laziness and single emission in `test/unit/nesting/async/applyNesting.observable.test.ts`
-- [ ] T010 [P] [US1] Unit tests for `nestDXF`, `nestWithPreset` and `quickNest` in `test/unit/nesting/async/nestDxf.observable.test.ts`
-- [ ] T011 [P] [US1] Unit tests for `NestingHelper.nest` in `test/unit/nesting/async/nestingHelper.observable.test.ts`, including the synchronous `nestingResult`, `shapes`, `toNestedSvg` and `toNestedDxf` accessors after emission (`contracts/nesting-observable-api.ts` `NestingHelperContract`)
-- [ ] T012 [P] [US1] Unit tests for `nestTrueShape` in `test/unit/nesting/async/trueShape.observable.test.ts`
-- [ ] T013 [P] [US1] Unit tests for `prepareParts` in `test/unit/nesting/async/partPrep.observable.test.ts`
-- [ ] T014 [P] [US1] Integration test composing two stages with RxJS operators (`switchMap`/`map`) and asserting stage-to-stage payload delivery with no `await`, in `test/integration/nesting/observableComposition.test.ts` (US1.2)
+- [X] T009 [P] [US1] Unit tests for `nest` and `nestFromDxf` laziness and single emission in `test/unit/nesting/async/applyNesting.observable.test.ts`
+- [X] T010 [P] [US1] Unit tests for `nestDXF`, `nestWithPreset` and `quickNest` in `test/unit/nesting/async/nestDxf.observable.test.ts`
+- [X] T011 [P] [US1] Unit tests for `NestingHelper.nest` in `test/unit/nesting/async/nestingHelper.observable.test.ts`, including the synchronous `nestingResult`, `shapes`, `toNestedSvg` and `toNestedDxf` accessors after emission (`contracts/nesting-observable-api.ts` `NestingHelperContract`)
+- [X] T012 [P] [US1] Unit tests for `nestTrueShape` in `test/unit/nesting/async/trueShape.observable.test.ts`
+- [X] T013 [P] [US1] Unit tests for `prepareParts` in `test/unit/nesting/async/partPrep.observable.test.ts`
+- [X] T014 [P] [US1] Integration test composing two stages with RxJS operators (`switchMap`/`map`) and asserting stage-to-stage payload delivery with no `await`, in `test/integration/nesting/observableComposition.test.ts` (US1.2)
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Convert `nest` and `nestFromDxf` to `observeFlow(...)` returning `Observable<NestingResult>` in `src/nesting/applyNesting.ts`, reusing the existing pipeline body verbatim
-- [ ] T016 [US1] Convert `nestDXF`, `nestWithPreset` and `quickNest` to `observeFlow(...)` returning `Observable<NestDxfResult>` in `src/nest/index.ts` (progress printing of `metricsSummary()` must happen on `subscribe`, not at the call site)
-- [ ] T017 [US1] Convert `NestingHelper.nest` to return `Observable<NestingResult>` in `src/nesting/NestingHelper.ts` while keeping the synchronous `nestingResult`, `shapes`, `toNestedSvg` and `toNestedDxf` accessors working (populated on emission)
-- [ ] T018 [US1] Convert `nestTrueShape(request)` to return `Observable<NestResponse>` in `src/nesting/trueShape/index.ts`
-- [ ] T019 [US1] Convert `prepareParts(dxf, options)` to return `Observable<PrepareResult>` in `src/nesting/pro/partPrep/index.ts`
-- [ ] T020 [US1] Add the root-barrel export for `nestDXF`, `nestWithPreset` and `quickNest` in `src/index.ts` (today only `./nesting/index` is re-exported), verify no import cycle is introduced between `src/nest/index.ts` and `src/nesting/async/`, and re-export the Observable result types from `src/nesting/index.ts` (plan Structure, research R7)
-- [ ] T021 [US1] Migrate the CLI call site to `firstValueFrom(...)` in `src/cli-nest.ts` (line ~152 `await nestDXF(dxfText, options)`)
-- [ ] T022 [P] [US1] Migrate the pre-existing unit test call sites to `firstValueFrom(...)` in `test/unit/nesting/**` (`integration.test.ts`, `trueShape*.test.ts`, `optimization/*.test.ts` — 17 files)
-- [ ] T023 [P] [US1] Migrate the pre-existing integration test call sites to `firstValueFrom(...)` in `test/integration/nesting/**` (`gpuFallback.test.ts`, `trueShapePipeline.test.ts`, `trueShapeQuickstart.test.ts`)
-- [ ] T024 [P] [US1] Migrate the pre-existing preparation test call sites to `firstValueFrom(...)` in `test/unit/preparation/**` (`convergence.test.ts`, `perf.test.ts`, `prepareParts.test.ts`, `warnings.test.ts`)
-- [ ] T025 [US1] Update the co-located docs for the Observable signatures: `src/nesting/index.doc.md`, `src/nesting/types.doc.md`, `src/nesting/trueShape/index.doc.md`, and create `src/nesting/async/index.doc.md` + `src/nesting/async/observableFlow.doc.md` for the new module (Constitution Documentation Discipline). `src/nest/` has no `.doc.md` siblings, so no `src/nest/index.doc.md` is created
+- [X] T015 [US1] Convert `nest` and `nestFromDxf` to `observeFlow(...)` returning `Observable<NestingResult>` in `src/nesting/applyNesting.ts`, reusing the existing pipeline body verbatim
+- [X] T016 [US1] Convert `nestDXF`, `nestWithPreset` and `quickNest` to `observeFlow(...)` returning `Observable<NestDxfResult>` in `src/nest/index.ts` (progress printing of `metricsSummary()` must happen on `subscribe`, not at the call site)
+- [X] T017 [US1] Convert `NestingHelper.nest` to return `Observable<NestingResult>` in `src/nesting/NestingHelper.ts` while keeping the synchronous `nestingResult`, `shapes`, `toNestedSvg` and `toNestedDxf` accessors working (populated on emission)
+- [X] T018 [US1] Convert `nestTrueShape(request)` to return `Observable<NestResponse>` in `src/nesting/trueShape/index.ts`
+- [X] T019 [US1] Convert `prepareParts(dxf, options)` to return `Observable<PrepareResult>` in `src/nesting/pro/partPrep/index.ts`
+- [X] T020 [US1] Add the root-barrel export for `nestDXF`, `nestWithPreset` and `quickNest` in `src/index.ts` (today only `./nesting/index` is re-exported), verify no import cycle is introduced between `src/nest/index.ts` and `src/nesting/async/`, and re-export the Observable result types from `src/nesting/index.ts` (plan Structure, research R7)
+- [X] T021 [US1] Migrate the CLI call site to `firstValueFrom(...)` in `src/cli-nest.ts` (line ~152 `await nestDXF(dxfText, options)`)
+- [X] T022 [P] [US1] Migrate the pre-existing unit test call sites to `firstValueFrom(...)` in `test/unit/nesting/**` (`integration.test.ts`, `trueShape*.test.ts`, `optimization/*.test.ts` — 17 files)
+- [X] T023 [P] [US1] Migrate the pre-existing integration test call sites to `firstValueFrom(...)` in `test/integration/nesting/**` (`gpuFallback.test.ts`, `trueShapePipeline.test.ts`, `trueShapeQuickstart.test.ts`)
+- [X] T024 [P] [US1] Migrate the pre-existing preparation test call sites to `firstValueFrom(...)` in `test/unit/preparation/**` (`convergence.test.ts`, `perf.test.ts`, `prepareParts.test.ts`, `warnings.test.ts`)
+- [X] T025 [US1] Update the co-located docs for the Observable signatures: `src/nesting/index.doc.md`, `src/nesting/types.doc.md`, `src/nesting/trueShape/index.doc.md`, and create `src/nesting/async/index.doc.md` + `src/nesting/async/observableFlow.doc.md` for the new module (Constitution Documentation Discipline). `src/nest/` has no `.doc.md` siblings, so no `src/nest/index.doc.md` is created
 
 **Checkpoint**: US1 fully functional and independently testable; the full suite compiles.
 
@@ -97,17 +97,17 @@ Single-project library: `src/` and `test/` at repository root.
 
 ### Tests for User Story 2
 
-- [ ] T026 [P] [US2] Baseline-parity integration test diffing each emission against the T002 fixtures for all four jobs (including `unplaced`/`issues` reasons and metrics, excluding measurement-only timing fields) in `test/integration/nesting/observableParity.test.ts` (FR-002, SC-002)
-- [ ] T027 [P] [US2] Coldness test asserting two subscriptions to the same Observable run the pipeline twice and emit identical results for the same input and seed, and that no `share`/`shareReplay`/`Subject` is used, in `test/unit/nesting/async/coldness.test.ts` (FR-011, SC-008)
-- [ ] T028 [P] [US2] Determinism test asserting repeated runs with identical input and seed produce identical placements in `test/unit/nesting/async/determinism.observable.test.ts` (FR-003, SC-003)
-- [ ] T029 [P] [US2] Immutability test passing `Object.freeze`d inputs to every in-scope flow and asserting the emission still succeeds and the input is structurally unchanged, in `test/unit/nesting/async/immutability.test.ts` (FR-006)
-- [ ] T030 [P] [US2] Fallback-reporting test asserting the accelerator fallback reason survives into the emission and the flow completes on the baseline path, in `test/unit/nesting/async/fallback.observable.test.ts` (FR-008, SC-005)
+- [X] T026 [P] [US2] Baseline-parity integration test diffing each emission against the T002 fixtures for all four jobs (including `unplaced`/`issues` reasons and metrics, excluding measurement-only timing fields) in `test/integration/nesting/observableParity.test.ts` (FR-002, SC-002)
+- [X] T027 [P] [US2] Coldness test asserting two subscriptions to the same Observable run the pipeline twice and emit identical results for the same input and seed, and that no `share`/`shareReplay`/`Subject` is used, in `test/unit/nesting/async/coldness.test.ts` (FR-011, SC-008)
+- [X] T028 [P] [US2] Determinism test asserting repeated runs with identical input and seed produce identical placements in `test/unit/nesting/async/determinism.observable.test.ts` (FR-003, SC-003)
+- [X] T029 [P] [US2] Immutability test passing `Object.freeze`d inputs to every in-scope flow and asserting the emission still succeeds and the input is structurally unchanged, in `test/unit/nesting/async/immutability.test.ts` (FR-006)
+- [X] T030 [P] [US2] Fallback-reporting test asserting the accelerator fallback reason survives into the emission and the flow completes on the baseline path, in `test/unit/nesting/async/fallback.observable.test.ts` (FR-008, SC-005)
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Audit the eight flows and remove any wall-clock use as a search bound, keeping `processingTimeMs`/`backend.timings` measurement-only, across `src/nesting/applyNesting.ts`, `src/nest/index.ts`, `src/nesting/trueShape/index.ts` and `src/nesting/pro/partPrep/index.ts` (FR-003, SC-003)
-- [ ] T032 [US2] Verify seed pass-through is unchanged end to end and that no memoisation/caching was introduced in `src/nesting/async/observableFlow.ts` (research R6)
-- [ ] T033 [US2] Fix any remaining call-site regressions left after T022–T024 so the pre-existing suite compiles and passes again (SC-004)
+- [X] T031 [US2] Audit the eight flows and remove any wall-clock use as a search bound, keeping `processingTimeMs`/`backend.timings` measurement-only, across `src/nesting/applyNesting.ts`, `src/nest/index.ts`, `src/nesting/trueShape/index.ts` and `src/nesting/pro/partPrep/index.ts` (FR-003, SC-003)
+- [X] T032 [US2] Verify seed pass-through is unchanged end to end and that no memoisation/caching was introduced in `src/nesting/async/observableFlow.ts` (research R6)
+- [X] T033 [US2] Fix any remaining call-site regressions left after T022–T024 so the pre-existing suite compiles and passes again (SC-004)
 
 **Checkpoint**: US1 and US2 both hold — outputs provably unchanged.
 
@@ -121,19 +121,19 @@ Single-project library: `src/` and `test/` at repository root.
 
 ### Tests for User Story 3
 
-- [ ] T034 [P] [US3] Cancellation test asserting `unsubscribe` mid-flight emits no `next`, no `complete`, no `error`, and that a subsequent flow reusing the same helper emits the baseline result, in `test/unit/nesting/async/cancellation.test.ts` (FR-007, SC-006)
-- [ ] T035 [P] [US3] Explicit-outcome test asserting unplaceable items and part-prep `issues` appear with a specific reason on the emission and never as an `error` notification, in `test/unit/nesting/async/explicitOutcome.test.ts` (FR-004, SC-005)
-- [ ] T036 [P] [US3] Error-contract test asserting invalid request/options produce a single `error` notification with a descriptive message and no `next`, in `test/unit/nesting/async/errorContract.test.ts` (FR-009)
-- [ ] T037 [P] [US3] Shared-state test asserting `resetNestingState()` clears the state used by `nest`/`nestFromDxf` (`src/nesting/applyNesting.ts:258`) and that no residue from a cancelled or completed run changes the next flow's result, in `test/unit/nesting/async/sharedState.test.ts` (FR-007, SC-006)
-- [ ] T038 [P] [US3] Integration test asserting unsubscribe-then-rerun isolation across flows, including concurrent overlapping flows, in `test/integration/nesting/cancellationRecovery.test.ts`
+- [X] T034 [P] [US3] Cancellation test asserting `unsubscribe` mid-flight emits no `next`, no `complete`, no `error`, and that a subsequent flow reusing the same helper emits the baseline result, in `test/unit/nesting/async/cancellation.test.ts` (FR-007, SC-006)
+- [X] T035 [P] [US3] Explicit-outcome test asserting unplaceable items and part-prep `issues` appear with a specific reason on the emission and never as an `error` notification, in `test/unit/nesting/async/explicitOutcome.test.ts` (FR-004, SC-005)
+- [X] T036 [P] [US3] Error-contract test asserting invalid request/options produce a single `error` notification with a descriptive message and no `next`, in `test/unit/nesting/async/errorContract.test.ts` (FR-009)
+- [X] T037 [P] [US3] Shared-state test asserting `resetNestingState()` clears the state used by `nest`/`nestFromDxf` (`src/nesting/applyNesting.ts:258`) and that no residue from a cancelled or completed run changes the next flow's result, in `test/unit/nesting/async/sharedState.test.ts` (FR-007, SC-006)
+- [X] T038 [P] [US3] Integration test asserting unsubscribe-then-rerun isolation across flows, including concurrent overlapping flows, in `test/integration/nesting/cancellationRecovery.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Check `signal.aborted` at the stage boundaries of `nest`/`nestFromDxf` (extraction, sort, per-sheet pack loop) in `src/nesting/applyNesting.ts` and stop early
-- [ ] T040 [US3] Check `signal.aborted` in the true-shape search iteration loop in `src/nesting/trueShape/index.ts`
-- [ ] T041 [US3] Check `signal.aborted` in the part-preparation loop in `src/nesting/pro/partPrep/index.ts`
-- [ ] T042 [US3] Check `signal.aborted` in the part-based pipeline stages in `src/nest/index.ts` and `src/nest/nestCore.ts`
-- [ ] T043 [US3] Ensure teardown discards partially computed state in `src/nesting/NestingHelper.ts` and audit `resetNestingState` in `src/nesting/applyNesting.ts` so no shared state survives a cancelled run (FR-007)
+- [X] T039 [US3] Check `signal.aborted` at the stage boundaries of `nest`/`nestFromDxf` (extraction, sort, per-sheet pack loop) in `src/nesting/applyNesting.ts` and stop early
+- [X] T040 [US3] Check `signal.aborted` in the true-shape search iteration loop in `src/nesting/trueShape/index.ts`
+- [X] T041 [US3] Check `signal.aborted` in the part-preparation loop in `src/nesting/pro/partPrep/index.ts`
+- [X] T042 [US3] Check `signal.aborted` in the part-based pipeline stages in `src/nest/index.ts` and `src/nest/nestCore.ts`
+- [X] T043 [US3] Ensure teardown discards partially computed state in `src/nesting/NestingHelper.ts` and audit `resetNestingState` in `src/nesting/applyNesting.ts` so no shared state survives a cancelled run (FR-007)
 
 **Checkpoint**: All three stories independently functional.
 
@@ -141,12 +141,12 @@ Single-project library: `src/` and `test/` at repository root.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T044 [P] Walk every scenario in [quickstart.md](./quickstart.md) (1–7) and record the observed result in that file
-- [ ] T045 [P] Add the 8.0.0 breaking-change migration note (Promise → Observable, `firstValueFrom` bridge) to `README.md`
-- [ ] T046 Run `npm run type-check` and `npm run lint` and resolve any finding (Constitution quality gates 1–2)
+- [X] T044 [P] Walk every scenario in [quickstart.md](./quickstart.md) (1–7) and record the observed result in that file
+- [X] T045 [P] Add the 8.0.0 breaking-change migration note (Promise → Observable, `firstValueFrom` bridge) to `README.md`
+- [X] T046 Run `npm run type-check` and `npm run lint` and resolve any finding (Constitution quality gates 1–2)
 - [ ] T047 Run `npm run test:unit`, `npm run test:integration:node` and `npm run test:integration:browser` and confirm all green (gate 3)
-- [ ] T048 [P] Confirm governance coherence: `package.json` `8.0.0`, `rxjs` in `dependencies`, `.specify/adr/ADR-0001-observable-nesting-surface.md` accepted, `.specify/memory/constitution.md` at `2.0.0`
-- [ ] T049 Remove now-dead `Promise`-only helpers and unused exports introduced by the conversion (deletion over addition)
+- [X] T048 [P] Confirm governance coherence: `package.json` `8.0.0`, `rxjs` in `dependencies`, `.specify/adr/ADR-0001-observable-nesting-surface.md` accepted, `.specify/memory/constitution.md` at `2.0.0`
+- [X] T049 Remove now-dead `Promise`-only helpers and unused exports introduced by the conversion (deletion over addition)
 
 ---
 

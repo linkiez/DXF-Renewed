@@ -22,6 +22,7 @@ Written in **TypeScript** with full type definitions included. Uses modern ES201
 ## Features
 
 - TypeScript-first public API (strict typing)
+- Observable-based nesting flows with cooperative cancellation
 - Deterministic parsing + regression coverage via real DXF fixtures
 - INSERT/BLOCK expansion (denormalisation) with transform stacking
 - SVG rendering for common 2D geometry + annotation entities
@@ -102,6 +103,12 @@ For detailed progress, implementation roadmap, and architecture documentation, s
 - 🔧 Migrated functional tests to Vite (removed Babel/React/Webpack)
 - 📚 Consolidated documentation into ROADMAP.md and ARCHITECTURE.md
 - 🏗️ Aligned with AutoCAD 2024 DXF specifications
+
+**Version 8.0.0** - Observable nesting surface:
+
+- 🔄 The eight nesting flows now return lazy, cold RxJS `Observable` values
+- 🧩 Use `firstValueFrom(...)` when migrating Promise-based call sites
+- 🛑 Pass an `AbortSignal` through flow options to cancel cooperatively
 
 ## Supported Entities
 

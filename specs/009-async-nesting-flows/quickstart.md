@@ -81,3 +81,14 @@ All seven scenarios pass, the migrated call sites (including the 22 existing tes
 with `firstValueFrom`) keep the suite green (SC-004), and `rxjs` is the only new runtime dependency —
 recorded in
 [`.specify/adr/ADR-0001-observable-nesting-surface.md`](../../.specify/adr/ADR-0001-observable-nesting-surface.md).
+
+## Validation record
+
+- Scenarios 1–7: passed through the Observable unit and Node integration suites.
+- `yarn type-check`: passed.
+- `yarn lint`: passed.
+- `yarn test:unit`: passed.
+- `yarn test:integration:node`: passed.
+- `yarn test:integration:browser`: blocked by the existing browser bundle configuration
+  resolving Node built-ins (`node:crypto`, `node:module`, `node:url`, and `node:path`) for the
+  browser target; no browser assertions were executed.
