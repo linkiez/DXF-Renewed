@@ -1,7 +1,7 @@
 // esbuild configuration for building the project
 import * as esbuild from 'esbuild'
 import { execFile } from 'node:child_process'
-import { readdir } from 'node:fs/promises'
+import { copyFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
 async function emitTypeDeclarations() {
@@ -62,6 +62,8 @@ async function build() {
     outExtension: { '.js': '.js' },
     logLevel: 'info',
   })
+
+  await copyFile('src/nest/clipper-core.cjs', 'lib/nest/clipper-core.cjs')
 
   console.log('✓ Build completed successfully (ESM only)')
 }

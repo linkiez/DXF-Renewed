@@ -137,7 +137,7 @@ async function loadClipper(): Promise<any> {
   if (_clipperLib) return _clipperLib
   injectPolyfills()
 
-  const clipperModule = await import('./clipper-core.js')
+  const clipperModule = await import('./clipper-core.cjs')
   _clipperLib = clipperModule.default ?? clipperModule
 
   if (!_clipperLib?.Clipper) {
