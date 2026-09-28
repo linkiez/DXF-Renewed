@@ -9,9 +9,14 @@ async function emitTypeDeclarations() {
   await new Promise((resolve, reject) => {
     const child = execFile(
       process.execPath,
-      ['./node_modules/typescript/bin/tsc', '-p', './tsconfig.json', '--emitDeclarationOnly'],
+      [
+        './node_modules/typescript/bin/tsc',
+        '-p',
+        './tsconfig.json',
+        '--emitDeclarationOnly',
+      ],
       { stdio: 'inherit' },
-      error => {
+      (error) => {
         if (error) {
           reject(error)
           return
