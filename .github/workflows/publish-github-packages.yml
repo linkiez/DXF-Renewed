@@ -1,0 +1,89 @@
+name: Publish to GitHub Packages
+
+# GitHub Packages is the registry the JCM projects install @linkiez/* packages from. This workflow
+# publishes the release produced by the Release workflow (npmjs stays as it is) and can also be run by
+# hand to publish an existing tag, for example v9.0.1.
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (for example v9.0.1); empty publishes the latest tag of main"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-github-packages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to GitHub Packages
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Resolve the release tag
+        id: release
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          TAG="${INPUT_TAG:-$(git describe --tags --abbrev=0 --match 'v*' origin/main)}"
+          git rev-parse --verify "refs/tags/${TAG}" >/dev/null
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the release tag
+        run: git checkout --detach "refs/tags/${{ steps.release.outputs.tag }}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@linkiez"
+
+      - name: Skip when the version is already published
+        id: exists
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          PACKAGE: "@linkiez/dxf-renew@${{ steps.release.outputs.version }}"
+        run: |
+          if npm view "${PACKAGE}" version --registry=https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::${PACKAGE} is already in GitHub Packages."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Enable Corepack
+        if: steps.exists.outputs.published == 'false'
+        run: corepack enable
+
+      - name: Install dependencies
+        if: steps.exists.outputs.published == 'false'
+        run: yarn install --immutable
+
+      - name: Build
+        if: steps.exists.outputs.published == 'false'
+        run: yarn build
+
+      # Provenance is only accepted from public repositories and is already attached by the npmjs release.
+      - name: Publish
+        if: steps.exists.outputs.published == 'false'
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: npm publish --registry=https://npm.pkg.github.com --access public --provenance=false
