@@ -1,4 +1,5 @@
 import type { CutAction, CutPlan } from '../cutPath'
+import type { MachineConfiguration } from './machine/types'
 
 /** Supported machine families. */
 /** Supported machine families for built-in processors. */
@@ -33,6 +34,8 @@ export interface MachineProfile {
   /** @deprecated Use expectedOutput or an application-level fixture adapter. */
   readonly fixtureName?: string
   readonly lineNumbers?: boolean
+  /** Machine configuration that the dialect processors read; absent for the generic processors. */
+  readonly configuration?: MachineConfiguration
 }
 
 /** Structured validation result that blocks release when severity is `error`. */
@@ -82,6 +85,8 @@ export interface MachineProgram {
   readonly profileRevision: string
   readonly validationIssues: readonly ValidationIssue[]
   readonly expectedOutputMatched: boolean
+  /** Output file extension and line ending of the configuration, when the profile carries one. */
+  readonly output?: { readonly extension: string; readonly lineEnding: 'lf' | 'crlf' }
 }
 
 /** Legacy context shape retained for additive API compatibility. */

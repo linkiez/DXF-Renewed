@@ -1,0 +1,60 @@
+(TotalContour=4)
+(Size=440.000*1280.000)
+(Tools=1)
+G21
+G90
+G64 P0.03 Q0.001
+#5399=0.1
+o<process_start> call
+M64 P3
+o<runframework> call
+o110 repeat[1]
+N0001
+M101 P1 Q1
+G00 X-1400.0000 Y100.0000
+#<_openslag>=1
+o<layer_start> call
+G01 X-1360.0000 Y100.0000
+G03 X-1360.0000 Y100.0000 I-40.0000 J0.0000
+#<_NextOneDis>=170.880
+o<layer_end> call
+N0002
+M101 P1 Q1
+G00 X-1200.0000 Y40.0000
+#<_openslag>=1
+o<layer_start> call
+G01 X-1200.0000 Y50.0000
+G01 X-1020.0000 Y50.0000
+G03 X-1000.0000 Y70.0000 I0.0000 J20.0000
+G01 X-1000.0000 Y150.0000
+G01 X-1200.0000 Y150.0000
+G01 X-1200.0000 Y50.0000
+#<_NextOneDis>=50.000
+o<layer_end> call
+N0003
+M101 P1 Q1
+G00 X-1200.0000 Y100.0000
+#<_openslag>=1
+o<layer_start> call
+G01 X-1180.0000 Y100.0000
+G01 X-1180.0000 Y120.0000
+G01 X-1200.0000 Y120.0000
+G01 X-1200.0000 Y100.0000
+#<_NextOneDis>=1200.000
+o<layer_end> call
+N0004
+M101 P1 Q1
+G00 X-1200.0000 Y1300.0000
+#<_openslag>=1
+o<layer_start> call
+G01 X-1180.0000 Y1300.0000
+G01 X-1180.0000 Y1320.0000
+G01 X-1200.0000 Y1320.0000
+G01 X-1200.0000 Y1300.0000
+#<_NextOneDis>=-999
+o<layer_end> call
+o<process_end> call
+o110 endrepeat
+o<endpos> call
+M65 P3
+M2
