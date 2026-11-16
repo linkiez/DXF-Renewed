@@ -42,6 +42,12 @@ consumers must receive the same request and artifact validation as Node and brow
 exception is governed by `.specify/adr/ADR-0002-stateless-erp-contract.md` and package major
 version `9.0.0`.
 
+The nesting review renderer is a second approved exception: `three` is an optional peer dependency
+(and a development dependency), never an entry in `dependencies`, and is imported only from
+`src/nesting/review/three/`. Nothing reachable from the main entry point may import it. The
+exception is governed by `.specify/adr/ADR-0003-review-three-peer-dependency.md` and does not
+require a package major bump.
+
 ## Additional Constraints
 
 **Unit discipline**: geometry values carry no implicit unit. Where a unit exists it is explicit in
@@ -134,5 +140,8 @@ only when the corresponding gate passes.
   `.specify/adr/ADR-0001-observable-nesting-surface.md`. Major bump because a principle is weakened.
 - **2.1.0 (2026-09-16)**: Principle V amended for the stateless ERP contract's Zod runtime
   validation dependency. Rationale and scope: `.specify/adr/ADR-0002-stateless-erp-contract.md`.
+- **2.2.0 (2026-11-16)**: Principle V amended for the nesting review renderer's optional `three`
+  peer dependency, confined to `src/nesting/review/three/`. Rationale and scope:
+  `.specify/adr/ADR-0003-review-three-peer-dependency.md`.
 
-**Version**: 2.1.0 | **Ratified**: 2026-09-12 | **Last Amended**: 2026-09-16
+**Version**: 2.2.0 | **Ratified**: 2026-09-12 | **Last Amended**: 2026-11-16
