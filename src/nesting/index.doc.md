@@ -35,3 +35,12 @@ puros de geometria transformada e validação estrutural/processual de `src/nest
 machine-independent actions for every referenced sheet. Verified common-line candidates produce
 explicit common-line actions. Invalid geometry is returned as structured `CutPathProblem` data;
 only malformed structural input raises an exception.
+
+## Revisão de nesting (somente leitura)
+
+O barrel expõe, de forma aditiva, `buildReviewScene`, `renderReviewSvg`, `mountReview`,
+`createReviewController`, `stateAt`, `nextPierce`, `pickAt`, `inspect`, `summarize`,
+`createAnimationClock` e os tipos públicos de
+`src/nesting/review/types.ts`. A revisão consome um `ErpNestingArtifact` com
+`CutLayout` e `CutPlanResult` opcionais e nunca altera esses objetos. O renderizador acelerado
+fica no subcaminho `review/three` e não é importado por este barrel.

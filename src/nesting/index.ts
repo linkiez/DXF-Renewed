@@ -331,3 +331,9 @@ export type { AsyncScorer } from './trueShape/index'
 
 export { calculateErpNesting } from './erp/flow'
 export * from './erp'
+
+// ─────────────────────────────────────────────
+// Nesting simulation and review (feature 007)
+// ─────────────────────────────────────────────
+
+export * from './review'
