@@ -25,6 +25,7 @@ export function bindState(
 ): { unsubscribe(): void } {
   const doc = root.ownerDocument
   let previous: ReviewState | null = null
+  let shownNotices: ReviewState['notices'] | null = null
   return controller.state$.subscribe((state) => {
     latest.state = state
     if (state.renderer === 'static') renderers.active = renderers.staticRenderer
@@ -35,9 +36,12 @@ export function bindState(
     previous = state
     const select = panels.switcher.querySelector('select')
     if (select && select.value !== state.sheetId) select.value = state.sheetId
-    const next = noticesPanel(doc, state.notices)
-    panels.notices.element.replaceWith(next)
-    panels.notices.element = next
+    if (state.notices !== shownNotices) {
+      shownNotices = state.notices
+      const next = noticesPanel(doc, state.notices)
+      panels.notices.element.replaceWith(next)
+      panels.notices.element = next
+    }
     root.dataset.renderer = state.renderer
   })
 }

@@ -228,3 +228,15 @@ T044 | T045  (tests)
 2. Add US3 for the production report, digests and the flow (SC-003, SC-004, SC-006).
 3. Add US4 for the CSV export (SC-007).
 4. Finish with Polish and the recorded evidence; a gate may not be skipped or narrowed to pass.
+
+---
+
+## Phase 8: Convergence
+
+**Purpose**: Remaining work found by comparing the current code with `spec.md`, `plan.md`, `tasks.md` and the constitution. Ordered by severity.
+
+- [X] T058 Stop approximated part areas from passing silently: when `placedParts` reports `geometry-approximate` for a part (its outline is the bounding box) and the area therefore comes from that rectangle, make `src/nesting/cost/collectUsage.ts` raise a warning notice with a new code `PART_AREA_APPROXIMATE` (message in pt-BR in `src/nesting/cost/messages.ts`), add the code to `CostNoticeCode` in `src/nesting/cost/types.ts`, `specs/008-nesting-cost-reporting/data-model.md` and the codes list of the types task, add the failing test first in `test/unit/nesting/cost/collectUsage.test.ts` and `test/unit/nesting/cost/messages.test.ts` using `sparsePlacementFixture` from `test/unit/nesting/review/fixtures.ts`, and update the sibling `.doc.md` files per Constitution: Silent failure is forbidden and research D1 (partial)
+- [X] T059 [P] Cover the unresolved-placement path: add a test in `test/unit/nesting/cost/collectUsage.test.ts` with `sparsePlacementFixture(2)` asserting that a placement whose sheet cannot be determined is not costed and raises one `PLACEMENT_SHEET_UNRESOLVED` warning naming its part key, per data-model notice codes (partial)
+- [X] T060 [P] Assert the notices behind every missing input: extend `test/unit/nesting/cost/buildCostBreakdown.test.ts` so that removing `speeds.cutting`, `speeds.rapid`, `speeds.pierceDwellSeconds` and a consumable `life` each yields exactly one notice with the codes `MISSING_SPEED`, `MISSING_SPEED`, `MISSING_DWELL` and `MISSING_CONSUMABLE_LIFE` and a message naming the input, per FR-004 and SC-002 (partial)
+- [X] T061 [P] Document the exact export columns where integrators read them: list the 20 `parts` columns, the 6 `job` columns and the metric names in their fixed order in `src/nesting/cost/costReportTables.doc.md`, and keep them identical to `specs/008-nesting-cost-reporting/contracts/cost-reporting-api.md`, per FR-015 (partial)
+- [X] T062 [P] Lower the complexity of `categoryAmount` in `src/nesting/cost/componentAmounts.ts` (cyclomatic 12, quality gate warning CRAP 43.1) by resolving the rates and the consumable usage once per call into a small typed record and replacing the optional-chaining chain, keeping `test/unit/nesting/cost/componentAmounts.test.ts` passing and `yarn quality:gate` free of warnings for the file, per plan: Constraints "functions stay small" (partial)

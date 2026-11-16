@@ -64,22 +64,29 @@ const consumableCost = (measure: ActionMeasures, model: CostModel): number => {
   return total
 }
 
-const categoryAmount = (category: TimedCategory, measure: ActionMeasures, model: CostModel): number => {
-  const toMinor = minorUnits(model)
-  const rates = model.rates
-  switch (category) {
-    case 'cutting': return required(measure.cuttingSeconds ?? undefined, 'speeds.cutting') * perSecond(model, rates?.cuttingPerHour?.value, 'rates.cuttingPerHour')
-    case 'travel': return required(measure.travelSeconds ?? undefined, 'speeds.rapid') * perSecond(model, rates?.travelPerHour?.value, 'rates.travelPerHour')
-    case 'pierce': return measure.pierceCount * toMinor(required(rates?.piercePerUnit?.value, 'rates.piercePerUnit'))
-    case 'consumable': return consumableCost(measure, model)
-    case 'labour': return machineSeconds(measure) * perSecond(model, rates?.labourPerHour?.value, 'rates.labourPerHour')
-  }
-}
-
 const machineSeconds = (measure: ActionMeasures): number =>
   required(measure.cuttingSeconds ?? undefined, 'speeds.cutting') +
   required(measure.travelSeconds ?? undefined, 'speeds.rapid') +
   required(measure.pierceSeconds ?? undefined, 'speeds.pierceDwellSeconds')
+
+type Calculator = (measure: ActionMeasures, model: CostModel) => number
+
+const CALCULATORS: Record<TimedCategory, Calculator> = {
+  cutting: (measure, model) =>
+    required(measure.cuttingSeconds ?? undefined, 'speeds.cutting') *
+    perSecond(model, model.rates?.cuttingPerHour?.value, 'rates.cuttingPerHour'),
+  travel: (measure, model) =>
+    required(measure.travelSeconds ?? undefined, 'speeds.rapid') *
+    perSecond(model, model.rates?.travelPerHour?.value, 'rates.travelPerHour'),
+  pierce: (measure, model) =>
+    measure.pierceCount * minorUnits(model)(required(model.rates?.piercePerUnit?.value, 'rates.piercePerUnit')),
+  consumable: consumableCost,
+  labour: (measure, model) =>
+    machineSeconds(measure) * perSecond(model, model.rates?.labourPerHour?.value, 'rates.labourPerHour'),
+}
+
+const categoryAmount = (category: TimedCategory, measure: ActionMeasures, model: CostModel): number =>
+  CALCULATORS[category](measure, model)
 
 const emptyExact = (count: number): Record<CostCategory, number[]> => ({
   material: new Array<number>(count).fill(0),

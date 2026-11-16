@@ -3,7 +3,8 @@ import type { CutAction, CutPlan } from '../../../../src/nesting'
 import { collectUsage } from '../../../../src/nesting/cost/collectUsage'
 import type { ActionUsage } from '../../../../src/nesting/cost/collectUsage'
 import type { CostRequest } from '../../../../src/nesting/cost/types'
-import { smallRequest } from './fixtures'
+import { sparsePlacementFixture } from '../review/fixtures'
+import { completeModel, smallRequest } from './fixtures'
 
 const sum = (actions: readonly ActionUsage[], category: ActionUsage['category']): number =>
   actions.filter((a) => a.category === category).reduce((total, a) => total + a.length, 0)
@@ -122,5 +123,37 @@ describe('cost/collectUsage', () => {
     const usage = collectUsage({ ...request, artifact: unplaced })
 
     expect(usage.sheets.flatMap((s) => s.parts).some((p) => p.shapeId === 'part-9')).toBe(false)
+  })
+
+  it('warns that a part whose outline is only a bounding box has an approximate area', async () => {
+    const input = await sparsePlacementFixture(1)
+
+    const usage = collectUsage({ artifact: input.artifact, costModel: completeModel() })
+
+    const approximate = usage.notices.filter((n) => n.code === 'PART_AREA_APPROXIMATE')
+    expect(approximate.map((n) => n.partKey)).toEqual(['part-1#0', 'part-2#0'])
+    expect(approximate[0].severity).toBe('warning')
+    expect(approximate[0].message).toContain('retângulo')
+    expect(usage.sheets[0].parts[0].netArea).toBeCloseTo(400)
+  })
+
+  it('does not warn about an approximate area for a placement that has its real outline', async () => {
+    const request = await smallRequest()
+
+    const usage = collectUsage({ artifact: request.artifact, costModel: request.costModel })
+
+    expect(usage.notices.filter((n) => n.code === 'PART_AREA_APPROXIMATE')).toEqual([])
+  })
+
+  it('does not cost a placement whose sheet cannot be determined and names it in a warning', async () => {
+    const input = await sparsePlacementFixture(2)
+
+    const usage = collectUsage({ artifact: input.artifact, costModel: completeModel() })
+
+    expect(usage.sheets.flatMap((s) => s.parts)).toEqual([])
+    const unresolved = usage.notices.filter((n) => n.code === 'PLACEMENT_SHEET_UNRESOLVED')
+    expect(unresolved.map((n) => n.partKey)).toEqual(['part-1#0', 'part-2#0', 'part-3#0', 'part-4#0'])
+    expect(unresolved[0].severity).toBe('warning')
+    expect(unresolved[0].message).toContain('part-1#0')
   })
 })

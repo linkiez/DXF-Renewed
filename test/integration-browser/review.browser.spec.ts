@@ -371,3 +371,32 @@ test.describe('nesting review — keyboard only', () => {
     await expect(page.locator('#host')).not.toContainText('Identification')
   })
 })
+
+test.describe('nesting review — stable DOM while playing', () => {
+  test('keeps the notices list and the inspector controls in place on every playback frame', async ({ page }) => {
+    await mountWith(page, partialInput(), false)
+    await page.locator('#host [data-review-view]').focus()
+    await page.keyboard.press('ArrowRight')
+    const inspector = page.locator('#host aside[aria-label="Inspeção"]')
+    await expect(inspector).toContainText('Peça part-1#0')
+
+    await page.evaluate(() => {
+      const root = document.querySelector('#host section.dxf-review') as HTMLElement
+      const notices = root.querySelector('aside[aria-label="Avisos e motivos"]') as HTMLElement & { tag?: string }
+      const clear = root.querySelector('aside[aria-label="Inspeção"] button') as HTMLElement & { tag?: string }
+      notices.tag = 'kept'
+      clear.tag = 'kept'
+    })
+    await page.keyboard.press('Space')
+    await page.waitForTimeout(500)
+    await page.keyboard.press('Space')
+
+    const kept = await page.evaluate(() => {
+      const root = document.querySelector('#host section.dxf-review') as HTMLElement
+      const notices = root.querySelector('aside[aria-label="Avisos e motivos"]') as (HTMLElement & { tag?: string }) | null
+      const clear = root.querySelector('aside[aria-label="Inspeção"] button') as (HTMLElement & { tag?: string }) | null
+      return { notices: notices?.tag, clear: clear?.tag }
+    })
+    expect(kept).toEqual({ notices: 'kept', clear: 'kept' })
+  })
+})

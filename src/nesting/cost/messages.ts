@@ -39,6 +39,8 @@ export const costMessages = {
     `A peça ${partId} citada pelo plano de corte não existe no artefato.`,
   partWithoutArea: (key: string): string =>
     `A peça ${key} não tem área líquida positiva e não recebe parte do material.`,
+  partAreaApproximate: (key: string): string =>
+    `A peça ${key} não traz contorno; a área usada vem do retângulo envolvente e é aproximada.`,
   partWithoutCutting: (key: string): string =>
     `A peça ${key} não tem ações de corte vinculadas; os valores dependentes do corte são zero.`,
   areaWithoutHoles: (key: string): string =>

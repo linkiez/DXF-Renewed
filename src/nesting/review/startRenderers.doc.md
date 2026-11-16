@@ -24,7 +24,7 @@ flowchart LR
 
 ## Tratamento de erros e casos-limite
 
-Fábrica que rejeita gera o aviso `GRAPHICS_UNAVAILABLE`.
+Fábrica que rejeita ou que lança de forma síncrona gera o aviso `GRAPHICS_UNAVAILABLE` e mantém a vista estática.
 
 ## Exemplos
 

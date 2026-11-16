@@ -7,6 +7,7 @@ Inspetor da peça ou ação selecionada, com avisos registrados e botão "Limpar
 ## Responsabilidades
 
 - Montar título, linhas e avisos a partir de `inspect`.
+- Reconstruir o conteúdo somente quando a seleção muda, preservando o botão de limpar e o foco durante a reprodução.
 
 ## Entradas e saídas
 

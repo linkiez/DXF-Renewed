@@ -22,6 +22,7 @@ const all = (): string[] => [
   costMessages.unplacedNotCharged('part-9', 2),
   costMessages.planSheetMissing('sheet-9'),
   costMessages.placementSheetUnresolved('part-1#0'),
+  costMessages.partAreaApproximate('part-1#0'),
 ]
 
 describe('cost/messages — pt_BR single source', () => {

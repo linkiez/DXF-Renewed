@@ -26,10 +26,11 @@ export async function startRenderers(view: HTMLElement, options: ReviewMountOpti
   const notices: ReviewNotice[] = []
   let accelerated: ReviewRenderer | null = null
   if (options.acceleratedRenderer) {
-    accelerated = await options.acceleratedRenderer(view).catch(() => {
+    try {
+      accelerated = await options.acceleratedRenderer(view)
+    } catch {
       notices.push(graphicsNotice('GRAPHICS_UNAVAILABLE'))
-      return null
-    })
+    }
   }
   return { active: accelerated ?? staticRenderer, accelerated, staticRenderer, notices }
 }
