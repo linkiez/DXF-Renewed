@@ -70,6 +70,7 @@ valores embutidos, e todo resultado afirma que é indicativo e não substitui um
 
 O barrel expõe, de forma aditiva, `getMachineConfiguration`, `listMachineConfigurations`, `toMachineProfile`,
 `validateMachineConfiguration`, `mapToMachineFrame`, os processadores `talvi6000w`, `gloryStarGs3015` e
-`hyperthermEdgeProHpr400xda`, e os tipos de `src/nesting/post/machine`. A biblioteca não lê arquivos,
+`hyperthermEdgeProHpr400xda`, a tabela de corte Hypertherm (`importCutChartTable`, `findCutChartEntry`,
+`cutChartSettings`) e os tipos de `src/nesting/post/machine` e `src/nesting/post/cutcharts`. A biblioteca não lê arquivos,
 rede nem credenciais: configurações, linhas da tabela e textos das receitas chegam como dado. Um programa só é liberável
 quando todo valor crítico da configuração está `approved`.

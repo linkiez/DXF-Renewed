@@ -274,6 +274,22 @@ export type {
   ValueClassification,
   ValueSource,
 } from './post/machine'
+export { cutChartSettings, findCutChartEntry, importCutChartTable } from './post/cutcharts'
+export type {
+  CutChartAbsence,
+  CutChartCell,
+  CutChartEntry,
+  CutChartFound,
+  CutChartImport,
+  CutChartInput,
+  CutChartIssue,
+  CutChartQuery,
+  CutChartRow,
+  CutChartTable,
+  CutChartToggles,
+  CutChartUnit,
+  SeparationRule,
+} from './post/cutcharts'
 export type {
   MachineKind,
   MachineProfile,
