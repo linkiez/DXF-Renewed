@@ -40,4 +40,4 @@ const usage = collectUsage(request)
 
 ## Dependências e integrações
 
-`../linking/placedParts`, `../linking/linkActions`, `../linking/actionLength`, `../polygonUtils` e `./messages`.
+`../linking/placedParts`, `../linking/linkActions`, `../linking/actionCategory`, `../linking/actionLength`, `../linking/metadataNumber`, `../polygonUtils` e `./messages`.

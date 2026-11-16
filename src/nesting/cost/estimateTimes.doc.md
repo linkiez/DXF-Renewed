@@ -35,4 +35,4 @@ const { cuttingSeconds } = estimateTimes(part.actions, model)
 
 ## Dependências e integrações
 
-`./collectUsage` (tipos) e `./types`.
+`../linking/actionDuration` (duração de cada ação), `./collectUsage` (tipos) e `./types`.

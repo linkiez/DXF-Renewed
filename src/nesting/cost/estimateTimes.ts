@@ -1,3 +1,5 @@
+import { actionDuration } from '../linking/actionDuration'
+import type { ActionSpeeds } from '../linking/actionDuration'
 import type { ActionUsage } from './collectUsage'
 import type { CostModel } from './types'
 
@@ -12,35 +14,17 @@ export interface ActionMeasures {
   pierceSeconds: number | null
 }
 
-const SECONDS_PER_MINUTE = 60
-
-const secondsAt = (length: number, speedMetersPerMinute: number | undefined, unitsPerMeter: number): number | null => {
-  if (length === 0) return 0
-  if (speedMetersPerMinute === undefined || !(speedMetersPerMinute > 0)) return null
-  return (length / unitsPerMeter / speedMetersPerMinute) * SECONDS_PER_MINUTE
-}
-
-const travelledSeconds = (
+const sumSeconds = (
   actions: readonly ActionUsage[],
-  category: 'cut' | 'travel',
-  fallback: number | undefined,
+  category: ActionUsage['category'],
+  speeds: ActionSpeeds,
   unitsPerMeter: number,
 ): number | null => {
   let total = 0
   for (const action of actions.filter((a) => a.category === category)) {
-    const seconds = secondsAt(action.length, action.feed ?? fallback, unitsPerMeter)
+    const seconds = actionDuration(action, speeds, unitsPerMeter)
     if (seconds === null) return null
     total += seconds
-  }
-  return total
-}
-
-const pierceSecondsOf = (actions: readonly ActionUsage[], fallback: number | undefined): number | null => {
-  let total = 0
-  for (const action of actions.filter((a) => a.category === 'pierce')) {
-    const dwell = action.dwell ?? fallback
-    if (dwell === undefined) return null
-    total += dwell
   }
   return total
 }
@@ -60,12 +44,17 @@ const lengthOf = (actions: readonly ActionUsage[], category: ActionUsage['catego
  */
 export function estimateTimes(actions: readonly ActionUsage[], model: CostModel): ActionMeasures {
   const unitsPerMeter = model.geometryUnitsPerMeter
+  const speeds: ActionSpeeds = {
+    cutting: model.speeds?.cutting?.value,
+    rapid: model.speeds?.rapid?.value,
+    pierceDwellSeconds: model.speeds?.pierceDwellSeconds?.value,
+  }
   return {
     cutLength: lengthOf(actions, 'cut'),
     travelLength: lengthOf(actions, 'travel'),
     pierceCount: actions.filter((a) => a.category === 'pierce').length,
-    cuttingSeconds: travelledSeconds(actions, 'cut', model.speeds?.cutting?.value, unitsPerMeter),
-    travelSeconds: travelledSeconds(actions, 'travel', model.speeds?.rapid?.value, unitsPerMeter),
-    pierceSeconds: pierceSecondsOf(actions, model.speeds?.pierceDwellSeconds?.value),
+    cuttingSeconds: sumSeconds(actions, 'cut', speeds, unitsPerMeter),
+    travelSeconds: sumSeconds(actions, 'travel', speeds, unitsPerMeter),
+    pierceSeconds: sumSeconds(actions, 'pierce', speeds, unitsPerMeter),
   }
 }
