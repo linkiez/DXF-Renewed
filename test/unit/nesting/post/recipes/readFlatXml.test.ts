@@ -16,6 +16,18 @@ describe('readFlatXml', () => {
     assert.deepEqual(readFlatXml('<A><t>a &amp; b &lt;c&gt;</t></A>'), { t: 'a & b <c>' })
   })
 
+  it('skips declarations and comments, and rejects unclosed ones, in linear time', () => {
+    assert.deepEqual(readFlatXml('<?xml version="1.0"?><!-- note --><A><b>1</b></A>'), { b: '1' })
+    for (const bad of ['<?xml', '<A><!-- open</A>']) {
+      assert.throws(() => readFlatXml(bad), (error: Error) => error.name === 'RecipeXmlError', bad)
+    }
+    const start = Date.now()
+    for (const hostile of ['<?'.repeat(50_000), '<!--'.repeat(50_000)]) {
+      assert.throws(() => readFlatXml(hostile), (error: Error) => error.name === 'RecipeXmlError')
+    }
+    assert.ok(Date.now() - start < 1000)
+  })
+
   it('throws RecipeXmlError for an unbalanced or empty document', () => {
     for (const bad of ['', '   ', '<A><b></A>', '<A>', 'plain text', '<A></B>']) {
       assert.throws(() => readFlatXml(bad), (error: Error) => error.name === 'RecipeXmlError', bad)

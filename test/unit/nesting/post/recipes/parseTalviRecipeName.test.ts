@@ -16,6 +16,14 @@ describe('parseTalviRecipeName', () => {
     assert.deepEqual(parseTalviRecipeName('3.0双14mm。htoolsall.HSTool'), { thicknessMm: 14, material: null, nozzle: 'd3' })
   })
 
+  it('reads hostile names in linear time', () => {
+    const start = Date.now()
+    assert.equal(parseTalviRecipeName(`9mm ${' '.repeat(100_000)}`), undefined)
+    assert.equal(parseTalviRecipeName(`9mm a${' '.repeat(100_000)}`), undefined)
+    assert.equal(parseTalviRecipeName(`9mm ${'a '.repeat(50_000)}`), undefined)
+    assert.ok(Date.now() - start < 1000)
+  })
+
   it('never guesses a name that fits neither pattern', () => {
     for (const name of ['CORTE_TAVI.lnk', 'readme.txt', 'mm aco carbono s1.5.HSTool', '5mm vidro s1.5.HSTool', '0888.nsp']) {
       assert.equal(parseTalviRecipeName(name), undefined, name)

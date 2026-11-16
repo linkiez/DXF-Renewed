@@ -9,7 +9,24 @@ export class RecipeXmlError extends Error {
   }
 }
 
-const TOKEN = /<\?[^>]*\?>|<!--[\s\S]*?-->|<\/([A-Za-z0-9_.:-]+)\s*>|<([A-Za-z0-9_.:-]+)\s*\/>|<([A-Za-z0-9_.:-]+)\s*>|([^<]+)/g
+const TOKEN = /<\/([A-Za-z0-9_.:-]+)\s*>|<([A-Za-z0-9_.:-]+)\s*\/>|<([A-Za-z0-9_.:-]+)\s*>|([^<]+)/g
+
+/** Remove declarations (`<? ... ?>`) and comments (`<!-- ... -->`) by scanning, without backtracking. */
+function stripMarkup(text: string): string {
+  let out = ''
+  let at = 0
+  for (;;) {
+    const declaration = text.indexOf('<?', at)
+    const comment = text.indexOf('<!--', at)
+    const next = declaration === -1 ? comment : comment === -1 ? declaration : Math.min(declaration, comment)
+    if (next === -1) return out + text.slice(at)
+    const closing = next === declaration ? '?>' : '-->'
+    const end = text.indexOf(closing, next)
+    if (end === -1) throw new RecipeXmlError(`unclosed ${closing === '?>' ? 'declaration' : 'comment'}`)
+    out += text.slice(at, next)
+    at = end + closing.length
+  }
+}
 
 const decode = (text: string): string =>
   text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&')
@@ -71,7 +88,7 @@ function addText(parser: Parser, content: string): void {
  */
 export function readFlatXml(text: string): XmlNode {
   const parser: Parser = { stack: [], root: undefined }
-  for (const match of text.matchAll(TOKEN)) {
+  for (const match of stripMarkup(text).matchAll(TOKEN)) {
     const [, closing, selfClosing, opening, content] = match
     if (opening) parser.stack.push({ tag: opening, children: [], text: '' })
     else if (selfClosing) selfClose(parser, selfClosing)
