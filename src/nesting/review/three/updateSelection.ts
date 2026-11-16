@@ -1,4 +1,4 @@
-import { sampleActionPath } from '../actionPath'
+import { sampleActionPath } from '../../linking/actionPath'
 import type { ReviewSelection, ReviewSheet } from '../types'
 import type { SheetObjects } from './sheetObjects'
 

@@ -42,4 +42,4 @@ const hit = pickAt(scene, 'sheet-1', { x: 2.2, y: 12 }, 0.5)
 
 ## Dependências e integrações
 
-`../cutPath/geometry` (`pointToSegmentDistance`), `../polygonUtils` (`pointInPolygon`), `./actionPath` e `./types`.
+`../cutPath/geometry` (`pointToSegmentDistance`), `../polygonUtils` (`pointInPolygon`), `../linking/actionPath` e `./types`.

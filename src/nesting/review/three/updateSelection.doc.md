@@ -33,4 +33,4 @@ updateSelection(objects, sheet, frame.selection)
 
 ## Dependências e integrações
 
-`../actionPath` e `./sheetObjects`.
+`../../linking/actionPath` e `./sheetObjects`.

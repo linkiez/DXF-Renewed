@@ -1,7 +1,7 @@
 import { pointToSegmentDistance } from '../cutPath/geometry'
 import { pointInPolygon } from '../polygonUtils'
 import type { Point2D } from '../types'
-import { sampleActionPath } from './actionPath'
+import { sampleActionPath } from '../linking/actionPath'
 import type { ReviewAction, ReviewPart, ReviewScene, ReviewSelection } from './types'
 
 const sameSelection = (a: ReviewSelection | null | undefined, b: ReviewSelection): boolean =>

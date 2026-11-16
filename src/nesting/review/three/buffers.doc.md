@@ -35,4 +35,4 @@ const buffers = buildBuffers(sheet.timeline)
 
 ## Dependências e integrações
 
-`../actionPath` e `../types`.
+`../../linking/actionPath` e `../types`.

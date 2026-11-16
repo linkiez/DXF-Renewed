@@ -6,8 +6,8 @@ Vincula as ações de corte de uma chapa às peças posicionadas nela. Módulo i
 
 ## Responsabilidades
 
-- Resolver contorno para posição pelo `CutLayout`, e depois `partId` igual à chave da peça ou ao `shapeId`.
-- Manter ações sem vínculo na sequência e gerar um aviso por referência distinta.
+- Delegar a resolução a `linkActions` (módulo compartilhado com o custo).
+- Transformar cada achado estruturado em um aviso em pt-BR (`UNKNOWN_PART` ou `UNLINKED_ACTION`).
 - Expor o mesmo resolvedor para os problemas de planejamento.
 
 ## Entradas e saídas
@@ -42,4 +42,4 @@ const { partKeyByAction } = linkParts({ sheetId: 'sheet-1', partKeys: ['part-1#0
 
 ## Dependências e integrações
 
-`../cutPath/types`, `./messages` e `./types`.
+`../linking/linkActions`, `../cutPath/types`, `./messages` e `./types`.

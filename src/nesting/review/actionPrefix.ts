@@ -1,7 +1,7 @@
 import { EPSILON } from '../config'
 import { distance } from '../polygonUtils'
 import type { Point2D } from '../types'
-import { sampleActionPath } from './actionPath'
+import { sampleActionPath } from '../linking/actionPath'
 import type { ReviewAction } from './types'
 
 /**

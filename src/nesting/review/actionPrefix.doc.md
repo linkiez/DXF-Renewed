@@ -36,4 +36,4 @@ actionPrefix(action, 0.5) // metade do caminho
 
 ## Dependências e integrações
 
-`./actionPath`, `../polygonUtils` e `../config`.
+`../linking/actionPath`, `../polygonUtils` e `../config`.
