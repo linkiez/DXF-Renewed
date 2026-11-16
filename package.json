@@ -9,6 +9,18 @@
     ".": {
       "types": "./types/index.d.ts",
       "import": "./lib/index.js"
+    },
+    "./review/three": {
+      "types": "./lib/nesting/review/three/index.d.ts",
+      "import": "./lib/nesting/review/three/index.js"
+    }
+  },
+  "peerDependencies": {
+    "three": "^0.187.0"
+  },
+  "peerDependenciesMeta": {
+    "three": {
+      "optional": true
     }
   },
   "packageManager": "yarn@4.12.0",
@@ -24,7 +36,7 @@
     "build": "npm run compile",
     "watch": "tsc --watch",
     "type-check": "tsc --noEmit",
-    "dist": "esbuild src/index.ts --bundle --platform=browser --format=iife --global-name=dxf --outfile=dist/dxf.js",
+    "dist": "esbuild src/index.ts --bundle --platform=browser --format=iife --global-name=dxf --outfile=dist/dxf.js && esbuild src/nesting/review/three/index.ts --bundle --platform=browser --format=iife --global-name=dxfReviewThree --external:three --outfile=dist/dxf-review-three.js",
     "lint": "eslint src",
     "quality:gate": "npx --yes fallow@latest audit --ci",
     "clean": "rimraf dist/ lib/",
@@ -73,6 +85,7 @@
     "@types/lodash": "^4.17.25",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.20.3",
+    "@types/three": "^0.187.0",
     "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",
     "esbuild": "^0.28.2",
@@ -84,6 +97,7 @@
     "prettier": "^3.9.7",
     "rimraf": "^6.1.3",
     "semantic-release": "^25.0.9",
+    "three": "^0.187.0",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.0",

@@ -9,6 +9,8 @@ const port = Number(process.env.PORT || 4173)
 
 const harnessHtmlPath = join(projectRoot, 'test', 'browser', 'harness.html')
 const distBundlePath = join(projectRoot, 'dist', 'dxf.js')
+const reviewThreeBundlePath = join(projectRoot, 'dist', 'dxf-review-three.js')
+const threeBuildDir = join(projectRoot, 'node_modules', 'three', 'build')
 const fixturesDir = join(projectRoot, 'test', 'resources')
 
 function sendText(res, statusCode, text, contentType = 'text/plain; charset=utf-8') {
@@ -43,46 +45,46 @@ function safeJoin(baseDir, requestedPath) {
   return resolvedTarget
 }
 
+const JS = 'text/javascript; charset=utf-8'
+
+const exactFiles = new Map([
+  ['/', { path: harnessHtmlPath, type: 'text/html; charset=utf-8', missing: 'Missing test/browser/harness.html' }],
+  ['/harness', { path: harnessHtmlPath, type: 'text/html; charset=utf-8', missing: 'Missing test/browser/harness.html' }],
+  ['/dist/dxf.js', { path: distBundlePath, type: JS, missing: 'Missing dist/dxf.js. Run `yarn dist` before running browser tests.' }],
+  ['/dist/dxf-review-three.js', { path: reviewThreeBundlePath, type: JS, missing: 'Missing dist/dxf-review-three.js. Run `yarn dist` before running browser tests.' }],
+])
+
+const mounts = [
+  { prefix: '/vendor/three/', dir: threeBuildDir, type: JS, invalid: [404, 'Not found'], absent: 'Not found' },
+  { prefix: '/fixtures/', dir: fixturesDir, type: null, invalid: [400, 'Invalid fixture path'], absent: 'Fixture not found' },
+]
+
+function sendFile(res, filePath, type) {
+  res.writeHead(200, { 'Content-Type': type })
+  return createReadStream(filePath).pipe(res)
+}
+
+function serveExact(res, entry) {
+  if (!existsSync(entry.path)) return sendText(res, 500, entry.missing)
+  return sendFile(res, entry.path, entry.type)
+}
+
+function serveMounted(res, mount, pathname) {
+  const filePath = safeJoin(mount.dir, pathname.slice(mount.prefix.length))
+  if (!filePath) return sendText(res, mount.invalid[0], mount.invalid[1])
+  if (!existsSync(filePath) || !statSync(filePath).isFile()) return sendText(res, 404, mount.absent)
+  return sendFile(res, filePath, mount.type ?? contentTypeForPath(filePath))
+}
+
 // NOSONAR: This is a local development test server for browser tests only.
 // HTTP is appropriate and safe for localhost testing. HTTPS would require
 // certificate management without providing security benefits for local testing.
 const server = http.createServer((req, res) => {
-  const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
-  const pathname = url.pathname
-
-  if (pathname === '/' || pathname === '/harness') {
-    if (!existsSync(harnessHtmlPath)) {
-      return sendText(res, 500, 'Missing test/browser/harness.html')
-    }
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-    return createReadStream(harnessHtmlPath).pipe(res)
-  }
-
-  if (pathname === '/dist/dxf.js') {
-    if (!existsSync(distBundlePath)) {
-      return sendText(
-        res,
-        500,
-        'Missing dist/dxf.js. Run `yarn dist` before running browser tests.'
-      )
-    }
-    res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' })
-    return createReadStream(distBundlePath).pipe(res)
-  }
-
-  if (pathname.startsWith('/fixtures/')) {
-    const fixtureName = pathname.slice('/fixtures/'.length)
-    const fixturePath = safeJoin(fixturesDir, fixtureName)
-    if (!fixturePath) {
-      return sendText(res, 400, 'Invalid fixture path')
-    }
-    if (!existsSync(fixturePath) || !statSync(fixturePath).isFile()) {
-      return sendText(res, 404, 'Fixture not found')
-    }
-    res.writeHead(200, { 'Content-Type': contentTypeForPath(fixturePath) })
-    return createReadStream(fixturePath).pipe(res)
-  }
-
+  const { pathname } = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
+  const exact = exactFiles.get(pathname)
+  if (exact) return serveExact(res, exact)
+  const mount = mounts.find((candidate) => pathname.startsWith(candidate.prefix))
+  if (mount) return serveMounted(res, mount, pathname)
   return sendText(res, 404, 'Not found')
 })
 
