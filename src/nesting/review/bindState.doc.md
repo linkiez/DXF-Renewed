@@ -7,7 +7,7 @@ Mantém painéis, anúncios, seletor de chapa e atributos da raiz sincronizados 
 ## Responsabilidades
 
 - Trocar o renderizador ativo para o estático após uma falha gráfica.
-- Substituir o painel de avisos quando os avisos mudam.
+- Substituir o painel de avisos somente quando a lista de avisos do estado muda (comparação por referência), mantendo o DOM estável durante a reprodução.
 
 ## Entradas e saídas
 

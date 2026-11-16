@@ -1,7 +1,7 @@
 import { inspect } from './inspect'
 import { messages } from './messages'
 import { text } from './panelText'
-import type { ReviewController, ReviewScene, ReviewState } from './types'
+import type { ReviewController, ReviewScene, ReviewSelection, ReviewState } from './types'
 
 /** Inspector content and the function that keeps it in sync with the selection. */
 export interface InspectorHandle {
@@ -23,9 +23,12 @@ export function inspectorPanel(doc: Document, scene: ReviewScene, controller: Re
   const heading = text(doc, 'h2', messages.panels.inspector)
   const body = doc.createElement('div')
   aside.append(heading, body)
+  let shown: ReviewSelection | null | undefined
   return {
     element: aside,
     update(state) {
+      if (state.selection === shown) return
+      shown = state.selection
       body.replaceChildren()
       if (!state.selection) {
         body.appendChild(text(doc, 'p', messages.panels.nothingSelected))
