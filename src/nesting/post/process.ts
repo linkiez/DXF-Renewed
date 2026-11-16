@@ -9,6 +9,12 @@ function issue(code: string, message: string): ValidationIssue {
   return { severity: 'error', code, message }
 }
 
+function programOutput(profile: MachineProfile): Pick<MachineProgram, 'output'> {
+  const { configuration } = profile
+  if (!configuration) return {}
+  return { output: { extension: configuration.output.extension.value, lineEnding: configuration.output.lineEnding.value } }
+}
+
 /**
  * Generate a machine program and block release on every error or mismatch.
  *
@@ -51,5 +57,6 @@ export function generateMachineProgram(plan: CutPlan, profile: MachineProfile): 
     profileRevision: profile.profileRevision,
     validationIssues,
     expectedOutputMatched,
+    ...programOutput(profile),
   }
 }

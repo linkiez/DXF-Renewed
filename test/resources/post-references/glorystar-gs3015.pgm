@@ -1,0 +1,85 @@
+%
+;Laser machine G834 (Run-time working table selection) test program
+G2292,S1,X0,Y0,Z0,U3000,V1500,W1
+SHP(0,0,0,3000,1500,6)
+G64
+G90
+G168
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Data exchange with loading device
+SYN
+%Sheet_Load_Inp.I_Materiale = 1      ; Material id
+%Sheet_Load_Inp.I_Spessore  = 6000 ; Material thickness [um]
+%Sheet_Load_Inp.I_Lunghezza = 3000    ; Sheet length
+%Sheet_Load_Inp.I_Larghezza = 1500    ; Sheet width
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Commands for loading database
+JMPF (start_track)
+N0
+JSR "inizio.cfs"
+JSR "Apa.cfs"
+N1
+G650,T3,W1
+G806,T3,N1,H1,D1
+G153,Z(trav_safe_z_start)
+G180,X2900,Y100,Z(workpiece_safe_dist)
+G153,G0,X(kine_x),Y(kine_y)
+G153,G0,Z(kine_z)
+;==============================CORTE==============================
+G800,K1,D1,X2900,Y100,Z0,F3000,T1,P1,R1,U0,V0,W1
+M82
+G1,X2900,Y140
+G832
+M83
+G3,X2860,Y100,I2900,J100
+G3,X2900,Y60,I2900,J100
+G3,X2940,Y100,I2900,J100
+G3,X2900,Y140,I2900,J100
+G840 L5
+N2
+G650,T3,W1
+G806,T3,N1,H1,D1
+;==============================CORTE==============================
+G800,K1,D1,X2960,Y300,Z0,F3000,T1,P1,R1,U0,V0,W1
+M82
+G1,X2950,Y300
+G832
+M83
+G1,X2950,Y480
+G3,X2930,Y500,I2930,J480
+G1,X2850,Y500
+G1,X2850,Y300
+G1,X2950,Y300
+G840 L10
+N3
+G650,T3,W1
+G806,T3,N1,H1,D1
+;==============================CORTE==============================
+G800,K1,D1,X2900,Y300,Z0,F3000,T1,P1,R1,U0,V0,W1
+M82
+G1,X2900,Y320
+G1,X2880,Y320
+G1,X2880,Y300
+G1,X2900,Y300
+G840 L0
+G180,X0,Y0,Z(0.0+workpiece_safe_dist)
+G153,G0,Z(kine_z+head_safe_dist)
+N4
+G650,T3,W1
+G806,T3,N1,H1,D1
+G180,X1700,Y300,Z(workpiece_safe_dist)
+G153,G0,X(kine_x),Y(kine_y)
+G153,G0,Z(kine_z)
+;==============================CORTE==============================
+G800,K1,D1,X1700,Y300,Z0,F3000,T1,P1,R1,U0,V0,W1
+M82
+G1,X1700,Y320
+G1,X1680,Y320
+G1,X1680,Y300
+G1,X1700,Y300
+G840 L0
+G153,G0,Z(trav_safe_z)
+G169
+M498
+JSR "fine.cfs"
+M30

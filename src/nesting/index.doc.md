@@ -65,3 +65,13 @@ desatualizados os resultados derivados até serem recalculados.
 A avaliação indicativa de risco de corte (`assessCutRisk`, `calculateRiskReport`, `heatAt`,
 `validateRiskProfile` e o esquema `riskProfileSchema`) usa um perfil de limites do chamador, nunca
 valores embutidos, e todo resultado afirma que é indicativo e não substitui um corte de teste.
+
+## Configurações de máquina e pós-processadores de corte
+
+O barrel expõe, de forma aditiva, `getMachineConfiguration`, `listMachineConfigurations`, `toMachineProfile`,
+`validateMachineConfiguration`, `mapToMachineFrame`, os processadores `talvi6000w`, `gloryStarGs3015` e
+`hyperthermEdgeProHpr400xda`, a tabela de corte Hypertherm (`importCutChartTable`, `findCutChartEntry`,
+`cutChartSettings`), o catálogo de receitas da Talvi (`importTalviRecipes`, `findTalviRecipe`) e os tipos de
+`src/nesting/post/machine`, `src/nesting/post/cutcharts` e `src/nesting/post/recipes`. A biblioteca não lê arquivos,
+rede nem credenciais: configurações, linhas da tabela e textos das receitas chegam como dado. Um programa só é liberável
+quando todo valor crítico da configuração está `approved`.

@@ -22,3 +22,19 @@ must not mutate their input plan or profile. `generateMachineProgram` requires
 `MachineProfile.expectedOutput` and compares canonicalized text exactly before release.
 Generic plasma emits the approved `amperage` profile setting as an `S` word on the torch-on
 command; missing amperage is a validation error rather than a default.
+
+## Configurações de máquina e processadores de dialeto
+
+O módulo expõe, de forma aditiva, configurações de máquina e três processadores de dialeto:
+
+- `talvi-6000w@laserahead-1` (macros do controlador LaserAhead), `glorystar-gs3015@sigmanest-23.2-1` e
+  `hypertherm-edge-pro-hpr400xda@edge-connect-809550-6` (formato de programa do EDGE Connect, do fabricante).
+- Uma `MachineConfiguration` reúne os fatos físicos e de dialeto de uma máquina; cada valor crítico leva sua fonte e uma
+  classificação (`observed`, `user-confirmed`, `vendor-confirmed`, `approved`, `inferred`). `toMachineProfile` monta o
+  `MachineProfile` (com `configuration`) que `generateMachineProgram` lê; o resultado então traz `output`.
+- Um programa de configuração com valor crítico não `approved` sai para revisão e nunca é liberável
+  (`UNAPPROVED_VALUE`). As configurações embutidas (`getMachineConfiguration`, `listMachineConfigurations`) não aprovam
+  nada; o chamador entrega uma cópia aprovada.
+- `importCutChartTable`, `findCutChartEntry` e `cutChartSettings` leem a tabela de corte Phoenix da Hypertherm a partir de
+  linhas entregues pelo chamador; `importTalviRecipes` e `findTalviRecipe` catalogam os arquivos de ferramenta da Talvi.
+  A biblioteca não lê arquivos.

@@ -1,3 +1,5 @@
+import { formatNumber } from './formatNumber'
+
 type WordValue = number | string
 
 export interface GcodeWriterOptions {
@@ -5,12 +7,8 @@ export interface GcodeWriterOptions {
   readonly lineEnding?: '\n' | '\r\n'
   /** Number of decimal places used for numeric words. */
   readonly precision?: number
-}
-
-function formatNumber(value: number, precision: number): string {
-  if (Object.is(value, -0)) return '0'
-  if (!Number.isFinite(value)) throw new Error(`G-code numeric value must be finite: ${value}`)
-  return value.toFixed(precision).replace(/\.?0+$/, '') || '0'
+  /** Keep the fixed decimals of numeric words (`1.5000`) instead of trimming them. Default `false`. */
+  readonly trailingZeros?: boolean
 }
 
 /** Tokenized deterministic G-code builder. */
@@ -28,6 +26,7 @@ export class GcodeWriter {
     this.options = {
       lineEnding: options.lineEnding ?? '\n',
       precision: options.precision ?? 4,
+      trailingZeros: options.trailingZeros ?? false,
     }
   }
 
@@ -51,7 +50,7 @@ export class GcodeWriter {
    */
   word(letter: string, value: WordValue): this {
     if (!/^[A-Za-z]$/.test(letter)) throw new Error(`Invalid G-code word letter: ${letter}`)
-    this.current.push(`${letter.toUpperCase()}${typeof value === 'number' ? formatNumber(value, this.options.precision) : value}`)
+    this.current.push(`${letter.toUpperCase()}${typeof value === 'number' ? formatNumber(value, this.options.precision, this.options.trailingZeros) : value}`)
     return this
   }
 
@@ -75,6 +74,18 @@ export class GcodeWriter {
   endLine(): this {
     this.lines.push(this.current.join(' '))
     this.current = []
+    return this
+  }
+
+  /**
+   * Append a complete raw line, closing the line being built first.
+   *
+   * @param text - Line text written as is (controller macros, comma-separated commands).
+   * @returns This writer for fluent calls.
+   */
+  line(text: string): this {
+    if (this.current.length > 0) this.endLine()
+    this.lines.push(text)
     return this
   }
 
