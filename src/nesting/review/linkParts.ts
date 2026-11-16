@@ -1,4 +1,6 @@
 import type { CutAction, CutLayout } from '../cutPath/types'
+import { linkActions } from '../linking/linkActions'
+import type { UnresolvedReference } from '../linking/linkActions'
 import { messages } from './messages'
 import type { ReviewNotice } from './types'
 
@@ -21,69 +23,28 @@ export interface LinkPartsResult {
   notices: readonly ReviewNotice[]
 }
 
-const keyOf = (shapeId: string, instanceIndex: number | undefined): string =>
-  `${shapeId}#${instanceIndex ?? 0}`
+const noticeFor = (sheetId: string, finding: UnresolvedReference): ReviewNotice => ({
+  severity: 'warning',
+  code: finding.kind === 'unknown-part' ? 'UNKNOWN_PART' : 'UNLINKED_ACTION',
+  message: finding.kind === 'unknown-part'
+    ? messages.unknownPart(finding.reference)
+    : messages.unlinkedAction(finding.reference, finding.actionIndex),
+  origin: 'review',
+  sheetId,
+  actionIndex: finding.actionIndex,
+})
 
 /**
- * Links cut actions to the parts placed on a sheet.
- *
- * Resolution order: contours of the cut layout (contour to placement), then a `partId` equal to a
- * part key or to a `shapeId`. A reference that cannot be resolved raises one notice and keeps the
- * action in the sequence.
+ * Links cut actions to the parts placed on a sheet and explains the unresolved ones in pt-BR.
  *
  * @param args - Sheet, known part keys, optional cut layout and the sheet's actions.
  * @returns Part keys per action, a resolver and the notices raised.
  */
 export function linkParts(args: LinkPartsArgs): LinkPartsResult {
-  const known = new Set(args.partKeys)
-  const contourPartId = new Map<string, string>()
-  const keysByPartId = new Map<string, string[]>()
-  for (const contour of args.layout?.contours ?? []) {
-    contourPartId.set(contour.id, contour.partId)
-    const key = keyOf(contour.placement.shapeId, contour.placement.instanceIndex)
-    if (!known.has(key)) continue
-    const list = keysByPartId.get(contour.partId) ?? []
-    if (!list.includes(key)) list.push(key)
-    keysByPartId.set(contour.partId, list)
+  const result = linkActions({ partKeys: args.partKeys, layout: args.layout, actions: args.actions })
+  return {
+    partKeyByAction: result.partKeyByAction,
+    resolve: result.resolve,
+    notices: result.unresolved.map((finding) => noticeFor(args.sheetId, finding)),
   }
-
-  const byPartId = (partId: string): string | undefined => {
-    const viaLayout = keysByPartId.get(partId)?.[0]
-    if (viaLayout) return viaLayout
-    if (known.has(partId)) return partId
-    const asShape = keyOf(partId, 0)
-    return known.has(asShape) ? asShape : undefined
-  }
-
-  const resolve = (partId: string | undefined, contourId: string | undefined): string | undefined => {
-    const id = partId ?? (contourId ? contourPartId.get(contourId) : undefined)
-    return id === undefined ? undefined : byPartId(id)
-  }
-
-  const notices: ReviewNotice[] = []
-  const reported = new Set<string>()
-  const partKeyByAction = args.actions.map((action, actionIndex) => {
-    if (action.partId === undefined && action.contourId === undefined) return undefined
-    const key = resolve(action.partId, action.contourId)
-    if (key !== undefined) return key
-    const reference = action.partId ?? action.contourId ?? ''
-    const unresolvedPart = action.partId ?? (action.contourId ? contourPartId.get(action.contourId) : undefined)
-    const dedupe = unresolvedPart ?? `contour:${reference}`
-    if (!reported.has(dedupe)) {
-      reported.add(dedupe)
-      notices.push({
-        severity: 'warning',
-        code: unresolvedPart === undefined ? 'UNLINKED_ACTION' : 'UNKNOWN_PART',
-        message: unresolvedPart === undefined
-          ? messages.unlinkedAction(reference, actionIndex)
-          : messages.unknownPart(unresolvedPart),
-        origin: 'review',
-        sheetId: args.sheetId,
-        actionIndex,
-      })
-    }
-    return undefined
-  })
-
-  return { partKeyByAction, resolve, notices }
 }

@@ -44,3 +44,11 @@ O barrel expõe, de forma aditiva, `buildReviewScene`, `renderReviewSvg`, `mount
 `src/nesting/review/types.ts`. A revisão consome um `ErpNestingArtifact` com
 `CutLayout` e `CutPlanResult` opcionais e nunca altera esses objetos. O renderizador acelerado
 fica no subcaminho `review/three` e não é importado por este barrel.
+
+## Custo e relatório de nesting
+
+O barrel expõe, de forma aditiva, `calculateCostReport`, `buildCostBreakdown`, `validateCostModel`, `costReportTables`,
+`costReportToCsv` e os tipos públicos de
+`src/nesting/cost/types.ts` (modelo de custo, pedido, relatório de custo e avisos). O cálculo não guarda nada e não altera o artefato, o plano de
+corte nem o modelo de custo. O vínculo ação→peça e a resolução de placements usados pela revisão e
+pelo custo ficam em `src/nesting/linking/`.

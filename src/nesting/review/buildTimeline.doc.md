@@ -40,4 +40,4 @@ timeline.pierceIndices // [1, 4]
 
 ## Dependências e integrações
 
-`../polygonUtils` (`distance`), `./actionPath` e `./types`.
+`../linking/actionLength` e `./types`.

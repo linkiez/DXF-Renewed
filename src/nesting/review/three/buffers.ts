@@ -1,5 +1,5 @@
 import type { CutActionKind } from '../../cutPath/types'
-import { sampleActionPath } from '../actionPath'
+import { sampleActionPath } from '../../linking/actionPath'
 import type { ReviewTimeline } from '../types'
 import { LINE_KINDS } from './lineKinds'
 import type { LineKind } from './lineKinds'

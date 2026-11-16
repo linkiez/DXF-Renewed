@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-Discretiza a geometria de uma ação em uma polilinha. Módulo interno.
+Discretiza a geometria de uma ação em uma polilinha. Compartilhado pela revisão e pelo custo.
 
 ## Responsabilidades
 

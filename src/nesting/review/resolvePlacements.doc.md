@@ -7,10 +7,9 @@ Módulo interno.
 
 ## Responsabilidades
 
-- Chapa: `sheetId`, senão a única chapa, senão avisa `PLACEMENT_SHEET_UNRESOLVED` e não desenha.
-- Instância: `instanceIndex`, senão a ordem entre placements da mesma forma.
-- Contorno: `transformedVertices`, senão o retângulo `bbox` com aviso `PLACEMENT_GEOMETRY_APPROXIMATE`.
-- Placement composto: uma peça com os contornos externo e dos furos.
+- Delegar a resolução (chapa, instância, contorno e compostos) a `placedParts`, módulo compartilhado com o custo.
+- Acrescentar os dados de origem das formas disponíveis pelo `CutLayout`.
+- Transformar cada achado em aviso pt-BR (`PLACEMENT_SHEET_UNRESOLVED` ou `PLACEMENT_GEOMETRY_APPROXIMATE`).
 
 ## Entradas e saídas
 
@@ -48,4 +47,4 @@ const { partsBySheet, notices } = resolvePlacements(layout, stocks, shapes)
 
 ## Dependências e integrações
 
-`../types`, `../erp/types`, `./messages` e `./types`.
+`../linking/placedParts`, `../types`, `../erp/types`, `./messages` e `./types`.
