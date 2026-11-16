@@ -1,6 +1,6 @@
 import type * as ThreeModule from 'three'
 import { stateAt } from '../stateAt'
-import type { ReviewFrame, ReviewRenderer, ReviewRendererFailure } from '../types'
+import type { ReviewFrame, ReviewOverlay, ReviewRenderer, ReviewRendererFailure } from '../types'
 import { fitCamera } from './fitCamera'
 import { ReviewGraphicsError } from './graphicsError'
 import type { LineKind } from './lineKinds'
@@ -8,6 +8,8 @@ import { PALETTE } from './palette'
 import { buildSheetObjects } from './sheetObjects'
 import type { SheetObjects } from './sheetObjects'
 import type { ThreeNamespace } from './threeNamespace'
+import { createOverlayLayer } from './updateOverlay'
+import type { OverlayLayer } from './updateOverlay'
 import { updatePartial } from './updatePartial'
 import { updateSelection } from './updateSelection'
 import { updateTrail } from './updateTrail'
@@ -82,6 +84,9 @@ export async function createThreeRenderer(options: CreateThreeRendererOptions): 
   let built: SheetObjects | null = null
   let size = { width: 0, height: 0 }
   let lastFrame: ReviewFrame | null = null
+  let overlayLayer: OverlayLayer | null = null
+  let overlay: ReviewOverlay | null = null
+  let appliedOverlay: { overlay: ReviewOverlay | null; sheetId: string } | null = null
 
   const objectsFor = (sheetId: string, sheet: Parameters<typeof buildSheetObjects>[1]): SheetObjects => {
     if (built?.sheetId === sheetId) return built
@@ -101,6 +106,15 @@ export async function createThreeRenderer(options: CreateThreeRendererOptions): 
     return size
   }
 
+  const syncOverlay = (sheetId: string, unit: number): void => {
+    if (!overlay && !overlayLayer) return
+    overlayLayer ??= createOverlayLayer(three)
+    if (overlayLayer.group.parent !== scene) scene.add(overlayLayer.group)
+    if (appliedOverlay?.overlay === overlay && appliedOverlay.sheetId === sheetId) return
+    overlayLayer.apply(overlay, unit)
+    appliedOverlay = { overlay, sheetId }
+  }
+
   const render = (frame: ReviewFrame): void => {
     lastFrame = frame
     const sheet = frame.scene.sheets.find((candidate) => candidate.id === frame.sheetId)
@@ -108,6 +122,7 @@ export async function createThreeRenderer(options: CreateThreeRendererOptions): 
     const objects = objectsFor(sheet.id, sheet)
     const { width, height } = resize()
     fitCamera(camera, sheet.stock, frame.viewport, height / width)
+    syncOverlay(sheet.id, Math.max(sheet.stock.width, sheet.stock.height) / 400)
     const state = stateAt(frame.scene, frame.position)
     updateTrail(objects, state.completed)
     updatePartial(objects, state, frame.position.progress, solidMaterial)
@@ -128,6 +143,10 @@ export async function createThreeRenderer(options: CreateThreeRendererOptions): 
     kind: 'accelerated',
     scene,
     render,
+    overlay(next) {
+      overlay = next
+      if (lastFrame) render(lastFrame)
+    },
     pointAt(clientX, clientY) {
       const rect = canvas.getBoundingClientRect()
       if (!rect.width || !rect.height) return null
@@ -146,6 +165,7 @@ export async function createThreeRenderer(options: CreateThreeRendererOptions): 
     },
     dispose() {
       resizeObserver?.disconnect()
+      overlayLayer?.dispose()
       release()
       gl.dispose()
       canvas.remove()

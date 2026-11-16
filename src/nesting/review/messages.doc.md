@@ -9,6 +9,9 @@ do Brasil. Não é exportado pelo barrel.
 
 - Fornecer mensagens de avisos, rótulos, legenda, anúncios e texto do resumo.
 - Garantir um único ponto para idioma e terminologia.
+- Reunir os textos do painel de edição e os anúncios de veredito, confirmação, recusa, desfazer e refazer, e o rótulo de frescor de cada resultado derivado.
+- Reunir os textos do painel de risco (indicativo, resumo, regras não avaliadas, severidade e rótulos) e os da comparação e do recálculo.
+- Reunir os textos da chave de calor, do calor máximo, do calor indisponível e dos marcadores da linha do tempo.
 
 ## Entradas e saídas
 

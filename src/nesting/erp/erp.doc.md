@@ -28,4 +28,5 @@ requests use the Observable error channel.
 
 Digest projections exclude timestamps, timings, logs, correlation metadata, and digest fields.
 Layout decisions, selected sheets, cut/nesting plan, metrics, unplaced reasons, and manufacturing
-output are included in the output projection.
+output are included in the output projection. The projection is defined once in `outputProjection.ts`, shared by the artifact
+builder and by consumers that must reproduce an output digest.

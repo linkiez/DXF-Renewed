@@ -3,8 +3,9 @@ import { escapeXml } from '../toNestedSvg'
 import type { Point2D } from '../types'
 import { actionPrefix } from './actionPrefix'
 import { messages } from './messages'
+import { overlayLayer } from './overlaySvg'
 import { stateAt } from './stateAt'
-import type { ReviewAction, ReviewPart, ReviewPosition, ReviewScene, ReviewSelection, ReviewSheet, ReviewViewport } from './types'
+import type { ReviewAction, ReviewOverlay, ReviewPart, ReviewPosition, ReviewScene, ReviewSelection, ReviewSheet, ReviewViewport } from './types'
 
 /** Options of the static review renderer. */
 export interface RenderReviewSvgOptions {
@@ -14,6 +15,8 @@ export interface RenderReviewSvgOptions {
   selection?: ReviewSelection | null
   /** View window; the whole sheet with its legend is shown at the default viewport. */
   viewport?: ReviewViewport
+  /** Candidate position, heat and markers drawn above the sheet. */
+  overlay?: ReviewOverlay | null
 }
 
 type LineKind = Exclude<CutActionKind, 'pierce' | 'end'>
@@ -177,7 +180,7 @@ const sheetBody = (scene: ReviewScene, sheet: ReviewSheet, options: RenderReview
     `<rect x="0" y="0"${attr('width', num(width))}${attr('height', num(height))} fill="#ffffff" stroke="#374151"` +
     `${attr('stroke-width', num(1.5 * unit))}${attr('stroke-dasharray', `${num(6 * unit)} ${num(4 * unit)}`)}/>` +
     `${sheet.parts.map((part) => partElement(part, unit, part.key === selectedPart)).join('')}${layers}` +
-    `${selectedActionLayer(sheet, options.selection, unit)}</g>`
+    `${selectedActionLayer(sheet, options.selection, unit)}${overlayLayer(options.overlay, unit)}</g>`
 }
 
 /**

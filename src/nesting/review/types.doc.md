@@ -10,6 +10,9 @@ avisos, linha do tempo, posição, seleção, renderizador e controlador.
 - Definir também o eixo de reprodução (`playStart`, `playSpan`, `playTotal`), em que toda ação tem extensão positiva.
 - Definir contratos imutáveis consumidos pelo modelo, pelos renderizadores e pelo controlador.
 - Reutilizar `Placement`, `StockItem`, `CutPlanResult` e `ErpNestingArtifact` sem redefini-los.
+- Declarar também o `ReviewOverlay` (posição candidata, calor, peças livres e marcadores), o estado do painel de edição, o `ReviewEditHandle` e as opções `edit` e `risk` do `mountReview`; `ReviewRenderer.overlay` é opcional.
+- Declarar `recompute` nas opções de edição, `recomputing`, `comparison` e `risk` no estado do painel e `recompute()` no handle de edição.
+- Declarar `riskRequest` no estado do painel e as peças livres do overlay com seus contornos.
 
 ## Entradas e saídas
 

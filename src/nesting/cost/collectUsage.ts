@@ -1,7 +1,9 @@
 import { EPSILON } from '../config'
 import type { CutAction, CutLayout, CutPlan } from '../cutPath/types'
+import { actionCategory } from '../linking/actionCategory'
 import { actionLength } from '../linking/actionLength'
 import { linkActions } from '../linking/linkActions'
+import { metadataNumber } from '../linking/metadataNumber'
 import { placedParts } from '../linking/placedParts'
 import type { PlacedPart } from '../linking/placedParts'
 import { computeArea } from '../polygonUtils'
@@ -48,28 +50,14 @@ export interface UsageResult {
 
 type ArtifactLayout = NonNullable<CostRequest['artifact']['layout']>
 
-const CATEGORY: Partial<Record<CutAction['kind'], ActionUsage['category']>> = {
-  cut: 'cut',
-  'lead-in': 'cut',
-  'lead-out': 'cut',
-  overcut: 'cut',
-  tab: 'cut',
-  'common-line': 'cut',
-  rapid: 'travel',
-  pierce: 'pierce',
-}
-
-const numeric = (value: string | number | boolean | undefined): number | null =>
-  typeof value === 'number' && Number.isFinite(value) ? value : null
-
 const toUsage = (action: CutAction): ActionUsage | null => {
-  const category = CATEGORY[action.kind]
+  const category = actionCategory(action.kind)
   if (!category) return null
   return {
     category,
     length: actionLength(action.points, action.curve),
-    feed: numeric(action.metadata?.feed),
-    dwell: numeric(action.metadata?.dwell),
+    feed: metadataNumber(action.metadata?.feed),
+    dwell: metadataNumber(action.metadata?.dwell),
   }
 }
 

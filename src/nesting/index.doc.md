@@ -52,3 +52,16 @@ O barrel expõe, de forma aditiva, `calculateCostReport`, `buildCostBreakdown`, 
 `src/nesting/cost/types.ts` (modelo de custo, pedido, relatório de custo e avisos). O cálculo não guarda nada e não altera o artefato, o plano de
 corte nem o modelo de custo. O vínculo ação→peça e a resolução de placements usados pela revisão e
 pelo custo ficam em `src/nesting/linking/`.
+
+## Edição de layout e risco de corte
+
+O barrel expõe, de forma aditiva, a edição de posição das peças de um artefato revisado
+(`createEditState`, `judgePlacement`, `commitEdit`, `undoEdit`, `redoEdit`, `editedLayout`,
+`editedCutLayout`, `markComputed` e os tipos de `src/nesting/edit/types.ts`) e os tipos de
+`src/nesting/risk/types.ts`. A edição nunca altera o artefato de entrada, não guarda nada e só confirma
+posições válidas; cada confirmação, desfazer e refazer incrementa a revisão do estado e torna
+desatualizados os resultados derivados até serem recalculados.
+
+A avaliação indicativa de risco de corte (`assessCutRisk`, `calculateRiskReport`, `heatAt`,
+`validateRiskProfile` e o esquema `riskProfileSchema`) usa um perfil de limites do chamador, nunca
+valores embutidos, e todo resultado afirma que é indicativo e não substitui um corte de teste.

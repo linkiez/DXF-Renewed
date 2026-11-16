@@ -11,6 +11,7 @@ Controlador de uma sessão de revisão: reprodução, busca, troca de chapa e qu
 - Trocar para o renderizador estático ao receber falha gráfica, mantendo posição e seleção.
 - Executar comandos de teclado (`handleKey`) e manter a vista (`pan`, `zoomBy`, `resetViewport`).
 - Manter a seleção (`select`, `moveSelection`, `seekToSelectedAction`); só aceita peças e ações que existem na chapa atual e a limpa ao trocar de chapa.
+- Restaurar chapa, viewport e seleção de uma sessão anterior quando `initial` é informado.
 
 ## Entradas e saídas
 

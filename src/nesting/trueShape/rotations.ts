@@ -10,7 +10,7 @@ import type { PartRequest } from '../types'
 import { DEFAULT_ALLOWED_ROTATIONS, EPSILON } from '../config'
 
 /** Smallest absolute difference between two angles, modulo 180°. */
-function angleDistanceMod180(a: number, b: number): number {
+export function angleDistanceMod180(a: number, b: number): number {
   const diff = (((a - b) % 180) + 180) % 180
   return Math.min(diff, 180 - diff)
 }

@@ -10,6 +10,7 @@ Renderizador acelerado de vista superior ortográfica. Recebe o namespace `three
 - Mover um único marcador de cabeça e desenhar a parte executada da ação atual.
 - Enquadrar a chapa inteira na câmera, destacar a seleção, converter o ponteiro em coordenadas da chapa (`pointAt`) e redesenhar quando o contêiner muda de tamanho.
 - Reportar `GRAPHICS_UNAVAILABLE` (rejeição na criação) e `GRAPHICS_LOST` (perda de contexto).
+- Desenhar o overlay (contorno candidato tracejado quando inválido e uma cruz por violação) em uma camada criada somente quando o primeiro overlay chega.
 
 ## Entradas e saídas
 

@@ -9,6 +9,7 @@ Adapta o desenho SVG estático a um `ReviewRenderer`, para que o controlador o c
 - Redesenhar a chapa a cada quadro, com posição e seleção.
 - Repassar a vista (`viewport`) ao desenho.
 - Converter o ponteiro em coordenadas da chapa (`pointAt`) pela matriz de tela do grupo da chapa.
+- Guardar o overlay recebido e redesenhá-lo junto com cada quadro, sem perdê-lo quando a vista é redesenhada.
 
 ## Entradas e saídas
 

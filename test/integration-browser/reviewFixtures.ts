@@ -154,3 +154,57 @@ export const referenceInput = (count = 500): BrowserReviewInput => {
     cutPlan: resultOf([planOf('sheet-1', built.actions)]),
   }
 }
+
+const shapeOf = (id: string, x: number, y: number, size: number) => ({
+  id, layer: 'CUT', vertices: ringOf(x, y, size), bbox: box(x, y, size), area: size * size, perimeter: size * 4,
+  centroid: { x: x + size / 2, y: y + size / 2 }, allowedRotations: [0], kerf: 0, isHole: false,
+})
+
+/** One sheet with two 20 mm parts 4 mm apart, a hand-built plan and the matching cut layout. */
+export const editableInput = (): BrowserReviewInput & { layout: Record<string, unknown> } => {
+  const sheet = sheetOf('sheet-1', 100, 100)
+  const built = partsOn('sheet-1', 1, 2, 4)
+  const placements = built.placements as { shapeId: string; x: number; y: number }[]
+  const contours = placements.map((placement) => ({
+    id: `${placement.shapeId}-outer`, partId: placement.shapeId, sheetId: 'sheet-1', isOuter: true,
+    shape: shapeOf(placement.shapeId, placement.x, placement.y, 20), placement,
+  }))
+  return {
+    artifact: artifactOf([sheet], built.placements),
+    cutPlan: resultOf([planOf('sheet-1', built.actions)]),
+    layout: { sheets: [sheet], contours, startPoint: { x: 0, y: 0 } },
+  }
+}
+
+/** Process profile, cost model and risk profile used by the browser specs. */
+export const processProfile = (lead = 1) => ({
+  sequence: { strategy: 'input' },
+  lead: { type: 'straight', length: lead, angle: 0, placement: 'outside' },
+  pierce: { clearance: 1, smallHoleThreshold: 4 },
+  tabs: { enabled: false, width: 0.5, count: 0 },
+  overcut: { enabled: false, length: 0.25 },
+  clearance: { contour: 0.1, tab: 0.1, keptMaterial: 0.1 },
+  commonLine: { enabled: false, tolerance: 0.001 },
+})
+
+export const costModel = () => ({
+  contractVersion: 1,
+  currency: { code: 'BRL', minorUnitDigits: 2 },
+  geometryUnitsPerMeter: 1000,
+  material: { fullSheet: { 'sheet-1': { value: 100 } }, remnant: {} },
+  speeds: { cutting: { value: 2 }, rapid: { value: 10 }, pierceDwellSeconds: { value: 0.5 } },
+  rates: { cuttingPerHour: { value: 60 }, travelPerHour: { value: 30 }, piercePerUnit: { value: 0.1 }, labourPerHour: { value: 40 } },
+  handling: { secondsPerSheet: { value: 60 }, secondsPerJob: { value: 120 } },
+  consumables: [],
+})
+
+export const riskProfile = () => ({
+  contractVersion: 1,
+  geometryUnitsPerMeter: 1000,
+  speeds: { cutting: { value: 6 }, rapid: { value: 30 }, pierceDwellSeconds: { value: 0.5 } },
+  heat: { radius: { value: 0.03 }, windowSeconds: { value: 60 }, maxCutLength: { value: 0.1 } },
+  web: { minimum: { value: 0.005 } },
+  loosePart: { maxArea: { value: 0.0001 } },
+  headStrike: { clearance: { value: 0.005 } },
+  criticalFactor: { value: 1.5 },
+})

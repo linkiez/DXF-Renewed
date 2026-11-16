@@ -21,14 +21,14 @@ export const deepFreeze = <T>(value: T): T => {
   return value
 }
 
-const stockSheet = (id: string, width = 100, height = 100): StockItem => ({
+export const stockSheet = (id: string, width = 100, height = 100): StockItem => ({
   id,
   kind: 'sheet',
   width,
   height,
 })
 
-const request = (stock: StockItem[]): ErpNestingRequest => ({
+export const request = (stock: StockItem[]): ErpNestingRequest => ({
   contractVersion: 1,
   correlation: { orderId: 'order-1', revisionId: 'rev-1', requestId: 'req-1' },
   job: {
@@ -41,7 +41,7 @@ const request = (stock: StockItem[]): ErpNestingRequest => ({
   seed: 42,
 })
 
-const nestResponse = (
+export const nestResponse = (
   sheets: StockItem[],
   placements: Placement[],
   unplaced: NestResponse['unplaced'] = [],

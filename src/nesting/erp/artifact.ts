@@ -1,5 +1,6 @@
 import type { NestResponse } from '../types'
 import { digestCanonical } from './digest'
+import { outputProjection } from './outputProjection'
 import type {
   ErpIssue,
   ErpNestingArtifact,
@@ -7,29 +8,6 @@ import type {
   ErpUnplacedItem,
 } from './types'
 import type { CanonicalInput } from './canonical'
-
-function outputProjection(
-  request: ErpNestingRequest,
-  plan: NestResponse,
-  unplaced: ErpUnplacedItem[],
-): CanonicalInput {
-  return {
-    contractVersion: request.contractVersion,
-    layout: plan as CanonicalInput,
-    selectedSheets: plan.sheets as CanonicalInput,
-    plan: {
-      placements: plan.placements as CanonicalInput,
-      compoundPlacements: (plan.compoundPlacements ?? []) as CanonicalInput,
-      unplaced,
-    },
-    metrics: {
-      utilization: plan.utilization,
-      wasteArea: plan.wasteArea,
-      totalArea: plan.totalArea,
-    },
-    unplaced,
-  }
-}
 
 export async function createNestingArtifact(
   request: ErpNestingRequest,
@@ -50,7 +28,7 @@ export async function createNestingArtifact(
     seed: request.seed,
     overrides: request.overrides ?? {},
   })
-  const outputDigest = await digestCanonical(outputProjection(request, plan, unplaced))
+  const outputDigest = await digestCanonical(outputProjection(request.contractVersion, plan, unplaced))
 
   return {
     contractVersion: request.contractVersion,

@@ -14,6 +14,7 @@ cena. É a vista de contingência e a vista acessível.
 - Destacar a peça ou a ação selecionada (`data-selected`, `data-selected-action`).
 - Incluir título, descrição e legenda em pt-BR.
 - Com `position`, desenhar a trilha (`data-trail`), as ações restantes esmaecidas (`data-remaining`) e o marcador da cabeça (`data-head`), usando `stateAt`.
+- Desenhar o overlay acima da chapa quando ele é informado, em `overlaySvg`.
 
 ## Entradas e saídas
 
