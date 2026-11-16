@@ -5,6 +5,7 @@ Módulo `rotations.ts` da feature 002-true-shape-nesting.
 
 ## Responsabilidades
 - FR-004: lista de rotações permitidas e restrição do subconjunto alinhado ao grão (`grainAngle` mod 180).
+- Expor `angleDistanceMod180`, a distância angular módulo 180 graus, para quem precisa julgar o alinhamento ao grão de uma rotação, como o módulo de edição.
 
 ## Entradas / Saídas
 - Entradas: parâmetros tipados das funções exportadas em `rotations.ts`.

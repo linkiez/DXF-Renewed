@@ -348,4 +348,5 @@ export * from './cost'
 // Nesting layout editing and cut risk (feature 010)
 // ─────────────────────────────────────────────
 
+export * from './edit'
 export * from './risk'
