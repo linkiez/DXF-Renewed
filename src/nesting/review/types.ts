@@ -10,9 +10,13 @@ import type {
   CutActionMetadata,
   CutCurve,
   CutLayout,
+  CutProcessProfile,
   CutPlanResult,
 } from '../cutPath/types'
+import type { CandidateEdit, ComparisonSummary, EditInput, EditNotice, Freshness, PlacementVerdict } from '../edit/types'
 import type { ErpDigest, ErpNestingArtifact } from '../erp/types'
+import type { CutRiskProfile, HeatView, RiskCategory, RiskRequest, RiskResult, RiskSeverity, RiskStatus } from '../risk/types'
+import type { CostModel } from '../cost/types'
 
 /** Inputs of a review: the calculation artifact plus optional cut layout and plan. */
 export interface ReviewInput {
@@ -191,6 +195,37 @@ export interface ReviewFrame {
   viewport: ReviewViewport
 }
 
+/** One reason a candidate position is refused, drawn next to the ghost. */
+export interface OverlayMark {
+  code: string
+  label: string
+}
+
+/** A finding drawn on the sheet and on the timeline. */
+export interface OverlayMarker {
+  id: string
+  category: RiskCategory
+  severity: RiskSeverity
+  x: number
+  y: number
+  label: string
+}
+
+/** What a renderer draws above the sheet: the candidate position, the heat view, free parts and markers. */
+export interface ReviewOverlay {
+  ghost?: {
+    outline: readonly Point2D[]
+    valid: boolean
+    /** Where the labels of the marks are anchored. */
+    anchor: Point2D
+    marks: readonly OverlayMark[]
+  }
+  heat?: HeatView
+  /** The parts that are free at the displayed moment, with their outlines. */
+  freed?: readonly { key: string; outline: readonly Point2D[] }[]
+  markers?: readonly OverlayMarker[]
+}
+
 /** Failure reported by an accelerated renderer. */
 export type ReviewRendererFailure = 'GRAPHICS_UNAVAILABLE' | 'GRAPHICS_LOST'
 
@@ -198,6 +233,8 @@ export type ReviewRendererFailure = 'GRAPHICS_UNAVAILABLE' | 'GRAPHICS_LOST'
 export interface ReviewRenderer {
   readonly kind: 'accelerated' | 'static'
   render(frame: ReviewFrame): void
+  /** Draws the overlay above the sheet; `null` clears it. A renderer without it still works. */
+  overlay?(overlay: ReviewOverlay | null): void
   /** Converts a client-space pointer position to sheet coordinates and the scale at that point. */
   pointAt(clientX: number, clientY: number): { point: Point2D; unitsPerPixel: number } | null
   onFailure(listener: (code: ReviewRendererFailure) => void): void
@@ -253,12 +290,75 @@ export interface ReviewController {
   dispose(): void
 }
 
+/** Options of the edit mode of `mountReview`. */
+export interface ReviewEditOptions {
+  /** Rotation, grain, mirroring and exclusion rules the artifact does not carry. */
+  constraints?: EditInput['constraints']
+  /** Size of one keyboard nudge, in geometry units, and of one rotation step, in degrees. */
+  step?: { move: number; rotate: number }
+  /** Called with the new state of the edit panel after every change. */
+  onChange?(state: EditPanelState): void
+  /** Process profile and cost model used to recompute the plan and the cost of the edited layout. */
+  recompute?: { processProfile: CutProcessProfile; costModel?: CostModel }
+}
+
+/** Options of the risk assessment of `mountReview`. */
+export interface ReviewRiskOptions {
+  profile: CutRiskProfile
+  processProfile: CutProcessProfile
+  costModel?: CostModel
+}
+
+/** Observable state of the edit panel. */
+export interface EditPanelState {
+  mode: 'off' | 'edit'
+  /** Key of the part being edited. */
+  activePart: string | null
+  candidate: CandidateEdit | null
+  verdict: PlacementVerdict | null
+  freshness: Freshness
+  /** False from the first confirmed edit until the plan is recomputed. */
+  planVisible: boolean
+  canUndo: boolean
+  canRedo: boolean
+  riskStatus: RiskStatus | 'none'
+  notices: readonly EditNotice[]
+  /** True while a recomputation is running. */
+  recomputing: boolean
+  /** What changed against the original after the last recomputation. */
+  comparison: ComparisonSummary | null
+  /** Risk result of the displayed layout; null when it is outdated or was not assessed. */
+  risk: RiskResult | null
+  /** The inputs `risk` was assessed from, for the playback views. */
+  riskRequest: RiskRequest | null
+}
+
+/** Edit and risk commands of a mounted review; the playback controller is unchanged. */
+export interface ReviewEditHandle {
+  readonly edit$: Observable<EditPanelState>
+  enter(): void
+  leave(): void
+  selectPart(partKey: string | null): void
+  /** Judges a candidate and shows it as the ghost; `null` clears it. */
+  propose(candidate: CandidateEdit | null): void
+  /** Confirms the pending candidate when its verdict is valid. */
+  confirm(): void
+  cancel(): void
+  undo(): void
+  redo(): void
+  /** Recomputes the plan, the cost and the risk of the edited layout. */
+  recompute(): void
+  dispose(): void
+}
+
 /** Handle returned by `mountReview`. */
 export interface ReviewMount {
   /** Scene displayed by the mounted review. */
   scene: ReviewScene
   /** Playback controller; `null` when the scene has nothing to play. */
   controller: ReviewController | null
+  /** Edit commands; present only when the `edit` option was supplied. */
+  edit: ReviewEditHandle | null
   /** Removes the review from its container and releases listeners. */
   dispose(): void
 }
@@ -269,4 +369,8 @@ export interface ReviewMountOptions {
   acceleratedRenderer?: (view: HTMLElement) => Promise<ReviewRenderer>
   /** Time source for playback; defaults to the window's animation frames. */
   clock?: ReviewClock
+  /** Turns on the edit mode: reposition parts with a live verdict, undo and redo. */
+  edit?: ReviewEditOptions
+  /** Turns on the cut risk assessment. */
+  risk?: ReviewRiskOptions
 }

@@ -1,4 +1,7 @@
 import type { CutActionKind } from '../cutPath/types'
+import type { DerivedResult, FreshnessState } from '../edit/types'
+import { riskMessages } from '../risk/messages'
+import type { RiskCategory, RiskSeverity } from '../risk/types'
 import type { ReviewPartStatus, ReviewSummary } from './types'
 
 const decimal = (value: number): string => value.toFixed(2).replace('.', ',')
@@ -13,6 +16,13 @@ const ACTION_LABELS: Record<CutActionKind, string> = {
   tab: 'Ponte',
   'common-line': 'Corte em linha comum',
   end: 'Fim do programa',
+}
+
+const DERIVED_LABELS: Record<DerivedResult, string> = {
+  plan: 'Plano de corte',
+  cost: 'Custo',
+  validation: 'Validações',
+  risk: 'Risco',
 }
 
 /** Every user-facing string the review produces, in Brazilian Portuguese. */
@@ -124,6 +134,74 @@ export const messages = {
   announceSelection: (title: string): string => `Selecionado: ${title}`,
   announceSelectionCleared: (): string => 'Seleção removida',
   announceRendererFallback: (): string => 'Vista estática ativada',
+
+  edit: {
+    panel: 'Edição de posição',
+    enter: 'Editar posições',
+    leave: 'Sair da edição',
+    kind: 'Tipo de edição',
+    move: 'Mover',
+    rotate: 'Girar',
+    mirror: 'Espelhar',
+    dx: 'Deslocamento em X',
+    dy: 'Deslocamento em Y',
+    degrees: 'Ângulo em graus',
+    propose: 'Propor',
+    confirm: 'Confirmar',
+    cancel: 'Cancelar',
+    undo: 'Desfazer',
+    redo: 'Refazer',
+    part: 'Peça em edição',
+    noPart: 'Selecione uma peça para editar.',
+    verdictValid: 'Posição válida.',
+    verdictInvalid: 'Posição inválida:',
+    derived: 'Resultados derivados',
+    recompute: 'Recalcular',
+    comparison: 'Comparação com o original',
+    recomputeUnavailable: 'Recálculo indisponível: informe o perfil de processo da edição.',
+    announceRecomputeDone: (): string => 'Recálculo concluído.',
+    announceRecomputeDiscarded: (): string => 'Houve uma edição durante o recálculo; o resultado foi descartado.',
+    figureLine: (label: string, before: number | null, after: number | null, delta: number | null): string =>
+      `${label}: antes ${before === null ? 'indisponível' : decimal(before)}; depois ${after === null ? 'indisponível' : decimal(after)}${delta === null ? '' : `; diferença ${decimal(delta)}`}`,
+    figureLabels: { invalidParts: 'Peças com violação', cutSeconds: 'Tempo de corte (s)', cost: 'Custo', heat: 'Calor', 'thin-web': 'Alma fina', 'loose-part': 'Peça solta', 'head-strike': 'Batida da cabeça' } as Record<string, string>,
+    planOutdated:
+      'O plano de corte está desatualizado; o caminho de corte antigo foi ocultado até o recálculo.',
+    shortcuts: 'Setas: deslocar; Q e E: girar; M: espelhar; Enter: confirmar; Esc: cancelar; Ctrl+Z: desfazer; Ctrl+Y: refazer',
+    freshnessLabel: (result: DerivedResult, state: FreshnessState): string =>
+      `${DERIVED_LABELS[result]}: ${state === 'current' ? 'atual' : 'desatualizado'}`,
+    announceEntered: (): string => 'Modo de edição ativado',
+    announceLeft: (): string => 'Modo de edição desativado',
+    announceVerdictValid: (partKey: string): string => `Posição válida para a peça ${partKey}.`,
+    announceVerdictInvalid: (partKey: string, reasons: readonly string[]): string =>
+      `Posição inválida para a peça ${partKey}: ${reasons.join(' ')}`,
+    announceConfirmed: (partKey: string): string => `Edição da peça ${partKey} confirmada.`,
+    announceRefused: (): string => 'Edição recusada: a posição é inválida.',
+    announceCancelled: (): string => 'Edição cancelada.',
+    announceUndone: (): string => 'Edição desfeita.',
+    announceRedone: (): string => 'Edição refeita.',
+  },
+
+  risk: {
+    panel: 'Risco de corte',
+    indicative: (): string => riskMessages.indicative(),
+    summary: (assessed: number, total: number): string => `Regras avaliadas: ${assessed} de ${total}.`,
+    noFindings: 'Nenhum achado nas regras avaliadas.',
+    outdated: 'O risco está desatualizado; recalcule para avaliar o layout editado.',
+    unavailable: 'A avaliação de risco não está disponível.',
+    notAssessable: (category: RiskCategory, missing: readonly string[]): string =>
+      `${riskMessages.category[category]}: não avaliada, falta ${missing.join(', ')}.`,
+    severityLabel: (severity: RiskSeverity): string => (severity === 'critical' ? 'Crítico' : 'Aviso'),
+    categoryLabel: (category: RiskCategory): string => riskMessages.category[category],
+    labels: { part: 'Peça', otherPart: 'Outra peça', region: 'Região', moment: 'Momento', measured: 'Medido', limit: 'Limite', mitigation: 'Sugestão' },
+    moment: (actionIndex: number | undefined, seconds: number | undefined): string =>
+      [actionIndex === undefined ? '' : `ação ${actionIndex + 1}`, seconds === undefined ? '' : `${decimal(seconds)} s`].filter(Boolean).join(', '),
+    showHeat: 'Mostrar calor acumulado',
+    heatMax: (percent: number): string => `Calor máximo neste instante: ${percent}% do limite.`,
+    heatUnavailable: (missing: readonly string[]): string => `Calor indisponível: falta ${missing.join(', ') || 'informação do perfil'}.`,
+    timeline: 'Marcadores na linha do tempo',
+    goTo: 'Ir para o achado',
+    announceFindings: (count: number): string => (count === 0 ? 'Nenhum achado de risco.' : `${count} achados de risco.`),
+  },
 
   svgTitle: (sheetId: string): string => `Chapa ${sheetId}`,
   svgDescription: (parts: number, actions: number): string =>

@@ -14,6 +14,9 @@ controles de reprodução, vista (acelerada ou estática) e avisos.
 - Tornar a vista focável por teclado, exibir o resumo escrito, a lista de atalhos e anunciar mudanças na região `role="status"`.
 - Selecionar peça ou ação por clique (tolerância de 6 px; clicar de novo no mesmo ponto passa ao próximo item sobreposto) e anunciar a seleção em uma região `role="status"`.
 - Mostrar os motivos quando a revisão está indisponível, em vez de uma vista vazia.
+- Com a opção `edit`, montar a revisão editável: reposicionar peças com veredito ao vivo, confirmar somente posições válidas, desfazer e refazer; `ReviewMount.edit` expõe os comandos de edição e o controlador de reprodução não muda.
+- Com a opção `risk`, mostrar o painel de risco do plano de corte do artefato.
+- Com a opção `risk`, ligar o painel de risco à reprodução.
 
 ## Entradas e saídas
 

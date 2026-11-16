@@ -29,6 +29,8 @@ export interface ReviewControllerOptions {
   clock: ReviewClock
   /** Notices raised before the session started, shown with the scene notices. */
   notices?: readonly ReviewNotice[]
+  /** State to restore when the session replaces an earlier one, such as after an edit. */
+  initial?: { sheetId?: string; viewport?: ReviewViewport; selection?: ReviewSelection | null }
 }
 
 const SECONDS_FOR_FULL_PLAN = 60
@@ -62,7 +64,8 @@ const selectedId = (selection: ReviewSelection | null, kind: 'part' | 'action'):
 export function createReviewController(options: ReviewControllerOptions): ReviewController {
   const { scene, clock } = options
   let active: ReviewRenderer | null = options.renderer
-  const first = scene.sheets[0]
+  const wanted = options.initial?.sheetId
+  const first = scene.sheets.find((sheet) => sheet.id === wanted) ?? scene.sheets[0]
   const initialSheet = first?.id ?? ''
   const viewportOf = (sheetId: string): ReviewViewport => {
     const stock = scene.sheets.find((sheet) => sheet.id === sheetId)?.stock
@@ -77,7 +80,7 @@ export function createReviewController(options: ReviewControllerOptions): Review
     speed: 1,
     sheetId: initialSheet,
     selection: null,
-    viewport: viewportOf(initialSheet),
+    viewport: options.initial?.viewport ?? viewportOf(initialSheet),
     renderer: options.renderer.kind,
     notices: [...scene.notices, ...(options.notices ?? [])],
   })
@@ -309,6 +312,7 @@ export function createReviewController(options: ReviewControllerOptions): Review
     },
   }
 
+  if (options.initial?.selection) select(options.initial.selection)
   draw(subject.value)
   return controller
 }

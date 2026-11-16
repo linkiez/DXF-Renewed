@@ -7,6 +7,7 @@ Inicia a sessão interativa de uma revisão montada: renderizadores, controlador
 ## Responsabilidades
 
 - Compor os módulos da montagem e devolver o controlador com uma função de encerramento.
+- Aceitar o estado de uma sessão anterior (chapa, viewport e seleção) e devolver também os renderizadores, para a edição reconstruir a sessão sem perder o contexto.
 
 ## Entradas e saídas
 

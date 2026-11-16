@@ -1,5 +1,5 @@
 import { renderReviewSvg } from './renderSvg'
-import type { ReviewRenderer } from './types'
+import type { ReviewFrame, ReviewOverlay, ReviewRenderer } from './types'
 
 /**
  * Wraps the static SVG drawing as a renderer, so the controller can drive it like any other.
@@ -8,15 +8,26 @@ import type { ReviewRenderer } from './types'
  * @returns A `static` renderer that redraws the sheet at every frame.
  */
 export function createSvgRenderer(view: HTMLElement): ReviewRenderer {
+  let overlay: ReviewOverlay | null = null
+  let lastFrame: ReviewFrame | null = null
+  const draw = (frame: ReviewFrame): void => {
+    view.innerHTML = renderReviewSvg(frame.scene, {
+      sheetId: frame.sheetId,
+      position: frame.position,
+      selection: frame.selection,
+      viewport: frame.viewport,
+      overlay,
+    })
+  }
   return {
     kind: 'static',
     render(frame) {
-      view.innerHTML = renderReviewSvg(frame.scene, {
-        sheetId: frame.sheetId,
-        position: frame.position,
-        selection: frame.selection,
-        viewport: frame.viewport,
-      })
+      lastFrame = frame
+      draw(frame)
+    },
+    overlay(next) {
+      overlay = next
+      if (lastFrame) draw(lastFrame)
     },
     pointAt(clientX, clientY) {
       const group = view.querySelector<SVGGElement>('g[data-sheet-id]')
