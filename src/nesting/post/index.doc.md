@@ -36,4 +36,5 @@ O módulo expõe, de forma aditiva, configurações de máquina e três processa
   (`UNAPPROVED_VALUE`). As configurações embutidas (`getMachineConfiguration`, `listMachineConfigurations`) não aprovam
   nada; o chamador entrega uma cópia aprovada.
 - `importCutChartTable`, `findCutChartEntry` e `cutChartSettings` leem a tabela de corte Phoenix da Hypertherm a partir de
-  linhas entregues pelo chamador. A biblioteca não lê arquivos.
+  linhas entregues pelo chamador; `importTalviRecipes` e `findTalviRecipe` catalogam os arquivos de ferramenta da Talvi.
+  A biblioteca não lê arquivos.

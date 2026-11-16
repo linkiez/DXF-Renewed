@@ -290,6 +290,18 @@ export type {
   CutChartUnit,
   SeparationRule,
 } from './post/cutcharts'
+export { findTalviRecipe, importTalviRecipes } from './post/recipes'
+export type {
+  PierceStage,
+  RecipeFile,
+  RecipeImport,
+  RecipeIssue,
+  RecipeQuery,
+  TalviCutParameters,
+  TalviLeadParameters,
+  TalviMaterial,
+  TalviRecipe,
+} from './post/recipes'
 export type {
   MachineKind,
   MachineProfile,
