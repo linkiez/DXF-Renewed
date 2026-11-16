@@ -16,6 +16,21 @@ Projeta o relatório de custo em duas tabelas de exportação com colunas fixas:
 export function costReportTables(report: CostReport): { parts: CostTable; job: CostTable }
 ```
 
+### Colunas e métricas (ordem fixa)
+
+Tabela `parts` (20 colunas): `part_key`, `shape_id`, `instance_index`, `sheet_id`, `net_area`,
+`cut_length`, `travel_length`, `pierce_count`, `cutting_seconds`, `travel_seconds`, `pierce_seconds`,
+`material`, `cutting`, `pierce`, `travel`, `consumable`, `labour`, `total`, `status`, `currency`.
+
+Tabela `job` (6 colunas): `scope` (`job` ou `sheet`), `scope_id` (vazio para o job), `metric`, `status`,
+`value`, `currency`.
+
+Métricas de cada escopo, nesta ordem: `cost.material`, `cost.cutting`, `cost.pierce`, `cost.travel`,
+`cost.consumable`, `cost.labour`, `cost.total`, `cost.partial_subtotal`, `time.cutting_seconds`,
+`time.travel_seconds`, `time.pierce_seconds`, `time.handling_seconds`, `time.total_seconds`. O escopo do
+job acrescenta, depois delas: `production.sheets_used`, `production.yield`, `production.waste_area`,
+`production.total_area`, `production.unplaced_quantity`.
+
 ## Fluxo principal
 
 ```mermaid

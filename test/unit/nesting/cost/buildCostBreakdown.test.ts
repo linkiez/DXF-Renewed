@@ -214,4 +214,24 @@ describe('cost/buildCostBreakdown — statuses and unavailable cases', () => {
     expect(breakdown.sheets[0].components.material.amount).toBeNull()
     expect(breakdown.job.total.amount).toBeNull()
   })
+
+  it('raises exactly one notice, with its code and the input path, for each missing speed, dwell and consumable life', async () => {
+    const cases: [string, string, string][] = [
+      ['speeds.cutting', 'MISSING_SPEED', 'speeds.cutting'],
+      ['speeds.rapid', 'MISSING_SPEED', 'speeds.rapid'],
+      ['speeds.pierceDwellSeconds', 'MISSING_DWELL', 'perfuração'],
+    ]
+    for (const [path, code, text] of cases) {
+      const result = buildCostBreakdown(await smallRequest(withoutField(completeModel(), path)))
+      const notices = result.notices.filter((n) => n.code === code && n.message.includes(text))
+      expect(notices).toHaveLength(1)
+      expect(notices[0].severity).toBe('warning')
+    }
+
+    const model = completeModel()
+    delete model.consumables[0].life
+    const life = buildCostBreakdown(await smallRequest(model)).notices.filter((n) => n.code === 'MISSING_CONSUMABLE_LIFE')
+    expect(life).toHaveLength(1)
+    expect(life[0].message).toContain('nozzle')
+  })
 })

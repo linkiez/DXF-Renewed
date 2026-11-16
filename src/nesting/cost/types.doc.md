@@ -8,6 +8,7 @@ Declara os tipos públicos do cálculo de custo de um nesting concluído: modelo
 
 - Definir contratos imutáveis consumidos pelo cálculo, pelo fluxo e pela exportação.
 - Reutilizar `CutLayout`, `CutPlanResult`, `ErpCorrelation`, `ErpDigest` e `ErpNestingArtifact` sem redefini-los.
+- Listar os códigos de aviso (`CostNoticeCode`), incluindo `PART_AREA_APPROXIMATE`.
 - Manter valores monetários como inteiros na menor unidade da moeda (`amount`).
 
 ## Entradas e saídas

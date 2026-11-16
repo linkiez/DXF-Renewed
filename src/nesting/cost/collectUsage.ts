@@ -101,6 +101,7 @@ const notice = (severity: CostNotice['severity'], code: CostNotice['code'], mess
 const areaNotice = (part: PlacedPart, netArea: number, fromLayout: boolean): CostNotice[] => {
   const notices: CostNotice[] = []
   if (!fromLayout) notices.push(notice('info', 'AREA_WITHOUT_HOLES', costMessages.areaWithoutHoles(part.key), { partKey: part.key, sheetId: part.sheetId }))
+  if (!fromLayout && part.approximate) notices.push(notice('warning', 'PART_AREA_APPROXIMATE', costMessages.partAreaApproximate(part.key), { partKey: part.key, sheetId: part.sheetId }))
   if (netArea <= EPSILON) notices.push(notice('warning', 'PART_WITHOUT_AREA', costMessages.partWithoutArea(part.key), { partKey: part.key, sheetId: part.sheetId }))
   return notices
 }
