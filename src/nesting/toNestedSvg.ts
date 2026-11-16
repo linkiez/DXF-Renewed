@@ -12,7 +12,7 @@ import type { NestingResult, NestableShape, StockSheet, Point2D } from './types'
 // ─────────────────────────────────────────────
 
 /** Escape XML special characters */
-function escapeXml(text: string): string {
+export function escapeXml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

@@ -1,123 +1,97 @@
-# three.js Viewer & Simulation
+# Nesting review viewer (three.js)
 
-Companion detail doc for [`ROADMAP-NESTING.md`](../../ROADMAP-NESTING.md) §12.
+Companion detail doc for [`ROADMAP-NESTING.md`](../../ROADMAP-NESTING.md) §12. Specification:
+[`specs/007-nesting-simulation`](../../specs/007-nesting-simulation/spec.md).
 
 ## Goal
 
-Render the nested sheet, animate the cut path, and validate the emitted program before it
-reaches the machine. The viewer consumes `NestingResult` + `CutPlan`; it never recomputes
-geometry.
+Review a calculated nesting before release: sheets, placed parts, the ordered cut plan, notices and
+the artifact identity. The viewer is read-only. It consumes an `ErpNestingArtifact` plus an optional
+`CutLayout` and `CutPlanResult`, never recomputes layout, sequence or metrics, and never changes
+them.
 
-## Stack
+## Architecture
 
-| Concern | Choice |
-|---|---|
-| Renderer | `three` with WebGL2 |
-| Controls | `OrbitControls` from `three/examples` |
-| 2D mode | `OrthographicCamera`, top-down |
-| 3D mode | `PerspectiveCamera` with sheet extrusion |
-| Loading | dynamic `import('three')` |
-| Fallback | existing `toNestedSvg` when WebGL2 is unavailable |
+| Layer | Module (`src/nesting/review/`) | Needs the DOM |
+|---|---|---|
+| Model | `buildReviewScene`, `stateAt`, `nextPierce`, `pickAt`, `inspect`, `summarize` | no |
+| Static view (always available) | `renderReviewSvg`, `createSvgRenderer` | no (string) / yes (adapter) |
+| Accelerated view (optional) | `three/` (`createThreeRenderer`) | yes, WebGL2 |
+| Session | `createReviewController` (RxJS `state$`, injected clock) | no |
+| Mount | `mountReview` | yes |
 
-`three` is the only viewer dependency and is lazy-loaded so core library consumers pay no
-viewer bundle cost.
+The model is pure and shared by both views, so the displayed state at a position is identical in
+the accelerated and the static view (`stateAt` is the only place it is derived).
 
-## Scene graph
+## `three` is an optional peer dependency
 
-```text
-scene
-├── sheetGroup: plate + optional grid
-├── partsGroup: static part meshes
-├── cutPathGroup: cut lines, dashed rapids, markers, animated head
-└── lights: ambient + directional
-```
+Governed by [ADR-0003](../../.specify/adr/ADR-0003-review-three-peer-dependency.md).
 
-Merge static parts into `BufferGeometry`. Use `InstancedMesh` for pierce, lead and tab
-markers. Only the head and growing cut trail update per frame.
-
-## Coordinate mapping
-
-DXF/nesting uses XY with Y-up. Centralise the axis convention in
-`viewer/transform.ts`; never scatter flips across modules.
+- Declared in `peerDependencies` (optional) and `devDependencies`; never in `dependencies`.
+- Nothing reachable from `src/index.ts` imports it. The renderer lives on the subpath
+  `@linkiez/dxf-renew/review/three` and receives the `three` namespace (or an async loader) from the
+  caller:
 
 ```ts
-export const toScene = (point: Point2D, sheet: StockSheet) => new Vector3(
-  point.x - sheet.width / 2,
-  point.y - sheet.height / 2,
-  0,
-)
+import { mountReview } from '@linkiez/dxf-renew'
+import { createThreeRenderer } from '@linkiez/dxf-renew/review/three'
+
+const review = await mountReview(host, { artifact, layout, cutPlan }, {
+  acceleratedRenderer: (view) => createThreeRenderer({ container: view, three: () => import('three') }),
+})
 ```
 
-Extrusion thickness is visual only and must never drive machine behaviour.
+- Without `three`, without WebGL2, or after a context loss, the static view takes over at the same
+  position, selection and viewport, with a `GRAPHICS_UNAVAILABLE` or `GRAPHICS_LOST` notice.
+- The renderer types need `@types/three` in the consumer.
 
-## Animation
+## Accelerated renderer
 
-```ts
-export interface ViewerOptions {
-  mode: '2d' | '3d'
-  animate: boolean
-  speed: number
-  showRapids: boolean
-  showMarkers: boolean
-  colourBy: 'action' | 'part' | 'layer' | 'status'
-}
-```
+- Top-down orthographic camera that fits the whole sheet; redraws when the container resizes.
+- Static content is merged into a constant number of objects (sheet, placed and flagged parts, one
+  line batch per action kind in two copies, pierce and tab markers, current action, selection, head).
+- The trail is a draw-range prefix of each merged buffer; the not yet executed part is the rest of
+  the same buffer, drawn faintly. Seeking only updates draw ranges, one instance count and the head.
+- Action kinds differ by more than color: `rapid` dashed, leads with their own dash patterns,
+  `overcut` short dashes, `tab` square markers, `pierce` circular markers.
+- Picking is done by the shared model (`pickAt`), not by ray casting. The renderer only converts the
+  pointer into sheet coordinates (`pointAt`).
 
-1. Flatten `CutPlan.actions` into `(point, kind, feed)` segments.
-2. Advance by `speed * dt * feed`.
-3. Move the head marker to the interpolated point.
-4. Append torch-on segments to the cut trail.
-5. Colour cut, rapid, lead and tab segments distinctly.
+## Playback
 
-Controls: play, pause, reset, step-to-next-pierce and scrub. Scrubbing is required for
-inspecting a lead that crosses geometry.
+Every action has a positive span on the playback axis (its length, or a dwell for actions without
+length such as a pierce), so a position and a playback distance map one to one and seeking to an
+action shows exactly what playing to it shows. Playback never starts automatically; view changes
+(seek, sheet, pan, zoom) apply immediately. Time comes only from the injected `ReviewClock`.
 
-## Markers and picking
+Controls (each also has a labeled control reachable with Tab): Space play/pause; `r` reset; `n`
+next pierce; `<` `>` speed; `[` `]` sheet; `,` `.` previous/next action; PageUp/PageDown ten
+actions; Home/End first/last action; ArrowLeft/ArrowRight previous/next part; ArrowUp/ArrowDown
+previous/next action; Enter seek to the selected action; Esc clear the selection; Shift+arrows pan;
+`+` `-` zoom; `0` reset the view.
 
-| Marker | Meaning |
-|---|---|
-| disc/cross | pierce point |
-| arrow | lead-in or lead-out direction |
-| bracket | tab/micro-joint |
-| dashed line | torch-off rapid |
+## Coordinates
 
-Use `Raycaster` for selection. Clicking a part shows id, layer, area, perimeter, rotation
-and placement. Hovering a cut action shows feed, power/amperage and dwell. Emit `select` and
-`hover` events so host applications can provide their own panels.
+DXF/nesting uses XY with Y up. The SVG renderer flips Y once, in one group transform; the
+accelerated renderer uses the coordinates as they are. Geometry is unitless.
 
-## Performance budget
+## Accessibility and language
 
-| Scenario | Target |
-|---|---|
-| First render, 500 parts | < 100 ms |
-| Sustained frame rate | >= 50 fps |
-| Marker draw calls | <= 2 |
-| Animation update | O(1) per frame |
+A written summary (sheets, parts, unplaced items, yield, cut and rapid length, pierces), the notices
+list and a `role="status"` region are real DOM beside the view. All text produced by the review is
+Brazilian Portuguese and comes from `messages.ts`; messages carried by the artifact or the cut plan
+are shown as received.
 
-Use preallocated buffers and no per-frame object allocation. Disable frustum culling for
-the sheet only.
+## Performance
 
-## Progressive enhancement
-
-```ts
-export async function mountViewer(el: HTMLElement, input: ViewerInput) {
-  if (!supportsWebGL2()) return mountSvgFallback(el, input)
-  const THREE = await import('three')
-  return createViewer(el, input, { THREE })
-}
-```
-
-The SVG fallback is the existing `toNestedSvg`; no duplicate renderer is needed.
-
-## Accessibility
-
-Expose a text summary beside the canvas: yield, sheets, part count and total cut length.
-Support arrows for pan, `+`/`-` for zoom, space for play/pause, and
-`prefers-reduced-motion` by defaulting animation off.
+Measured gates (500-part reference sheet, software-rendered Chromium): open in under 2 s and seek to
+any action in under 500 ms; the figures are in
+[`specs/007-nesting-simulation/quickstart.md`](../../specs/007-nesting-simulation/quickstart.md).
 
 ## Testing
 
-- Playwright: scene mounts without WebGL errors and animation advances.
-- Unit: trip cursor interpolation and marker count.
-- Unit: SVG fallback when WebGL2 is unavailable.
-- Browser screenshot: desktop and mobile viewports; verify nonblank canvas and no overlap.
+- Unit: model, timeline, picking, inspector, SVG, controller (fake clock) and the renderer against a
+  stub `three` namespace (`test/unit/nesting/review/`).
+- Real drawings: `test/integration/nesting/reviewRealParts.test.ts` uses `test/resources/nest-fixtures`.
+- Browser: `test/integration-browser/review.browser.spec.ts` covers WebGL, fallback after a lost
+  context, reduced motion, pointer and keyboard-only use, and the timing gates.

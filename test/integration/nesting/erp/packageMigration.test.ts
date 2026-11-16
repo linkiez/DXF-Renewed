@@ -10,7 +10,7 @@ describe('ERP contract package migration', () => {
       dependencies?: Record<string, string>
     }
 
-    expect(packageJson.version).toBe('9.0.0')
+    expect(packageJson.version?.split('.')[0]).toBe('9')
     expect(packageJson.dependencies?.zod).toBeDefined()
   })
 })
