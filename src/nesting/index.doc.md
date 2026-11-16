@@ -52,3 +52,9 @@ O barrel expõe, de forma aditiva, `calculateCostReport`, `buildCostBreakdown`, 
 `src/nesting/cost/types.ts` (modelo de custo, pedido, relatório de custo e avisos). O cálculo não guarda nada e não altera o artefato, o plano de
 corte nem o modelo de custo. O vínculo ação→peça e a resolução de placements usados pela revisão e
 pelo custo ficam em `src/nesting/linking/`.
+
+## Risco de corte
+
+A avaliação indicativa de risco de corte (`assessCutRisk`, `calculateRiskReport`, `heatAt`,
+`validateRiskProfile` e o esquema `riskProfileSchema`) usa um perfil de limites do chamador, nunca
+valores embutidos, e todo resultado afirma que é indicativo e não substitui um corte de teste.
